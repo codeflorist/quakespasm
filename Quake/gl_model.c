@@ -466,6 +466,7 @@ static void Mod_LoadTextures (lump_t *l)
 	byte		*data;
 	extern byte *hunk_base;
 //johnfitz
+	unsigned int	flags;
 
 	//johnfitz -- don't return early if no textures; still need to create dummy texture
 	if (!l->filelen)
@@ -495,6 +496,12 @@ static void Mod_LoadTextures (lump_t *l)
 		mt->height = LittleLong (mt->height);
 		for (j=0 ; j<MIPLEVELS ; j++)
 			mt->offsets[j] = LittleLong (mt->offsets[j]);
+
+		if (mt->width == 0 || mt->height == 0)
+		{
+			Con_Warning ("Zero sized texture %s in %s!\n", mt->name, loadmodel->name);
+			continue;
+		}
 
 		if ( (mt->width & 15) || (mt->height & 15) )
 		{
@@ -579,8 +586,11 @@ static void Mod_LoadTextures (lump_t *l)
 				Hunk_Alloc (gl_warpimagesize*gl_warpimagesize*4); //make sure hunk is big enough so we don't reach an illegal address
 				Hunk_FreeToLowMark (mark);
 				q_snprintf (texturename, sizeof(texturename), "%s_warp", texturename);
+				flags = TEXPREF_NOPICMIP | TEXPREF_WARPIMAGE;
+				if (GL_GenerateMipmap)
+					flags |= TEXPREF_MIPMAP;
 				tx->warpimage = TexMgr_LoadImage (loadmodel, texturename, gl_warpimagesize,
-					gl_warpimagesize, SRC_RGBA, hunk_base, "", (src_offset_t)hunk_base, TEXPREF_NOPICMIP | TEXPREF_WARPIMAGE);
+					gl_warpimagesize, SRC_RGBA, hunk_base, "", (src_offset_t)hunk_base, flags);
 				tx->update_warp = true;
 			}
 			else //regular texture
