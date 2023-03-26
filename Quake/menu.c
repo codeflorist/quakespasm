@@ -22,10 +22,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 #include "bgmusic.h"
+#include "vr_menu.h"
 
 void (*vid_menucmdfn)(void); //johnfitz
 void (*vid_menudrawfn)(void);
 void (*vid_menukeyfn)(int key);
+
+void(*vr_menucmdfn)(void);
+void(*vr_menudrawfn)(void);
+void(*vr_menukeyfn)(int key);
 
 enum m_state_e m_state;
 
@@ -42,7 +47,8 @@ void M_Menu_Main_f (void);
 		void M_Menu_ServerList_f (void);
 	void M_Menu_Options_f (void);
 		void M_Menu_Keys_f (void);
-		void M_Menu_Video_f (void);
+		void M_Menu_Video_f(void);
+		void M_Menu_VR_f(void);
 	void M_Menu_Help_f (void);
 	void M_Menu_Quit_f (void);
 
@@ -60,6 +66,7 @@ void M_Main_Draw (void);
 	void M_Options_Draw (void);
 		void M_Keys_Draw (void);
 		void M_Video_Draw (void);
+		void M_VR_Draw (void);
 	void M_Help_Draw (void);
 	void M_Quit_Draw (void);
 
@@ -77,6 +84,7 @@ void M_Main_Key (int key);
 	void M_Options_Key (int key);
 		void M_Keys_Key (int key);
 		void M_Video_Key (int key);
+		void M_VR_Key (int key);
 	void M_Help_Key (int key);
 	void M_Quit_Key (int key);
 
@@ -390,9 +398,6 @@ void M_SinglePlayer_Key (int key)
 		switch (m_singleplayer_cursor)
 		{
 		case 0:
-			if (sv.active)
-				if (!SCR_ModalMessage("Are you sure you want to\nstart a new game?\n", 0.0f))
-					break;
 			IN_Activate();
 			key_dest = key_game;
 			if (sv.active)
@@ -994,6 +999,7 @@ enum
 //	OPT_USEMOUSE,
 //#endif
 	OPT_VIDEO,	// This is the last before OPTIONS_ITEMS
+	OPT_VR,
 	OPTIONS_ITEMS
 };
 
@@ -1253,6 +1259,10 @@ void M_Options_Draw (void)
 	// OPT_VIDEO:
 	if (vid_menudrawfn)
 		M_Print (16, 32 + 8*OPT_VIDEO,	"         Video Options");
+	
+	// OPT_VR:
+	if (vid_menudrawfn)
+		M_Print(16, 32 + 8 * OPT_VR, "         VR Options");
 
 // cursor
 	M_DrawCharacter (200, 32 + options_cursor*8, 12+((int)(realtime*4)&1));
@@ -1290,7 +1300,10 @@ void M_Options_Key (int k)
 			}
 			break;
 		case OPT_VIDEO:
-			M_Menu_Video_f ();
+			M_Menu_Video_f();
+			break;
+		case OPT_VR:
+			M_Menu_VR_f();
 			break;
 		default:
 			M_AdjustSliders (1);
@@ -1550,6 +1563,35 @@ void M_Video_Draw (void)
 void M_Video_Key (int key)
 {
 	(*vid_menukeyfn) (key);
+}
+
+//=============================================================================
+/* VR MENU */
+
+void M_Menu_VR_f(void)
+{
+	if (vr_menucmdfn)
+	{
+		(*vr_menucmdfn) ();
+	}
+}
+
+
+void M_VR_Draw(void)
+{
+	if (vr_menudrawfn)
+	{
+		(*vr_menudrawfn) ();
+	}
+}
+
+
+void M_VR_Key(int key)
+{
+	if (vr_menukeyfn)
+	{
+		(*vr_menukeyfn) (key);
+	}
 }
 
 //=============================================================================
@@ -2549,6 +2591,7 @@ void M_Init (void)
 	Cmd_AddCommand ("menu_options", M_Menu_Options_f);
 	Cmd_AddCommand ("menu_keys", M_Menu_Keys_f);
 	Cmd_AddCommand ("menu_video", M_Menu_Video_f);
+	Cmd_AddCommand ("menu_vr", M_Menu_VR_f);
 	Cmd_AddCommand ("help", M_Menu_Help_f);
 	Cmd_AddCommand ("menu_quit", M_Menu_Quit_f);
 }
@@ -2619,6 +2662,10 @@ void M_Draw (void)
 
 	case m_video:
 		M_Video_Draw ();
+		break;
+
+	case m_vr:
+		M_VR_Draw();
 		break;
 
 	case m_help:
@@ -2708,7 +2755,11 @@ void M_Keydown (int key)
 	case m_video:
 		M_Video_Key (key);
 		return;
-
+	
+	case m_vr:
+		M_VR_Key(key);
+		break;
+	
 	case m_help:
 		M_Help_Key (key);
 		return;

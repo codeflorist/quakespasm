@@ -356,6 +356,10 @@ typedef struct {
 	int			flags;
 	float		size;
 
+	//For vr - we modify these, so keep the originals
+	vec3_t		original_scale;
+	vec3_t		original_scale_origin;
+
 	//ericw -- used to populate vbo
 	int			numverts_vbo;   // number of verts with unique x,y,z,s,t
 	intptr_t		meshdesc;       // offset into extradata: numverts_vbo aliasmesh_t

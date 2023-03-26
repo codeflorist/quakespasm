@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // sv_phys.c
 
 #include "quakedef.h"
+#include "vr.h"
 
 /*
 
@@ -925,38 +926,77 @@ void SV_Physics_Client (edict_t	*ent, int num)
 	switch ((int)ent->v.movetype)
 	{
 	case MOVETYPE_NONE:
-		if (!SV_RunThink (ent))
+		if (!SV_RunThink(ent))
 			return;
 		break;
 
 	case MOVETYPE_WALK:
-		if (!SV_RunThink (ent))
+		if (!SV_RunThink(ent))
 			return;
-		if (!SV_CheckWater (ent) && ! ((int)ent->v.flags & FL_WATERJUMP) )
-			SV_AddGravity (ent);
-		SV_CheckStuck (ent);
-		SV_WalkMove (ent);
+		if (!SV_CheckWater(ent) && !((int)ent->v.flags & FL_WATERJUMP))
+			SV_AddGravity(ent);
+		SV_CheckStuck(ent);
+		SV_WalkMove(ent);
+
 		break;
 
 	case MOVETYPE_TOSS:
 	case MOVETYPE_BOUNCE:
-		SV_Physics_Toss (ent);
+		SV_Physics_Toss(ent);
 		break;
 
 	case MOVETYPE_FLY:
-		if (!SV_RunThink (ent))
+		if (!SV_RunThink(ent))
 			return;
-		SV_FlyMove (ent, host_frametime, NULL);
+		SV_FlyMove(ent, host_frametime, NULL);
 		break;
 
 	case MOVETYPE_NOCLIP:
-		if (!SV_RunThink (ent))
+		if (!SV_RunThink(ent))
 			return;
-		VectorMA (ent->v.origin, host_frametime, ent->v.velocity, ent->v.origin);
+		VectorMA(ent->v.origin, host_frametime, ent->v.velocity, ent->v.origin);
 		break;
 
 	default:
-		Sys_Error ("SV_Physics_client: bad movetype %i", (int)ent->v.movetype);
+		Sys_Error("SV_Physics_client: bad movetype %i", (int)ent->v.movetype);
+	}
+
+	if (num == cl.viewentity && vr_enabled.value)
+	{
+		vec3_t restoreVel;
+		_VectorCopy(ent->v.velocity, restoreVel);
+		extern vec3_t vr_room_scale_move;
+		VectorScale(vr_room_scale_move, 1.0f / host_frametime, ent->v.velocity);
+
+		switch ((int)ent->v.movetype)
+		{
+		case MOVETYPE_NONE:
+			break;
+
+		case MOVETYPE_WALK:
+			ent->v.velocity[2] = -1.0f;
+			SV_CheckStuck(ent);
+			SV_WalkMove(ent);
+
+			break;
+
+		case MOVETYPE_TOSS:
+		case MOVETYPE_BOUNCE:
+			break;
+		
+		case MOVETYPE_FLY:
+			SV_FlyMove(ent, host_frametime, NULL);
+			break;
+
+		case MOVETYPE_NOCLIP:
+			VectorMA(ent->v.origin, host_frametime, ent->v.velocity, ent->v.origin);
+			break;
+
+		default:
+			Sys_Error("SV_Physics_client: bad movetype %i", (int)ent->v.movetype);
+		}
+
+		_VectorCopy(restoreVel, ent->v.velocity);
 	}
 
 //
@@ -965,8 +1005,39 @@ void SV_Physics_Client (edict_t	*ent, int num)
 	SV_LinkEdict (ent, true);
 
 	pr_global_struct->time = sv.time;
+
+	//replace player origin with hand origin for duration of post think (where weapons are done)
+	vec3_t restoreOrigin;
+	if (vr_enabled.value)
+	{
+		vec3_t adj; 
+		_VectorCopy(cl.handpos[1], adj);
+
+		vec3_t ofs = {
+		   vr_weapon_offset[weaponCVarEntry * VARS_PER_WEAPON].value,
+		   vr_weapon_offset[weaponCVarEntry * VARS_PER_WEAPON + 1].value,
+		   vr_weapon_offset[weaponCVarEntry * VARS_PER_WEAPON + 2].value + vr_gunmodely.value
+		};
+
+		vec3_t fwd2, right, up;
+		AngleVectors(cl.handrot[1], fwd2, right, up);
+		fwd2[0] *= vr_gunmodelscale.value * ofs[2];
+		fwd2[1] *= vr_gunmodelscale.value * ofs[2];
+		fwd2[2] *= vr_gunmodelscale.value * ofs[2];
+		VectorAdd(adj, fwd2, adj);
+
+		_VectorCopy(ent->v.origin, restoreOrigin);
+		_VectorCopy(adj, ent->v.origin);
+		ent->v.origin[2] -= vr_projectilespawn_z_offset.value; //quakec assumes 16 offset
+	}
 	pr_global_struct->self = EDICT_TO_PROG(ent);
+
 	PR_ExecuteProgram (pr_global_struct->PlayerPostThink);
+
+	if (vr_enabled.value)
+	{
+		_VectorCopy(restoreOrigin, ent->v.origin);
+	}
 }
 
 //============================================================================

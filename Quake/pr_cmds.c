@@ -1365,7 +1365,8 @@ static void PF_aim (void)
 	speed = G_FLOAT(OFS_PARM1);
 	(void) speed; /* variable set but not used */
 
-	VectorCopy (ent->v.origin, start);
+	VectorCopy (ent->v.origin, start)
+
 	start[2] += 20;
 
 // try sending a trace straight

@@ -56,6 +56,7 @@ static inline int IS_NAN (float x) {
 #define VectorSubtract(a,b,c) {c[0]=a[0]-b[0];c[1]=a[1]-b[1];c[2]=a[2]-b[2];}
 #define VectorAdd(a,b,c) {c[0]=a[0]+b[0];c[1]=a[1]+b[1];c[2]=a[2]+b[2];}
 #define VectorCopy(a,b) {b[0]=a[0];b[1]=a[1];b[2]=a[2];}
+#define VectorSwap(a,b) {float tmp; tmp = a[0]; a[0] = b[0]; b[0] = tmp; tmp = a[1]; a[1] = b[1]; b[1] = tmp; tmp = a[2]; a[2] = b[2]; b[2] = tmp;}
 
 //johnfitz -- courtesy of lordhavoc
 // QuakeSpasm: To avoid strict aliasing violations, use a float/int union instead of type punning.
@@ -101,6 +102,9 @@ void AngleVectors (vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct mplane_s *plane);
 float	anglemod(float a);
 
+void RotMatFromAngleVector(vec3_t angles, vec3_t mat[3]);
+void AngleVectorFromRotMat(vec3_t mat[3], vec3_t angles);
+void CreateRotMat(int axis, float angle, vec3_t mat[3]);
 
 #define BOX_ON_PLANE_SIDE(emins, emaxs, p)	\
 	(((p)->type < 3)?						\

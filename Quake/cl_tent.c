@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl_tent.c -- client side temporary entities
 
 #include "quakedef.h"
+#include "vr.h"
 
 int			num_temp_entities;
 entity_t	cl_temp_entities[MAX_TEMP_ENTITIES];
@@ -312,7 +313,14 @@ void CL_UpdateTEnts (void)
 	// if coming from the player, update the start position
 		if (b->entity == cl.viewentity)
 		{
-			VectorCopy (cl_entities[cl.viewentity].origin, b->start);
+			if (vr_enabled.value)
+			{
+				VectorCopy(cl.handpos[1], b->start);
+			}
+			else
+			{
+				VectorCopy(cl_entities[cl.viewentity].origin, b->start);
+			}
 		}
 
 	// calculate pitch and yaw

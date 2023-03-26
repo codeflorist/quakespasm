@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // view.c -- player eye positioning
 
 #include "quakedef.h"
+#include "vr.h"
 
 /*
 
@@ -73,6 +74,10 @@ extern	int			in_forward, in_forward2, in_back;
 
 vec3_t	v_punchangles[2]; //johnfitz -- copied from cl.punchangle.  0 is current, 1 is previous value. never the same unless map just loaded
 
+extern cvar_t vr_enabled;
+extern cvar_t vr_aimmode;
+extern cvar_t vr_viewkick;
+
 /*
 ===============
 V_CalcRoll
@@ -92,7 +97,12 @@ float V_CalcRoll (vec3_t angles, vec3_t velocity)
 	sign = side < 0 ? -1 : 1;
 	side = fabs(side);
 
-	value = cl_rollangle.value;
+    // Don't roll view in VR
+    if (vr_enabled.value)
+        value = 0;
+    else
+		value = cl_rollangle.value;
+
 //	if (cl.inwater)
 //		value *= 6;
 
@@ -115,6 +125,10 @@ float V_CalcBob (void)
 {
 	float	bob;
 	float	cycle;
+
+    // Don't bob if we're in VR
+    if (vr_enabled.value)
+        return 0.f;
 
 	cycle = cl.time - (int)(cl.time/cl_bobcycle.value)*cl_bobcycle.value;
 	cycle /= cl_bobcycle.value;
@@ -146,6 +160,11 @@ cvar_t	v_centerspeed = {"v_centerspeed","500", CVAR_NONE};
 
 void V_StartPitchDrift (void)
 {
+	if (vr_enabled.value)
+	{
+		VR_ResetOrientation();
+		return;
+	}
 #if 1
 	if (cl.laststop == cl.time)
 	{
@@ -184,7 +203,7 @@ void V_DriftPitch (void)
 {
 	float		delta, move;
 
-	if (noclip_anglehack || !cl.onground || cls.demoplayback )
+	if (noclip_anglehack || !cl.onground || cls.demoplayback || vr_enabled.value)
 	//FIXME: noclip_anglehack is set on the server, so in a nonlocal game this won't work.
 	{
 		cl.driftmove = 0;
@@ -312,20 +331,24 @@ void V_ParseDamage (void)
 //
 // calculate view angle kicks
 //
-	ent = &cl_entities[cl.viewentity];
+    // check if we're out of vr or if vr viewkick is enabled
+    if(!vr_enabled.value || (vr_enabled.value && vr_viewkick.value) )
+    {
+		ent = &cl_entities[cl.viewentity];
 
-	VectorSubtract (from, ent->origin, from);
-	VectorNormalize (from);
+		VectorSubtract (from, ent->origin, from);
+		VectorNormalize (from);
 
-	AngleVectors (ent->angles, forward, right, up);
+		AngleVectors (ent->angles, forward, right, up);
 
-	side = DotProduct (from, right);
-	v_dmg_roll = count*side*v_kickroll.value;
+		side = DotProduct (from, right);
+		v_dmg_roll = count*side*v_kickroll.value;
 
-	side = DotProduct (from, forward);
-	v_dmg_pitch = count*side*v_kickpitch.value;
+		side = DotProduct (from, forward);
+		v_dmg_pitch = count*side*v_kickpitch.value;
 
-	v_dmg_time = v_kicktime.value;
+		v_dmg_time = v_kicktime.value;
+	}
 }
 
 
@@ -586,8 +609,17 @@ void CalcGunAngle (void)
 	static float oldyaw = 0;
 	static float oldpitch = 0;
 
-	yaw = r_refdef.viewangles[YAW];
-	pitch = -r_refdef.viewangles[PITCH];
+    // Skip everything if we're doing VR Controller aiming.
+    if (vr_enabled.value && vr_aimmode.value == VR_AIMMODE_CONTROLLER)
+    {
+        cl.viewent.angles[YAW] = cl.handrot[1][YAW];
+        cl.viewent.angles[PITCH] = -(cl.handrot[1][PITCH]) + vr_gunmodelpitch.value;
+        cl.viewent.angles[ROLL] = cl.handrot[1][ROLL];
+        return;
+    }
+
+	yaw = r_refdef.aimangles[YAW];
+	pitch = -r_refdef.aimangles[PITCH];
 
 	yaw = angledelta(yaw - r_refdef.viewangles[YAW]) * 0.4;
 	if (yaw > 10)
@@ -697,7 +729,7 @@ void V_CalcViewRoll (void)
 		v_dmg_time -= host_frametime;
 	}
 
-	if (cl.stats[STAT_HEALTH] <= 0)
+	if (cl.stats[STAT_HEALTH] <= 0 && !vr_enabled.value)
 	{
 		r_refdef.viewangles[ROLL] = 80;	// dead view angle
 		return;
@@ -723,6 +755,14 @@ void V_CalcIntermissionRefdef (void)
 	VectorCopy (ent->origin, r_refdef.vieworg);
 	VectorCopy (ent->angles, r_refdef.viewangles);
 	view->model = NULL;
+
+	if (vr_enabled.value)
+	{
+		r_refdef.viewangles[PITCH] = 0;
+		VectorCopy(r_refdef.viewangles, r_refdef.aimangles);
+		VR_AddOrientationToViewAngles(r_refdef.viewangles);
+		VR_SetAngles(r_refdef.viewangles);
+	}
 
 // allways idle in intermission
 	old = v_idlescale.value;
@@ -763,8 +803,16 @@ void V_CalcRefdef (void)
 	bob = V_CalcBob ();
 
 // refresh position
-	VectorCopy (ent->origin, r_refdef.vieworg);
-	r_refdef.vieworg[2] += cl.viewheight + bob;
+	if (vr_enabled.value)
+	{
+		extern vec3_t vr_viewOffset;
+		_VectorAdd(ent->origin, vr_viewOffset, r_refdef.vieworg);
+	}
+	else
+	{
+		VectorCopy (ent->origin, r_refdef.vieworg);
+		r_refdef.vieworg[2] += cl.viewheight + bob;
+	}
 
 // never let it sit exactly on a node line, because a water plane can
 // dissapear when viewed with the eye exactly on it.
@@ -788,19 +836,31 @@ void V_CalcRefdef (void)
 		for (i=0 ; i<3 ; i++)
 			r_refdef.vieworg[i] += scr_ofsx.value*forward[i] + scr_ofsy.value*right[i] + scr_ofsz.value*up[i];
 
-	V_BoundOffsets ();
+	if (!vr_enabled.value)
+	{
+		V_BoundOffsets ();
+	}
 
 // set up gun position
 	VectorCopy (cl.viewangles, view->angles);
 
 	CalcGunAngle ();
 
-	VectorCopy (ent->origin, view->origin);
-	view->origin[2] += cl.viewheight;
+    // VR controller aiming configuration
+    if (vr_enabled.value && vr_aimmode.value == VR_AIMMODE_CONTROLLER)
+    {
+		VectorAdd(cl.handpos[1], cl.vmeshoffset, view->origin);
+    }
+    else
+    {
+        VectorCopy(ent->origin, view->origin)
 
-	for (i=0 ; i<3 ; i++)
-		view->origin[i] += forward[i]*bob*0.4;
-	view->origin[2] += bob;
+		view->origin[2] += cl.viewheight;
+
+		for (i=0 ; i<3 ; i++)
+			view->origin[i] += forward[i]*bob*0.4;
+		view->origin[2] += bob;
+    }
 
 	//johnfitz -- removed all gun position fudging code (was used to keep gun from getting covered by sbar)
 	//MarkV -- restored this with r_viewmodel_quake cvar
@@ -821,9 +881,9 @@ void V_CalcRefdef (void)
 	view->colormap = vid.colormap;
 
 //johnfitz -- v_gunkick
-	if (v_gunkick.value == 1) //original quake kick
+	if (v_gunkick.value == 1 && !(vr_enabled.value && !vr_viewkick.value)) //original quake kick
 		VectorAdd (r_refdef.viewangles, cl.punchangle, r_refdef.viewangles);
-	if (v_gunkick.value == 2) //lerped kick
+	if (v_gunkick.value == 2 && !(vr_enabled.value && !vr_viewkick.value)) //lerped kick
 	{
 		for (i=0; i<3; i++)
 			if (punch[i] != v_punchangles[0][i])
@@ -944,7 +1004,7 @@ void V_Init (void)
 	Cvar_RegisterVariable (&v_kickroll);
 	Cvar_RegisterVariable (&v_kickpitch);
 	Cvar_RegisterVariable (&v_gunkick); //johnfitz
-	
+
 	Cvar_RegisterVariable (&r_viewmodel_quake); //MarkV
 }
 

@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 #include "SDL.h"
 #endif
+#include "vr.h"
 
 //ericw -- for putting the driver into multithreaded mode
 #ifdef __APPLE__
@@ -781,6 +782,9 @@ static void VID_Restart (void)
 	if (vid_locked || !vid_changed)
 		return;
 
+	if (vr_enabled.value)
+		VID_VR_Disable();
+
 	width = (int)vid_width.value;
 	height = (int)vid_height.value;
 	refreshrate = (int)vid_refreshrate.value;
@@ -845,6 +849,9 @@ static void VID_Restart (void)
 		else if (modestate == MS_FULLSCREEN)
 			IN_Activate();
 	}
+
+	if (vr_enabled.value)
+		VR_Enable();
 }
 
 /*

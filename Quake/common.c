@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "q_ctype.h"
 #include <errno.h>
+#include "vr.h"
 
 static char	*largv[MAX_NUM_ARGVS + 1];
 static char	argvdummy[] = " ";
@@ -2145,6 +2146,8 @@ static void COM_Game_f (void)
 		CL_Disconnect ();
 		Host_ShutdownServer(true);
 
+		VR_InitGame();
+
 		//Write config file
 		Host_WriteConfiguration ();
 
@@ -2215,6 +2218,11 @@ static void COM_Game_f (void)
 		VID_Lock ();
 		Cbuf_AddText ("exec quake.rc\n");
 		Cbuf_AddText ("vid_unlock\n");
+
+		if (vr_enabled.value)
+		{
+			Cbuf_AddText("map start\n");
+		}
 	}
 	else //Diplay the current gamedir
 		Con_Printf("\"game\" is \"%s\"\n", COM_SkipPath(com_gamedir));

@@ -349,6 +349,35 @@ int Q_log2(int val)
 }
 
 
+void RotMatFromAngleVector(vec3_t angles, vec3_t mat[3])
+{
+	AngleVectors(angles, mat[0], mat[1], mat[2]);
+
+	//flip y so (0,0,0) produces identity!
+	mat[1][0] *= -1;
+	mat[1][1] *= -1;
+	mat[1][2] *= -1;
+}
+
+void AngleVectorFromRotMat(vec3_t mat[3], vec3_t angles)
+{
+	angles[1] = -atan2(mat[0][0], mat[0][1]) / M_PI_DIV_180 + 90;
+	angles[0] = atan2(sqrt(mat[0][0] * mat[0][0] + mat[0][1] * mat[0][1]), mat[0][2]) / M_PI_DIV_180 - 90;
+	angles[2] = 0;
+
+	vec3_t unrolled[3];
+
+	RotMatFromAngleVector(angles, unrolled);
+
+	angles[2] = -atan2(_DotProduct(unrolled[1], mat[1]), _DotProduct(unrolled[2], mat[1])) / M_PI_DIV_180 + 90;
+}
+
+void CreateRotMat(int axis, float angle, vec3_t mat[3])
+{
+	vec3_t angles = { axis == 0 ? angle : 0, axis == 1 ? angle : 0, axis == 2 ? angle : 0 };
+	RotMatFromAngleVector(angles, mat);
+}
+
 /*
 ================
 R_ConcatRotations

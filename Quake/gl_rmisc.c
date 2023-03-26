@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // r_misc.c
 
 #include "quakedef.h"
+#include "vr.h"
 
 //johnfitz -- new cvars
 extern cvar_t r_stereo;
@@ -246,6 +247,7 @@ void R_Init (void)
 
 	Sky_Init (); //johnfitz
 	Fog_Init (); //johnfitz
+    VID_VR_Init(); //phoboslab
 }
 
 /*

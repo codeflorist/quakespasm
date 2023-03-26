@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "bgmusic.h"
 #include <setjmp.h>
+#include "vr.h"
 
 /*
 
@@ -571,7 +572,7 @@ qboolean Host_FilterTime (float time)
 
 	//johnfitz -- max fps cvar
 	maxfps = CLAMP (10.0, host_maxfps.value, 1000.0);
-	if (!cls.timedemo && realtime - oldrealtime < 1.0/maxfps)
+	if (!cls.timedemo && realtime - oldrealtime < 1.0/maxfps && !vr_enabled.value)
 		return false; // framerate is too high
 	//johnfitz
 
@@ -927,6 +928,7 @@ void Host_Shutdown(void)
 		CDAudio_Shutdown ();
 		S_Shutdown ();
 		IN_Shutdown ();
+        VID_VR_Shutdown();
 		VID_Shutdown();
 	}
 

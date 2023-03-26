@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 #include "bgmusic.h"
+#include "vr.h"
 
 // we need to declare some mouse variables here, because the menu system
 // references them even when on a unix system.
@@ -480,6 +481,10 @@ void CL_RelinkEntities (void)
 				{
 					f = 1;		// assume a teleportation, not a motion
 					ent->lerpflags |= LERP_RESETMOVE; //johnfitz -- don't lerp teleports
+					if (ent == &cl_entities[cl.viewentity])
+					{
+						VR_PushYaw();
+					}
 				}
 			}
 
@@ -682,6 +687,8 @@ void CL_SendCmd (void)
 
 	// allow mice or other external controllers to add to the move
 		IN_Move (&cmd);
+
+		VR_Move (&cmd);
 
 	// send the unreliable message
 		CL_SendMove (&cmd);

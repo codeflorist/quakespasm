@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // draw.c -- 2d drawing
 
 #include "quakedef.h"
+#include "vr.h"
 
 //extern unsigned char d_15to8table[65536]; //johnfitz -- never used
 
@@ -650,6 +651,9 @@ Draw_FadeScreen -- johnfitz -- revised
 */
 void Draw_FadeScreen (void)
 {
+	if (vr_enabled.value)
+		return;
+
 	GL_SetCanvas (CANVAS_DEFAULT);
 
 	glEnable (GL_BLEND);
@@ -687,6 +691,9 @@ void GL_SetCanvas (canvastype newcanvas)
 		return;
 
 	currentcanvas = newcanvas;
+
+	if (vr_enabled.value && !con_forcedup)
+		return;
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity ();

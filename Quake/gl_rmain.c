@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // r_main.c
 
 #include "quakedef.h"
+#include "vr.h"
 
 qboolean	r_cache_thrash;		// compatability
 
@@ -196,8 +197,13 @@ void GLSLGamma_GammaCorrect (void)
 		return;
 
 // create render-to-texture texture if needed
-	if (!r_gamma_texture)
+	if (!r_gamma_texture || (r_gamma_texture_width < glwidth || r_gamma_texture_height < glheight))
 	{
+		if (r_gamma_texture)
+		{
+			glDeleteTextures(1, &r_gamma_texture);
+		}
+		
 		glGenTextures (1, &r_gamma_texture);
 		glBindTexture (GL_TEXTURE_2D, r_gamma_texture);
 
@@ -210,7 +216,7 @@ void GLSLGamma_GammaCorrect (void)
 			r_gamma_texture_height = TexMgr_Pad(r_gamma_texture_height);
 		}
 	
-		glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, r_gamma_texture_width, r_gamma_texture_height, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, NULL);
+		glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, r_gamma_texture_width, r_gamma_texture_height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL);
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
@@ -238,6 +244,7 @@ void GLSLGamma_GammaCorrect (void)
 
 	glDisable (GL_ALPHA_TEST);
 	glDisable (GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 
 	glViewport (glx, gly, glwidth, glheight);
 
@@ -255,6 +262,8 @@ void GLSLGamma_GammaCorrect (void)
 	glVertex2f (-1, 1);
 	glEnd ();
 	
+	glEnable(GL_CULL_FACE);
+
 	GL_UseProgramFunc (0);
 	
 // clear cached binding
@@ -439,6 +448,9 @@ void R_SetFrustum (float fovx, float fovy)
 	if (r_stereo.value)
 		fovx += 10; //silly hack so that polygons don't drop out becuase of stereo skew
 
+	if (vr_enabled.value)
+		fovx += 25; // meh
+
 	TurnVector(frustum[0].normal, vpn, vright, fovx/2 - 90); //left plane
 	TurnVector(frustum[1].normal, vpn, vright, 90 - fovx/2); //right plane
 	TurnVector(frustum[2].normal, vpn, vup, 90 - fovy/2); //bottom plane
@@ -476,20 +488,26 @@ void R_SetupGL (void)
 {
 	int scale;
 
-	//johnfitz -- rewrote this section
-	glMatrixMode(GL_PROJECTION);
-    glLoadIdentity ();
-	scale =  CLAMP(1, (int)r_scale.value, 4); // ericw -- see R_ScaleView
-	glViewport (glx + r_refdef.vrect.x,
-				gly + glheight - r_refdef.vrect.y - r_refdef.vrect.height,
-				r_refdef.vrect.width / scale,
-				r_refdef.vrect.height / scale);
-	//johnfitz
+	if (vr_enabled.value) {
+		VR_SetMatrices();
+	}
+	else
+	{
+		//johnfitz -- rewrote this section
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		scale = CLAMP(1, (int)r_scale.value, 4); // ericw -- see R_ScaleView
+		glViewport(glx + r_refdef.vrect.x,
+			gly + glheight - r_refdef.vrect.y - r_refdef.vrect.height,
+			r_refdef.vrect.width / scale,
+			r_refdef.vrect.height / scale);
+		//johnfitz
 
-    GL_SetFrustum (r_fovx, r_fovy); //johnfitz -- use r_fov* vars
+		GL_SetFrustum(r_fovx, r_fovy); //johnfitz -- use r_fov* vars
+	}
 
 //	glCullFace(GL_BACK); //johnfitz -- glquake used CCW with backwards culling -- let's do it right
-
+	
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity ();
 
@@ -667,6 +685,9 @@ void R_DrawViewModel (void)
 	if (cl.items & IT_INVISIBILITY || cl.stats[STAT_HEALTH] <= 0)
 		return;
 
+	if (vr_enabled.value && vr_crosshair.value)
+		VR_ShowCrosshair();
+
 	currententity = &cl.viewent;
 	if (!currententity->model)
 		return;
@@ -677,9 +698,14 @@ void R_DrawViewModel (void)
 	//johnfitz
 
 	// hack the depth range to prevent view model from poking into walls
-	glDepthRange (0, 0.3);
+    // only when not in VR
+    if(!vr_enabled.value)
+		glDepthRange (0, 0.3);
+
 	R_DrawAliasModel (currententity);
-	glDepthRange (0, 1);
+
+    if (!vr_enabled.value)
+		glDepthRange (0, 1);
 }
 
 /*
