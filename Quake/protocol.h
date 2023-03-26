@@ -63,7 +63,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define U_FRAME2		(1<<17) // 1 byte, this is .frame & 0xFF00 (second byte)
 #define U_MODEL2		(1<<18) // 1 byte, this is .modelindex & 0xFF00 (second byte)
 #define U_LERPFINISH	(1<<19) // 1 byte, 0.0-1.0 maps to 0-255, not sent if exactly 0.1, this is ent->v.nextthink - sv.time, used for lerping
-#define U_SCALE			(1<<20) // 1 byte, for PROTOCOL_RMQ PRFL_EDICTSCALE, currently read but ignored
+#define U_SCALE			(1<<20) // 1 byte, for PROTOCOL_RMQ PRFL_EDICTSCALE
 #define U_UNUSED21		(1<<21)
 #define U_UNUSED22		(1<<22)
 #define U_EXTEND2		(1<<23) // another byte to follow, future expansion
@@ -125,6 +125,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define B_LARGEMODEL	(1<<0)	// modelindex is short instead of byte
 #define B_LARGEFRAME	(1<<1)	// frame is short instead of byte
 #define B_ALPHA			(1<<2)	// 1 byte, uses ENTALPHA_ENCODE, not sent if ENTALPHA_DEFAULT
+#define B_SCALE			(1<<3)
 //johnfitz
 
 //johnfitz -- PROTOCOL_FITZQUAKE -- alpha encoding
@@ -135,6 +136,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ENTALPHA_DECODE(a)	(((a)==ENTALPHA_DEFAULT)?1.0f:((float)(a)-1)/(254)) //client convert to float for rendering
 #define ENTALPHA_TOSAVE(a)	(((a)==ENTALPHA_DEFAULT)?0.0f:(((a)==ENTALPHA_ZERO)?-1.0f:((float)(a)-1)/(254))) //server convert to float for savegame
 //johnfitz
+
+#define ENTSCALE_DEFAULT	16 // Equivalent to float 1.0f due to byte packing.
+#define ENTSCALE_ENCODE(a)	((a) ? ((a) * ENTSCALE_DEFAULT) : ENTSCALE_DEFAULT) // Convert to byte
+#define ENTSCALE_DECODE(a)	((float)(a) / ENTSCALE_DEFAULT) // Convert to float for rendering
 
 // defaults for clientinfo messages
 #define	DEFAULT_VIEWHEIGHT	22
@@ -257,6 +262,7 @@ typedef struct
 	unsigned char 	colormap;	//johnfitz -- was int
 	unsigned char 	skin;		//johnfitz -- was int
 	unsigned char	alpha;		//johnfitz -- added
+	unsigned char	scale;		//Quakespasm: for model scale support.
 	int		effects;
 } entity_state_t;
 
@@ -271,4 +277,3 @@ typedef struct
 } usercmd_t;
 
 #endif	/* _QUAKE_PROTOCOL_H */
-

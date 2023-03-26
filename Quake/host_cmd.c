@@ -1240,6 +1240,7 @@ static void Host_Loadgame_f (void)
 			}
 			else {
 				memset (ent, 0, pr_edict_size);
+				ent->baseline.scale = ENTSCALE_DEFAULT;
 			}
 			data = ED_ParseEdict (data, ent);
 
@@ -2278,6 +2279,19 @@ static void Host_Stopdemo_f (void)
 		return;
 	CL_StopPlayback ();
 	CL_Disconnect ();
+}
+
+/*
+==================
+Host_Resetdemos
+
+Clear looping demo list (called on game change)
+==================
+*/
+void Host_Resetdemos (void)
+{
+	memset (cls.demos, 0, sizeof (cls.demos));
+	cls.demonum = 0;
 }
 
 //=============================================================================

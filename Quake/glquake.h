@@ -139,6 +139,7 @@ extern	cvar_t	r_wateralpha;
 extern	cvar_t	r_lavaalpha;
 extern	cvar_t	r_telealpha;
 extern	cvar_t	r_slimealpha;
+extern	cvar_t	r_litwater;
 extern	cvar_t	r_dynamic;
 extern	cvar_t	r_novis;
 extern	cvar_t	r_scale;
@@ -344,7 +345,7 @@ void R_MarkSurfaces (void);
 qboolean R_CullBox (vec3_t emins, vec3_t emaxs);
 void R_StoreEfrags (efrag_t **ppefrag);
 qboolean R_CullModelForEntity (entity_t *e);
-void R_RotateForEntity (vec3_t origin, vec3_t angles);
+void R_RotateForEntity (vec3_t origin, vec3_t angles, unsigned char scale);
 void R_MarkLights (dlight_t *light, int num, mnode_t *node);
 
 void R_InitParticles (void);

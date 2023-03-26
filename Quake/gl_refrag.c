@@ -59,28 +59,27 @@ static efrag_t *R_GetEfrag (void)
 	// we could just Hunk_Alloc a single efrag_t and return it, but since
 	// the struct is so small (2 pointers) allocate groups of them
 	// to avoid wasting too much space on the hunk allocation headers.
-	
 	if (cl.free_efrags)
 	{
 		efrag_t *ef = cl.free_efrags;
 		cl.free_efrags = ef->leafnext;
 		ef->leafnext = NULL;
-		
+
 		cl.num_efrags++;
-		
+
 		return ef;
 	}
 	else
 	{
 		int i;
-		
+
 		cl.free_efrags = (efrag_t *) Hunk_AllocName (EXTRA_EFRAGS * sizeof (efrag_t), "efrags");
-		
+
 		for (i = 0; i < EXTRA_EFRAGS - 1; i++)
 			cl.free_efrags[i].leafnext = &cl.free_efrags[i + 1];
-		
+
 		cl.free_efrags[i].leafnext = NULL;
-		
+
 		// call recursively to get a newly allocated free efrag
 		return R_GetEfrag ();
 	}
@@ -112,11 +111,11 @@ void R_SplitEntityOnNode (mnode_t *node)
 
 		leaf = (mleaf_t *)node;
 
-// grab an efrag off the free list
+	// grab an efrag off the free list
 		ef = R_GetEfrag();
 		ef->entity = r_addent;
 
-// set the leaf links
+	// set the leaf links
 		ef->leafnext = leaf->efrags;
 		leaf->efrags = ef;
 
@@ -169,7 +168,7 @@ R_AddEfrags
 void R_AddEfrags (entity_t *ent)
 {
 	qmodel_t	*entmodel;
-	int			i;
+	vec_t		scalefactor;
 
 	if (!ent->model)
 		return;
@@ -179,11 +178,16 @@ void R_AddEfrags (entity_t *ent)
 	r_pefragtopnode = NULL;
 
 	entmodel = ent->model;
-
-	for (i=0 ; i<3 ; i++)
+	scalefactor = ENTSCALE_DECODE(ent->scale);
+	if (scalefactor != 1.0f)
 	{
-		r_emins[i] = ent->origin[i] + entmodel->mins[i];
-		r_emaxs[i] = ent->origin[i] + entmodel->maxs[i];
+		VectorMA (ent->origin, scalefactor, entmodel->mins, r_emins);
+		VectorMA (ent->origin, scalefactor, entmodel->maxs, r_emaxs);
+	}
+	else
+	{
+		VectorAdd (ent->origin, entmodel->mins, r_emins);
+		VectorAdd (ent->origin, entmodel->maxs, r_emaxs);
 	}
 
 	R_SplitEntityOnNode (cl.worldmodel->nodes);

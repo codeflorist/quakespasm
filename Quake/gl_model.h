@@ -488,7 +488,7 @@ typedef struct qmodel_s
 	qboolean	viswarn; // for Mod_DecompressVis()
 
 	int			bspversion;
-
+	qboolean	haslitwater;
 //
 // alias model
 //

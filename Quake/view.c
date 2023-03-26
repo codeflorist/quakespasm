@@ -565,10 +565,10 @@ void V_PolyBlend (void)
 	glEnable (GL_BLEND);
 
 	glMatrixMode(GL_PROJECTION);
-    glLoadIdentity ();
+	glLoadIdentity ();
 	glOrtho (0, 1, 1, 0, -99999, 99999);
 	glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity ();
+	glLoadIdentity ();
 
 	glColor4fv (v_blend);
 
@@ -882,6 +882,7 @@ void V_CalcRefdef (void)
 	view->model = cl.model_precache[cl.stats[STAT_WEAPON]];
 	view->frame = cl.stats[STAT_WEAPONFRAME];
 	view->colormap = vid.colormap;
+	view->scale = ENTSCALE_DEFAULT;
 
 //johnfitz -- v_gunkick
 	if (v_gunkick.value == 1 && !(vr_enabled.value && !vr_viewkick.value)) //original quake kick

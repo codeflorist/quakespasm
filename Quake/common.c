@@ -2205,6 +2205,7 @@ static void COM_Game_f (void)
 			R_NewGame ();
 		}
 		ExtraMaps_NewGame ();
+		Host_Resetdemos ();
 		DemoList_Rebuild ();
 
 		Con_Printf("\"game\" changed to \"%s\"\n", COM_SkipPath(com_gamedir));
