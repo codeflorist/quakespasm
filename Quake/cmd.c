@@ -282,7 +282,9 @@ void Cmd_Exec_f (void)
 	Con_Printf ("execing %s\n",Cmd_Argv(1));
 
 	Cbuf_InsertText (f);
-	Hunk_FreeToLowMark (mark);
+	if (f != default_cfg) {
+		Hunk_FreeToLowMark (mark);
+	}
 }
 
 

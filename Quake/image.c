@@ -109,9 +109,7 @@ typedef struct targaheader_s {
 	unsigned char	pixel_size, attributes;
 } targaheader_t;
 
-#define TARGAHEADERSIZE 18 //size on disk
-
-targaheader_t targa_header;
+#define TARGAHEADERSIZE 18		/* size on disk */
 
 int fgetLittleShort (FILE *f)
 {
@@ -197,6 +195,7 @@ byte *Image_LoadTGA (FILE *fin, int *width, int *height)
 	int				realrow; //johnfitz -- fix for upside-down targas
 	qboolean		upside_down; //johnfitz -- fix for upside-down targas
 	stdio_buffer_t	*buf;
+	targaheader_t	targa_header;
 
 	targa_header.id_length = fgetc(fin);
 	targa_header.colormap_type = fgetc(fin);
@@ -629,10 +628,11 @@ qboolean Image_WritePNG (const char *name, byte *data, int width, int height, in
 #endif
 
 	lodepng_state_cleanup (&state);
-	free (png);
+	lodepng_free (png); /* png was allocated by lodepng */
 	free (filters);
-	if (!upsidedown)
+	if (!upsidedown) {
 	  free (flipped);
+	}
 
 	return (error == 0);
 }

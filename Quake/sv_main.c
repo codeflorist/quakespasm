@@ -153,7 +153,7 @@ void SV_StartParticle (vec3_t org, vec3_t dir, int color, int count)
 {
 	int		i, v;
 
-	if (sv.datagram.cursize > MAX_DATAGRAM-16)
+	if (sv.datagram.cursize > MAX_DATAGRAM-18)
 		return;
 	MSG_WriteByte (&sv.datagram, svc_particle);
 	MSG_WriteCoord (&sv.datagram, org[0], sv.protocolflags);
@@ -201,7 +201,7 @@ void SV_StartSound (edict_t *entity, int channel, const char *sample, int volume
 	if (channel < 0 || channel > 7)
 		Host_Error ("SV_StartSound: channel = %i", channel);
 
-	if (sv.datagram.cursize > MAX_DATAGRAM-16)
+	if (sv.datagram.cursize > MAX_DATAGRAM-21)
 		return;
 
 // find precache number for sound
@@ -239,6 +239,9 @@ void SV_StartSound (edict_t *entity, int channel, const char *sample, int volume
 		field_mask |= SND_LARGESOUND;
 	}
 	//johnfitz
+
+	if (sv.datagram.cursize > MAX_DATAGRAM-21)
+		return;
 
 // directed messages go only to the entity the are targeted on
 	MSG_WriteByte (&sv.datagram, svc_sound);
@@ -293,6 +296,9 @@ void SV_LocalSound (client_t *client, const char *sample)
 			return;
 		field_mask = SND_LARGESOUND;
 	}
+
+	if (client->message.cursize > client->message.maxsize-4)
+		return;
 
 	MSG_WriteByte (&client->message, svc_localsound);
 	MSG_WriteByte (&client->message, field_mask);
