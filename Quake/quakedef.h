@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	FITZQUAKE_VERSION	0.85	//johnfitz
 #define	QUAKESPASM_VERSION	0.94
-#define	QUAKESPASM_VER_PATCH	1	// helper to print a string like 0.94.1
+#define	QUAKESPASM_VER_PATCH	2	// helper to print a string like 0.94.2
 #ifndef	QUAKESPASM_VER_SUFFIX
 #define	QUAKESPASM_VER_SUFFIX		// optional version suffix string literal like "-beta1"
 #endif
@@ -320,6 +320,7 @@ void ExtraMaps_Init (void);
 void Modlist_Init (void);
 void DemoList_Init (void);
 
+void ExtraMaps_NewGame (void);
 void DemoList_Rebuild (void);
 
 extern int		current_skill;	// skill level for currently loaded level (in case
