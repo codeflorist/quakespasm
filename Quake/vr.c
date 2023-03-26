@@ -86,7 +86,6 @@ extern void SCR_DrawNotifyString(void);
 extern qboolean	scr_drawloading;
 extern void SCR_DrawLoading(void);
 extern void SCR_CheckDrawCenterString(void);
-extern void SCR_DrawRam(void);
 extern void SCR_DrawNet(void);
 extern void SCR_DrawTurtle(void);
 extern void SCR_DrawPause(void);
@@ -1197,7 +1196,6 @@ void VR_Draw2D()
     else
     {
         //SCR_DrawCrosshair (); //johnfitz
-        SCR_DrawRam();
         SCR_DrawNet();
         SCR_DrawTurtle();
         SCR_DrawPause();
