@@ -1001,9 +1001,18 @@ void Host_SavegameComment (char *text)
 {
 	int		i;
 	char	kills[20];
+	char	*p1, *p2;
 
 	for (i = 0; i < SAVEGAME_COMMENT_LENGTH; i++)
 		text[i] = ' ';
+
+// Remove CR/LFs from level name to avoid broken saves, e.g. with autumn_sp map:
+// https://celephais.net/board/view_thread.php?id=60452&start=3666
+	p1 = strchr(cl.levelname, '\n');
+	p2 = strchr(cl.levelname, '\r');
+	if (p1 != NULL) *p1 = 0;
+	if (p2 != NULL) *p2 = 0;
+
 	memcpy (text, cl.levelname, q_min(strlen(cl.levelname),22)); //johnfitz -- only copy 22 chars.
 	sprintf (kills,"kills:%3i/%3i", cl.stats[STAT_MONSTERS], cl.stats[STAT_TOTALMONSTERS]);
 	memcpy (text+22, kills, strlen(kills));
@@ -1013,6 +1022,8 @@ void Host_SavegameComment (char *text)
 		if (text[i] == ' ')
 			text[i] = '_';
 	}
+	if (p1 != NULL) *p1 = '\n';
+	if (p2 != NULL) *p2 = '\r';
 	text[SAVEGAME_COMMENT_LENGTH] = '\0';
 }
 
@@ -1532,7 +1543,7 @@ void Host_Kill_f (void)
 
 	if (sv_player->v.health <= 0)
 	{
-		SV_ClientPrintf ("Can't suicide -- allready dead!\n");
+		SV_ClientPrintf ("Can't suicide -- already dead!\n");
 		return;
 	}
 
@@ -1601,7 +1612,7 @@ void Host_PreSpawn_f (void)
 
 	if (host_client->spawned)
 	{
-		Con_Printf ("prespawn not valid -- allready spawned\n");
+		Con_Printf ("prespawn not valid -- already spawned\n");
 		return;
 	}
 
@@ -1630,13 +1641,13 @@ void Host_Spawn_f (void)
 
 	if (host_client->spawned)
 	{
-		Con_Printf ("Spawn not valid -- allready spawned\n");
+		Con_Printf ("Spawn not valid -- already spawned\n");
 		return;
 	}
 
 // run the entrance script
 	if (sv.loadgame)
-	{	// loaded games are fully inited allready
+	{	// loaded games are fully inited already
 		// if this is the last client to be connected, unpause
 		sv.paused = false;
 	}

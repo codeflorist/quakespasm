@@ -86,6 +86,7 @@ typedef struct texture_s
 {
 	char				name[16];
 	unsigned			width, height;
+	unsigned			shift;		// Q64
 	struct gltexture_s	*gltexture; //johnfitz -- pointer to gltexture
 	struct gltexture_s	*fullbright; //johnfitz -- fullbright mask texture
 	struct gltexture_s	*warpimage; //johnfitz -- for water animation
@@ -123,7 +124,6 @@ typedef struct
 typedef struct
 {
 	float		vecs[2][4];
-	float		mipadjust;
 	texture_t	*texture;
 	int			flags;
 } mtexinfo_t;
@@ -141,7 +141,6 @@ typedef struct glpoly_s
 typedef struct msurface_s
 {
 	int			visframe;		// should be drawn when node is crossed
-	qboolean	culled;			// johnfitz -- for frustum culling
 	float		mins[3];		// johnfitz -- for frustum culling
 	float		maxs[3];		// johnfitz -- for frustum culling
 

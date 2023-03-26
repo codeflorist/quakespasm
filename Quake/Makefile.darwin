@@ -79,6 +79,11 @@ CFLAGS  +=-mmacosx-version-min=10.6
 LDFLAGS +=-mmacosx-version-min=10.6 -Wl,-lbundle1.o
 USE_RPATH=1
 endif
+ifeq ($(MACH_TYPE),arm64)
+CFLAGS  +=-mmacosx-version-min=11.0
+LDFLAGS +=-mmacosx-version-min=11.0
+USE_RPATH=1
+endif
 CFLAGS += $(CPUFLAGS)
 ifeq ($(USE_RPATH),1)
 LDFLAGS+=-Wl,-rpath,@executable_path/../Frameworks
@@ -106,6 +111,7 @@ endif
 ifeq ($(USE_SDL2),1)
 CFLAGS += -DUSE_SDL2
 endif
+CFLAGS += -DGL_SILENCE_DEPRECATION=1
 
 # not relying on sdl-config command and assuming
 # /Library/Frameworks/SDL.framework is available
@@ -137,11 +143,11 @@ $(error Invalid MP3LIB setting)
 endif
 endif
 ifeq ($(MP3LIB),mad)
-mp3_obj=snd_mp3.o
+mp3_obj=snd_mp3
 lib_mp3dec=-lmad
 endif
 ifeq ($(MP3LIB),mpg123)
-mp3_obj=snd_mpg123.o
+mp3_obj=snd_mpg123
 lib_mp3dec=-lmpg123
 endif
 ifeq ($(VORBISLIB),vorbis)
@@ -231,7 +237,8 @@ MUSIC_OBJS:= bgmusic.o \
 	snd_wave.o \
 	snd_vorbis.o \
 	snd_opus.o \
-	$(mp3_obj) \
+	$(mp3_obj).o \
+	snd_mp3tag.o \
 	snd_mikmod.o \
 	snd_xmp.o \
 	snd_umx.o
@@ -291,6 +298,7 @@ OBJS := strlcat.o \
 	wad.o \
 	cmd.o \
 	common.o \
+	miniz.o \
 	crc.o \
 	cvar.o \
 	cfgfile.o \

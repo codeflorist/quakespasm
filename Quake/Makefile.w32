@@ -103,11 +103,11 @@ $(error Invalid MP3LIB setting)
 endif
 endif
 ifeq ($(MP3LIB),mad)
-mp3_obj=snd_mp3.o
+mp3_obj=snd_mp3
 lib_mp3dec=-lmad
 endif
 ifeq ($(MP3LIB),mpg123)
-mp3_obj=snd_mpg123.o
+mp3_obj=snd_mpg123
 lib_mp3dec=-lmpg123
 endif
 ifeq ($(VORBISLIB),vorbis)
@@ -164,7 +164,7 @@ CFLAGS+= -DUSE_CODEC_UMX
 endif
 CFLAGS+= $(CODEC_INC)
 
-COMMON_LIBS:= -lm -lopengl32 -lwinmm
+COMMON_LIBS:= -lopengl32 -lwinmm
 
 LIBS := $(COMMON_LIBS) $(NET_LIBS) $(CODEC_LINK) $(CODECLIBS)
 
@@ -195,7 +195,8 @@ MUSIC_OBJS:= bgmusic.o \
 	snd_wave.o \
 	snd_vorbis.o \
 	snd_opus.o \
-	$(mp3_obj) \
+	$(mp3_obj).o \
+	snd_mp3tag.o \
 	snd_mikmod.o \
 	snd_xmp.o \
 	snd_umx.o
@@ -255,6 +256,7 @@ OBJS := strlcat.o \
 	wad.o \
 	cmd.o \
 	common.o \
+	miniz.o \
 	crc.o \
 	cvar.o \
 	cfgfile.o \

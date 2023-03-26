@@ -2,14 +2,13 @@
 <article>
 <title>QuakeSpasm
 <toc>
-<verb></verb>
 
-<em>Page last edited: Sep. 2019</em>
+<em>Page last edited: August 2021</em>
 
 <sect> About <p>
 
 <url url="http://quakespasm.sourceforge.net" name="QuakeSpasm">
-is a modern, cross-platform Quake 1 engine based on <url url="http://www.celephais.net/fitzquake" name="FitzQuake">.
+is a modern, cross-platform Quake engine based on <url url="http://www.celephais.net/fitzquake" name="FitzQuake">.
 </p><p>
 It includes support for 64 bit CPUs and custom music playback, a new
 sound driver, some graphical niceities, and numerous bug-fixes and other improvements.
@@ -21,30 +20,27 @@ SDL is probably less buggy, but SDL2 has nicer features and smoother mouse input
 
 <itemize>
 <item><url url="http://quakespasm.sourceforge.net/download.htm" name="Project Downloads">
-<item><url url="http://quakespasm.ericwa.com/job/quakespasm-sdl2/" name="Automatic Builds">
+<item><url url="https://sourceforge.net/p/quakespasm/quakespasm/ci/master/tree/" name="Latest code repository">
 </itemize>
 
 
 <sect> Hints <p>
 
 <em>Visit the <url url="http://www.celephais.net/fitzquake" name="FitzQuake homepage"> for a full run-down of the engine's commands and variables.</em>
-
 <itemize>
 <item>To disable some changes, use "<bf>quakespasm -fitz</bf>"
-
 <item>Quakespasm's custom data is stored in "quakespasm.pak". Install this file alongside your id1 directory to enable the custom console background and other minor features.
-
-<item>For different sound backend drivers use "<bf>SDL_AUDIODRIVER=</bf><em>DRIVER</em><bf> ./quakespasm</bf>"
-, where DRIVER may be alsa, dsp, pulse, esd ...
-
+<item>For different sound backend drivers use :<newline>
+"<bf>SDL_AUDIODRIVER=</bf><em>DRIVER</em><bf> ./quakespasm</bf>"<newline>
+where DRIVER may be alsa, dsp, pulse, esd ...
 <item><bf>Shift+Escape</bf> draws the Console.
 <item>From the console, use <bf>UP</bf> to browse the command line history and
 <bf>TAB</bf> to autocomplete command and map names.
 <item>There is currently no CD Music volume support and SDL2 doesn't support CD audio. cd_sdl.c needs replacing with cd_linux.c, cd_bsd.c etc..
-<item>In windows, alternative CD drives are accessible by "<bf>quakespasm -cddev F</bf>" (for example)
-
-<item>Quakespasm allows loading new games (mods) on the fly with "<bf>game</bf> <em>GAMENAME {-quoth/hipnotic/rogue}</em>"
-
+<item>In windows, alternative CD drives are accessible by<newline>
+"<bf>quakespasm -cddev F</bf>" (for example)
+<item>Quakespasm allows loading new games (mods) on the fly with<newline>
+"<bf>game</bf> <em>GAMENAME {-quoth/hipnotic/rogue}</em>"
 <item>Use "<bf>quakespasm -condebug</bf>" to save console log to "qconsole.log". SDL2 builds no longer generate stdout.txt/stderr.txt.
 </itemize>
 </p>
@@ -102,34 +98,33 @@ These buttons can be bound normally:
 <item>XBUTTON
 <item>YBUTTON
 </itemize>
+
 quakespasm.pak contains a default.cfg which has been updated to give some default bindings. L/R shoulder buttons are bound to weapon switching, and L/R triggers are jump and attack.
 <p>
 The controller support started as Jeremiah Sypult's implementation in Quakespasm-Rift and also uses ideas and code from LordHavoc (DarkPlaces).
 
+
 <sect> Compiling and Installation<p>
-<p>Quakespasm's (optional) custom data is now stored in the file <bf>quakespasm.pak</bf>. This file should be placed alongside your quakespasm binary and <bf>id1</bf> directory.</p>
-<p><em>To checkout the latest version of QuakeSpasm, do:</em>
-<bf>svn co svn://svn.code.sf.net/p/quakespasm/code/trunk/quakespasm</bf></p>
+<p>See the Downloads section to get the sourcecode, then below for platform specific instructions.
+Quakespasm can also be built with the cross-platform Codeblocks.
+<newline>
+Quakespasm's (optional) custom data is now stored in the file <bf>quakespasm.pak</bf>. This file should be placed alongside your quakespasm binary and <bf>id1</bf> directory.</p>
 
 <sect1> Linux/Unix <p>
-After extracting the source tarball, browse the Makefile and edit the music streaming options, then
-<code>
-make
-cp quakespasm /usr/local/games/quake (for example)
-</code>
+After extracting the source tarball, "cd Quake" and edit the Makefile for music options. 
+</p><p><em>Streaming music playback requires "libmad" or "libmpg123" for MP3, and "libogg" and "libvorbis" for OGG files.</em>
+</p><p>Then type "make" to compile the program, and copy the "quakespasm" binary (and "quakespasm.pak") to your Quake game directory.
 <newline>
 Compile time options include
 <itemize>
 <item><bf>make DO_USERDIRS=1</bf> to include user directories support
 <item><bf>make DEBUG=1</bf> for debugging
-<item><bf>make SDL_CONFIG=</bf><em>/PATH/TO/SDL-CONFIG</em> for unusual SDL installations
+<item><bf>make SDL_CONFIG=</bf><em>/PATH/TO/sdl-config</em> for unusual SDL installations
 <item><bf>make USE_SDL2=1</bf> to compile against SDL2 instead of SDL-1.2
 </itemize>
-<p>Streaming music playback requires "libmad" or "libmpg123" for MP3, and "libogg" and "libvorbis" for OGG files.
-<p>The project can also be built with Codeblocks (project files included).</p>
 
 <sect1> Windows <p>
-The QuakeSpasm developers cross-compile windows binaries using <url url="http://www.mingw.org" name="MinGW"> and <url url="http://mingw-w64.sf.net" name="Mingw-w64">.
+The QuakeSpasm developers cross-compile windows binaries using <url url="http://www.mingw.org" name="MinGW"> and <url url="http://mingw-w64.sf.net" name="MinGW-w64">.
 
 The project can also be built using Visual Studio 2005 (or newer).</p>
 
@@ -139,27 +134,41 @@ A Quakespasm App (including program launcher and update framework) can be made u
 Alternatively, have a look at <bf>Makefile.darwin</bf> for more instructions on building from a console.
 </p>
 
-<sect> Known Bugs <p>
-Brightness issues should be fixed with GLSL gamma in 0.90.1, if your system supports OpenGL 2. For reference on older systems:
-<newline> 
-Some versions of Xorg and SDL have brightness issues.
-<newline>
-Try setting "export SDL_VIDEO_X11_NODIRECTCOLOR=1", or if you have Xorg >= 7.5 and broken brightness,
-these patched libSDL binaries may help.
-<itemize>
-    <item><url url="http://sf.net/projects/quakespasm/files/Support%20Files/libSDL_gamma_patched.tgz/download"
-    name="Gamma patched libSDL (i686-linux)"></li>
-    <item><url url="http://sf.net/projects/quakespasm/files/Support%20Files/libSDL_gamma_patched-AMD64.tgz/download"
-    name="Gamma patched libSDL (x86_64-linux)">
-</itemize>
+<sect1> Quake '2021 re-release' <p>
+QuakeSpasm 0.94.0 has initial support for playing the 2021 re-release content: Copy the quakespasm binary to your rerelease installation and run quakespasm as you normally do.</p>
+
+
 <sect> Changes<p>
+
+<sect1> Changes in 0.94.0<p>
+<itemize>
+<item> Initial support for playing the 'Quake 2021 re-release' content (thanks to Andrei Drexler for bulk of the work, Guillaume Plourde for Q64 bsp format support.)
+<item> Fix rendering bug when cl_bobcycle was set to zero (sf.net bug/41)
+<item> Fixed buffer overflow with large char skybox names (sf.net bug/38)
+<item> Fixed a missing MAXALIASFRAMES bounds check (sf.net bug/37)
+<item> OpenGL: workaround Intel UHD 600 driver bug (sf.net bug/39)
+<item> OpenGL: merged surface mark & cull optimizations from vkQuake.
+<item> Compensate viewmodel distortion at fov > 90 (based on code from Qrack, thanks to Andrei Drexler for the patch.)
+<item> Raised MAX_GLTEXTURES limit from 2048 to 4096 for now.
+<item> Changed 'model has a skin taller than 480' error into a warning
+<item> Reject lit files if they're the wrong size (eg hipnotic/start.bsp vs id1/start.lit or just a bsp that no longer has any coloured lits, etc)
+<item> External ent files are now versioned using 4 digit crc of the original map's ents, like e1m1@c49d.ent, which is much safer. The old method (e.g. e1m1.ent) still works but isn't recommended.
+<item> Support for external vis files.
+<item> Save: remove CR/LFs from level name to avoids broken saves, e.g. with autumn_sp map.
+<item> Music: improvements to mp3 tag detection / skipping.
+<item> Music: umx loader fix for malformed / crafted files.
+<item> New console command music_jump: Jump to given order in music, like Unreal's music change - only for module (tracker) music.
+<item> Updated third-party libraries (music codecs, SDL, etc.) Other minor fixes, tidy-ups and protability tweaks.
+<item> Source repository moved to git.
+</itemize>
+</p>
 
 <sect1> Changes in 0.93.2<p>
 <itemize>
 <item> Lightmaps are now dynamically allocated (from QSS), and BLOCK_WIDTH/HEIGHT raised from 128 to 256.
 <item> Fixed several uncheked limits that would crash the Slayer's Testaments mod (sf.net bug #33).
 <item> Raised MAXALIASTRIS from 2048 to 4096, so that the Slayer's Testaments mod works.
-<item> Fixed 'pants' and 'shirt' types so that those textures load correctly on platforms where char is unsigned by default (sf.net bug #28).
+<item> Fixed 'pants' and 'shirt' types so that those textures load correctly on platforms where char type is unsigned by default (sf.net bug #28).
 <item> Windows audio: WASAPI-enabled SDL2 dlls function properly now.
 <item> Update the third-party libraries. Other fixes/cleanups.
 </itemize>
@@ -195,11 +204,11 @@ these patched libSDL binaries may help.
 <item> Change default screenshot format to png. The 'screenshot' command now supports optional format (tga, png or jpg) and quality (1-100) arguments.
 <item> Revert "always run" changes from 0.85.9 and move the QuakeSpasm customizations to a new "cl_alwaysrun" cvar: Set to 1 in order to scale forward/side/up speed by "cl_movespeedkey" (usually 2), and to make "speedkey" act as "slowkey".
 <item> Change the "always run" menu option to offer three choices:
- <itemize>
- <item> off        (cl_alwaysrun 0, cl_forwardspeed 200, cl_backspeed 200)
- <item> vanilla    (cl_alwaysrun 0, cl_forwardspeed 400, cl_backspeed 400)
- <item> quakespasm (cl_alwaysrun 1, cl_forwardspeed 200, cl_backspeed 200)
- </itemize>
+<verb>
+off        (cl_alwaysrun 0, cl_forwardspeed 200, cl_backspeed 200)
+vanilla    (cl_alwaysrun 0, cl_forwardspeed 400, cl_backspeed 400)
+quakespasm (cl_alwaysrun 1, cl_forwardspeed 200, cl_backspeed 200)
+</verb>
 <item> New "r_scale" cvar. Set to 2, 3, or 4 to render the view at 1/2, 1/3, or 1/4 resolution.
 <item> New "r_viewmodel_quake" cvar. Set to 1 for WinQuake gun position (from MarkV).
 <item> New "find" / "apropos" command, searches for commands/cvar names for the given substring (from Spike).
@@ -333,7 +342,8 @@ these patched libSDL binaries may help.
 <sect1> Changes in 0.90.0<p>
 <itemize>
 <item> Fix issues on Windows systems with DPI scaling.</item>
-<item> Unix/Mac user directories support. Disabled by default, 'make DO_USERDIRS=1' to enable it.
+<item> Unix/Mac user directories support. Disabled by default,<newline>
+'make DO_USERDIRS=1' to enable it.
 <item> SDL2 support. Disabled by default, 'make USE_SDL2=1' to enable it.
 <item> Revised keyboard input code.
 <item> Revised/improved the 'game' command, i.e. on-the-fly mod changing. It now accepts an optional second argument for mission packs or quoth support i.e. -hipnotic, -rogue, or -quoth. For example, for WarpSpasm: "game warp -quoth"
@@ -530,12 +540,6 @@ these patched libSDL binaries may help.
 <item>Changes to cvar persistence gl_flashblend (default 0), r_shadow, r_wateralpha, r_dynamic, r_novis
 </itemize>
 
-
-<sect> Todo <p>
-<itemize>
-<item>Add uHexen2's first person camera (and menu item)
-<item>Native CD audio support (if desired). cd_sdl.c doesn't have proper volume controls and SDL2 doesn't support CD audio
-</itemize>
 
 <sect> Copyright <p>
 <itemize>

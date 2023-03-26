@@ -129,6 +129,9 @@ float V_CalcBob (void)
     // Don't bob if we're in VR
     if (vr_enabled.value)
         return 0.f;
+		
+	if (!cl_bobcycle.value) /* Avoid divide-by-zero, don't bob */
+		return 0.0f;
 
 	cycle = cl.time - (int)(cl.time/cl_bobcycle.value)*cl_bobcycle.value;
 	cycle /= cl_bobcycle.value;

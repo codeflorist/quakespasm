@@ -35,7 +35,7 @@ extern	int rs_skypasses; //for r_speeds readout
 float	skyflatcolor[3];
 float	skymins[2][6], skymaxs[2][6];
 
-char	skybox_name[32] = ""; //name of current skybox, or "" if no skybox
+char	skybox_name[1024]; //name of current skybox, or "" if no skybox
 
 gltexture_t	*skybox_textures[6];
 gltexture_t	*solidskytexture, *alphaskytexture;
@@ -144,6 +144,59 @@ void Sky_LoadTexture (texture_t *mt)
 }
 
 /*
+=============
+Sky_LoadTextureQ64
+
+Quake64 sky textures are 32*64
+==============
+*/
+void Sky_LoadTextureQ64 (texture_t *mt)
+{
+	char		texturename[64];
+	int			i, p, r, g, b, count;
+	byte		*front, *back, *front_rgba;
+	unsigned	*rgba;
+
+	// pointers to both layer textures
+	front = (byte *)(mt+1);
+	back = (byte *)(mt+1) + (32*32);
+	front_rgba = (byte *) Hunk_Alloc(4*(32*32));
+
+	// Normal indexed texture for the back layer
+	q_snprintf(texturename, sizeof(texturename), "%s:%s_back", loadmodel->name, mt->name);
+	solidskytexture = TexMgr_LoadImage (loadmodel, texturename, 32, 32, SRC_INDEXED, back, "", (src_offset_t)back, TEXPREF_NONE);
+	
+	// front layer, convert to RGBA and upload
+	p = r = g = b = count = 0;
+
+	for (i=0 ; i < (32*32) ; i++)
+	{
+		rgba = &d_8to24table[*front++];
+
+		// RGB
+		front_rgba[p++] = ((byte*)rgba)[0];
+		front_rgba[p++] = ((byte*)rgba)[1];
+		front_rgba[p++] = ((byte*)rgba)[2];
+		// Alpha
+		front_rgba[p++] = 128; // this look ok to me!
+		
+		// Fast sky
+		r += ((byte *)rgba)[0];
+		g += ((byte *)rgba)[1];
+		b += ((byte *)rgba)[2];
+		count++;
+	}
+
+	q_snprintf(texturename, sizeof(texturename), "%s:%s_front", loadmodel->name, mt->name);
+	alphaskytexture = TexMgr_LoadImage (loadmodel, texturename, 32, 32, SRC_RGBA, front_rgba, "", (src_offset_t)front_rgba, TEXPREF_NONE);
+
+	// calculate r_fastsky color based on average of all opaque foreground colors
+	skyflatcolor[0] = (float)r/(count*255);
+	skyflatcolor[1] = (float)g/(count*255);
+	skyflatcolor[2] = (float)b/(count*255);
+}
+
+/*
 ==================
 Sky_LoadSkyBox
 ==================
@@ -205,7 +258,25 @@ void Sky_LoadSkyBox (const char *name)
 		return;
 	}
 
-	strcpy(skybox_name, name);
+	q_strlcpy(skybox_name, name, sizeof(skybox_name));
+}
+
+/*
+=================
+Sky_ClearAll
+
+Called on map unload/game change to avoid keeping pointers to freed data
+=================
+*/
+void Sky_ClearAll (void)
+{
+	int i;
+
+	skybox_name[0] = 0;
+	for (i=0; i<6; i++)
+		skybox_textures[i] = NULL;
+	solidskytexture = NULL;
+	alphaskytexture = NULL;
 }
 
 /*
@@ -217,14 +288,7 @@ void Sky_NewMap (void)
 {
 	char	key[128], value[4096];
 	const char	*data;
-	int		i;
 
-	//
-	// initially no sky
-	//
-	skybox_name[0] = 0;
-	for (i=0; i<6; i++)
-		skybox_textures[i] = NULL;
 	skyfog = r_skyfog.value;
 
 	//
@@ -321,6 +385,7 @@ void Sky_Init (void)
 
 	Cmd_AddCommand ("sky",Sky_SkyCommand_f);
 
+	skybox_name[0] = 0;
 	for (i=0; i<6; i++)
 		skybox_textures[i] = NULL;
 }
@@ -549,8 +614,7 @@ void Sky_ProcessTextureChains (void)
 			continue;
 
 		for (s = t->texturechains[chain_world]; s; s = s->texturechain)
-			if (!s->culled)
-				Sky_ProcessPoly (s->polys);
+			Sky_ProcessPoly (s->polys);
 	}
 }
 
@@ -692,7 +756,7 @@ FIXME: eliminate cracks by adding an extra vert on tjuncs
 */
 void Sky_DrawSkyBox (void)
 {
-	int		i;
+	int i;
 
 	for (i=0 ; i<6 ; i++)
 	{
@@ -902,7 +966,7 @@ void Sky_DrawFace (int axis)
 	vec3_t		verts[4];
 	int			i, j, start;
 	float		di,qi,dj,qj;
-	vec3_t		vup, vright, temp, temp2;
+	vec3_t		up, right, temp, temp2;
 
 	Sky_SetBoxVert(-1.0, -1.0, axis, verts[0]);
 	Sky_SetBoxVert(-1.0,  1.0, axis, verts[1]);
@@ -912,8 +976,8 @@ void Sky_DrawFace (int axis)
 	start = Hunk_LowMark ();
 	p = (glpoly_t *) Hunk_Alloc(sizeof(glpoly_t));
 
-	VectorSubtract(verts[2],verts[3],vup);
-	VectorSubtract(verts[2],verts[1],vright);
+	VectorSubtract(verts[2],verts[3],up);
+	VectorSubtract(verts[2],verts[1],right);
 
 	di = q_max((int)r_sky_quality.value, 1);
 	qi = 1.0 / di;
@@ -929,15 +993,15 @@ void Sky_DrawFace (int axis)
 				continue;
 
 			//if (i&1 ^ j&1) continue; //checkerboard test
-			VectorScale (vright, qi*i, temp);
-			VectorScale (vup, qj*j, temp2);
+			VectorScale (right, qi*i, temp);
+			VectorScale (up, qj*j, temp2);
 			VectorAdd(temp,temp2,temp);
 			VectorAdd(verts[0],temp,p->verts[0]);
 
-			VectorScale (vup, qj, temp);
+			VectorScale (up, qj, temp);
 			VectorAdd (p->verts[0],temp,p->verts[1]);
 
-			VectorScale (vright, qi, temp);
+			VectorScale (right, qi, temp);
 			VectorAdd (p->verts[1],temp,p->verts[2]);
 
 			VectorAdd (p->verts[0],temp,p->verts[3]);
@@ -979,10 +1043,10 @@ called once per frame before drawing anything else
 */
 void Sky_DrawSky (void)
 {
-	int				i;
+	int i;
 
 	//in these special render modes, the sky faces are handled in the normal world/brush renderer
-	if (r_drawflat_cheatsafe || r_lightmap_cheatsafe )
+	if (r_drawflat_cheatsafe || r_lightmap_cheatsafe)
 		return;
 
 	//
@@ -990,8 +1054,8 @@ void Sky_DrawSky (void)
 	//
 	for (i=0 ; i<6 ; i++)
 	{
-		skymins[0][i] = skymins[1][i] = 9999;
-		skymaxs[0][i] = skymaxs[1][i] = -9999;
+		skymins[0][i] = skymins[1][i] = FLT_MAX;
+		skymaxs[0][i] = skymaxs[1][i] = -FLT_MAX;
 	}
 
 	//
@@ -1019,7 +1083,7 @@ void Sky_DrawSky (void)
 		if (skybox_name[0])
 			Sky_DrawSkyBox ();
 		else
-			Sky_DrawSkyLayers();
+			Sky_DrawSkyLayers ();
 
 		glDepthMask(1);
 		glDepthFunc(GL_LEQUAL);

@@ -35,6 +35,7 @@ void Mod_LoadAliasModel (qmodel_t *mod, void *buffer);
 qmodel_t *Mod_LoadModel (qmodel_t *mod, qboolean crash);
 
 cvar_t	external_ents = {"external_ents", "1", CVAR_ARCHIVE};
+cvar_t	external_vis = {"external_vis", "1", CVAR_ARCHIVE};
 
 static byte	*mod_novis;
 static int	mod_novis_capacity;
@@ -57,6 +58,7 @@ Mod_Init
 void Mod_Init (void)
 {
 	Cvar_RegisterVariable (&gl_subdivide_size);
+	Cvar_RegisterVariable (&external_vis);
 	Cvar_RegisterVariable (&external_ents);
 
 	//johnfitz -- create notexture miptex
@@ -414,6 +416,26 @@ qboolean Mod_CheckFullbrights (byte *pixels, int count)
 
 /*
 =================
+Mod_CheckAnimTextureArrayQ64
+
+Quake64 bsp
+Check if we have any missing textures in the array
+=================
+*/
+qboolean Mod_CheckAnimTextureArrayQ64(texture_t *anims[], int numTex)
+{
+	int i;
+
+	for (i = 0; i < numTex; i++)
+	{
+		if (!anims[i])
+			return false;
+	}
+	return true;
+}
+
+/*
+=================
 Mod_LoadTextures
 =================
 */
@@ -465,7 +487,11 @@ void Mod_LoadTextures (lump_t *l)
 			mt->offsets[j] = LittleLong (mt->offsets[j]);
 
 		if ( (mt->width & 15) || (mt->height & 15) )
-			Sys_Error ("Texture %s is not 16 aligned", mt->name);
+		{
+			if (loadmodel->bspversion != BSPVERSION_QUAKE64)
+				Sys_Error ("Texture %s is not 16 aligned", mt->name);
+		}
+
 		pixels = mt->width*mt->height/64*85;
 		tx = (texture_t *) Hunk_AllocName (sizeof(texture_t) +pixels, loadname );
 		loadmodel->textures[i] = tx;
@@ -486,17 +512,33 @@ void Mod_LoadTextures (lump_t *l)
 			Con_DPrintf("Texture %s extends past end of lump\n", mt->name);
 			pixels = q_max(0, (mod_base + l->fileofs + l->filelen) - (byte*)(mt+1));
 		}
-		memcpy ( tx+1, mt+1, pixels);
 
 		tx->update_warp = false; //johnfitz
 		tx->warpimage = NULL; //johnfitz
 		tx->fullbright = NULL; //johnfitz
+		tx->shift = 0;	// Q64 only
+
+		if (loadmodel->bspversion != BSPVERSION_QUAKE64)
+		{
+			memcpy ( tx+1, mt+1, pixels);
+		}
+		else
+		{ // Q64 bsp
+			miptex64_t *mt64 = (miptex64_t *)mt;
+			tx->shift = LittleLong (mt64->shift);
+			memcpy ( tx+1, mt64+1, pixels);
+		}
 
 		//johnfitz -- lots of changes
 		if (!isDedicated) //no texture uploading for dedicated server
 		{
 			if (!q_strncasecmp(tx->name,"sky",3)) //sky texture //also note -- was Q_strncmp, changed to match qbsp
-				Sky_LoadTexture (tx);
+			{
+				if (loadmodel->bspversion == BSPVERSION_QUAKE64)
+					Sky_LoadTextureQ64 (tx);
+				else
+					Sky_LoadTexture (tx);
+			}
 			else if (tx->name[0] == '*') //warping texture
 			{
 				//external textures -- first look in "textures/mapname/" then look in "textures/"
@@ -611,7 +653,7 @@ void Mod_LoadTextures (lump_t *l)
 		if (!tx || tx->name[0] != '+')
 			continue;
 		if (tx->anim_next)
-			continue;	// allready sequenced
+			continue;	// already sequenced
 
 	// find the number of frames in the animation
 		memset (anims, 0, sizeof(anims));
@@ -667,6 +709,9 @@ void Mod_LoadTextures (lump_t *l)
 				Sys_Error ("Bad animating texture %s", tx->name);
 		}
 
+		if (loadmodel->bspversion == BSPVERSION_QUAKE64 && !Mod_CheckAnimTextureArrayQ64(anims, maxanim))
+			continue; // Just pretend this is a normal texture
+
 #define	ANIM_CYCLE	2
 	// link them all together
 		for (j=0 ; j<maxanim ; j++)
@@ -705,7 +750,7 @@ void Mod_LoadLighting (lump_t *l)
 {
 	int i, mark;
 	byte *in, *out, *data;
-	byte d;
+	byte d, q64_b0, q64_b1;
 	char litfilename[MAX_OSPATH];
 	unsigned int path_id;
 
@@ -731,9 +776,14 @@ void Mod_LoadLighting (lump_t *l)
 			i = LittleLong(((int *)data)[1]);
 			if (i == 1)
 			{
-				Con_DPrintf2("%s loaded\n", litfilename);
-				loadmodel->lightdata = data + 8;
-				return;
+				if (8+l->filelen*3 == com_filesize)
+				{
+					Con_DPrintf2("%s loaded\n", litfilename);
+					loadmodel->lightdata = data + 8;
+					return;
+				}
+				Hunk_FreeToLowMark(mark);
+				Con_Printf("Outdated .lit file (%s should be %u bytes, not %u)\n", litfilename, 8+l->filelen*3, com_filesize);
 			}
 			else
 			{
@@ -750,6 +800,29 @@ void Mod_LoadLighting (lump_t *l)
 	// LordHavoc: no .lit found, expand the white lighting data to color
 	if (!l->filelen)
 		return;
+
+	// Quake64 bsp lighmap data
+	if (loadmodel->bspversion == BSPVERSION_QUAKE64)
+	{
+		// RGB lightmap samples are packed in 16bits.
+		// RRRRR GGGGG BBBBBB
+
+		loadmodel->lightdata = (byte *) Hunk_AllocName ( (l->filelen / 2)*3, litfilename);
+		in = mod_base + l->fileofs;
+		out = loadmodel->lightdata;
+
+		for (i = 0;i < (l->filelen / 2) ;i++)
+		{
+			q64_b0 = *in++;
+			q64_b1 = *in++;
+
+			*out++ = q64_b0 & 0xf8;/* 0b11111000 */
+			*out++ = ((q64_b0 & 0x07) << 5) + ((q64_b1 & 0xc0) >> 5);/* 0b00000111, 0b11000000 */
+			*out++ = (q64_b1 & 0x3f) << 2;/* 0b00111111 */
+		}
+		return;
+	}
+
 	loadmodel->lightdata = (byte *) Hunk_AllocName ( l->filelen*3, litfilename);
 	in = loadmodel->lightdata + l->filelen*2; // place the file at the end, so it will not be overwritten until the very last write
 	out = loadmodel->lightdata;
@@ -789,20 +862,35 @@ Mod_LoadEntities
 */
 void Mod_LoadEntities (lump_t *l)
 {
+	char	basemapname[MAX_QPATH];
 	char	entfilename[MAX_QPATH];
 	char		*ents;
 	int		mark;
 	unsigned int	path_id;
+	unsigned int	crc = 0;
 
 	if (! external_ents.value)
 		goto _load_embedded;
 
-	q_strlcpy(entfilename, loadmodel->name, sizeof(entfilename));
-	COM_StripExtension(entfilename, entfilename, sizeof(entfilename));
-	q_strlcat(entfilename, ".ent", sizeof(entfilename));
-	Con_DPrintf2("trying to load %s\n", entfilename);
 	mark = Hunk_LowMark();
+	if (l->filelen > 0) {
+		crc = CRC_Block(mod_base + l->fileofs, l->filelen - 1);
+	}
+
+	q_strlcpy(basemapname, loadmodel->name, sizeof(basemapname));
+	COM_StripExtension(basemapname, basemapname, sizeof(basemapname));
+
+	q_snprintf(entfilename, sizeof(entfilename), "%s@%04x.ent", basemapname, crc);
+	Con_DPrintf2("trying to load %s\n", entfilename);
 	ents = (char *) COM_LoadHunkFile (entfilename, &path_id);
+
+	if (!ents)
+	{
+		q_snprintf(entfilename, sizeof(entfilename), "%s.ent", basemapname);
+		Con_DPrintf2("trying to load %s\n", entfilename);
+		ents = (char *) COM_LoadHunkFile (entfilename, &path_id);
+	}
+
 	if (ents)
 	{
 		// use ent file only from the same gamedir as the map
@@ -919,7 +1007,6 @@ void Mod_LoadTexinfo (lump_t *l)
 	texinfo_t *in;
 	mtexinfo_t *out;
 	int	i, j, count, miptex;
-	float	len1, len2;
 	int missing = 0; //johnfitz
 
 	in = (texinfo_t *)(mod_base + l->fileofs);
@@ -938,23 +1025,6 @@ void Mod_LoadTexinfo (lump_t *l)
 			out->vecs[0][j] = LittleFloat (in->vecs[0][j]);
 			out->vecs[1][j] = LittleFloat (in->vecs[1][j]);
 		}
-		len1 = VectorLength (out->vecs[0]);
-		len2 = VectorLength (out->vecs[1]);
-		len1 = (len1 + len2)/2;
-		if (len1 < 0.32)
-			out->mipadjust = 4;
-		else if (len1 < 0.49)
-			out->mipadjust = 3;
-		else if (len1 < 0.99)
-			out->mipadjust = 2;
-		else
-			out->mipadjust = 1;
-#if 0
-		if (len1 + len2 < 0.001)
-			out->mipadjust = 1;		// don't crash
-		else
-			out->mipadjust = 1 / floor((len1+len2)/2 + 0.1);
-#endif
 
 		miptex = LittleLong (in->miptex);
 		out->flags = LittleLong (in->flags);
@@ -997,8 +1067,8 @@ void CalcSurfaceExtents (msurface_t *s)
 	mtexinfo_t	*tex;
 	int		bmins[2], bmaxs[2];
 
-	mins[0] = mins[1] = 999999;
-	maxs[0] = maxs[1] = -999999; // FIXME: change these two to FLT_MAX/-FLT_MAX
+	mins[0] = mins[1] = FLT_MAX;
+	maxs[0] = maxs[1] = -FLT_MAX;
 
 	tex = s->texinfo;
 
@@ -1109,8 +1179,8 @@ void Mod_CalcSurfaceBounds (msurface_t *s)
 	int			i, e;
 	mvertex_t	*v;
 
-	s->mins[0] = s->mins[1] = s->mins[2] = 9999;
-	s->maxs[0] = s->maxs[1] = s->maxs[2] = -9999;
+	s->mins[0] = s->mins[1] = s->mins[2] = FLT_MAX;
+	s->maxs[0] = s->maxs[1] = s->maxs[2] = -FLT_MAX;
 
 	for (i=0 ; i<s->numedges ; i++)
 	{
@@ -1216,6 +1286,9 @@ void Mod_LoadFaces (lump_t *l, qboolean bsp2)
 		Mod_CalcSurfaceBounds (out); //johnfitz -- for per-surface frustum culling
 
 	// lighting info
+		if (loadmodel->bspversion == BSPVERSION_QUAKE64)
+			lofs /= 2; // Q64 samples are 16bits instead 8 in normal Quake 
+
 		if (lofs == -1)
 			out->samples = NULL;
 		else
@@ -1692,10 +1765,10 @@ void Mod_LoadClipnodes (lump_t *l, qboolean bsp2)
 		{
 			out->planenum = LittleLong(ins->planenum);
 
-		//johnfitz -- bounds check
-		if (out->planenum < 0 || out->planenum >= loadmodel->numplanes)
-			Host_Error ("Mod_LoadClipnodes: planenum out of bounds");
-		//johnfitz
+			//johnfitz -- bounds check
+			if (out->planenum < 0 || out->planenum >= loadmodel->numplanes)
+				Host_Error ("Mod_LoadClipnodes: planenum out of bounds");
+			//johnfitz
 
 			//johnfitz -- support clipnodes > 32k
 			out->children[0] = (unsigned short)LittleShort(ins->children[0]);
@@ -1982,6 +2055,101 @@ void Mod_BoundsFromClipNode (qmodel_t *mod, int hull, int nodenum)
 	Mod_BoundsFromClipNode (mod, hull, node->children[1]);
 }
 
+/* EXTERNAL VIS FILE SUPPORT:
+ */
+typedef struct vispatch_s
+{
+	char	mapname[32];
+	int	filelen;	// length of data after header (VIS+Leafs)
+} vispatch_t;
+#define VISPATCH_HEADER_LEN 36
+
+static FILE *Mod_FindVisibilityExternal(void)
+{
+	vispatch_t header;
+	char visfilename[MAX_QPATH];
+	const char* shortname;
+	unsigned int path_id;
+	FILE *f;
+	long pos;
+	size_t r;
+
+	q_snprintf(visfilename, sizeof(visfilename), "maps/%s.vis", loadname);
+	if (COM_FOpenFile(visfilename, &f, &path_id) < 0)
+	{
+		Con_DPrintf("%s not found, trying ", visfilename);
+		q_snprintf(visfilename, sizeof(visfilename), "%s.vis", COM_SkipPath(com_gamedir));
+		Con_DPrintf("%s\n", visfilename);
+		if (COM_FOpenFile(visfilename, &f, &path_id) < 0)
+		{
+			Con_DPrintf("external vis not found\n");
+			return NULL;
+		}
+	}
+	if (path_id < loadmodel->path_id)
+	{
+		fclose(f);
+		Con_DPrintf("ignored %s from a gamedir with lower priority\n", visfilename);
+		return NULL;
+	}
+
+	Con_DPrintf("Found external VIS %s\n", visfilename);
+
+	shortname = COM_SkipPath(loadmodel->name);
+	pos = 0;
+	while ((r = fread(&header, 1, VISPATCH_HEADER_LEN, f)) == VISPATCH_HEADER_LEN)
+	{
+		header.filelen = LittleLong(header.filelen);
+		if (header.filelen <= 0) {	/* bad entry -- don't trust the rest. */
+			fclose(f);
+			return NULL;
+		}
+		if (!q_strcasecmp(header.mapname, shortname))
+			break;
+		pos += header.filelen + VISPATCH_HEADER_LEN;
+		fseek(f, pos, SEEK_SET);
+	}
+	if (r != VISPATCH_HEADER_LEN) {
+		fclose(f);
+		Con_DPrintf("%s not found in %s\n", shortname, visfilename);
+		return NULL;
+	}
+
+	return f;
+}
+
+static byte *Mod_LoadVisibilityExternal(FILE* f)
+{
+	int	filelen;
+	byte*	visdata;
+
+	filelen = 0;
+	fread(&filelen, 1, 4, f);
+	filelen = LittleLong(filelen);
+	if (filelen <= 0) return NULL;
+	Con_DPrintf("...%d bytes visibility data\n", filelen);
+	visdata = (byte *) Hunk_AllocName(filelen, "EXT_VIS");
+	if (!fread(visdata, filelen, 1, f))
+		return NULL;
+	return visdata;
+}
+
+static void Mod_LoadLeafsExternal(FILE* f)
+{
+	int	filelen;
+	void*	in;
+
+	filelen = 0;
+	fread(&filelen, 1, 4, f);
+	filelen = LittleLong(filelen);
+	if (filelen <= 0) return;
+	Con_DPrintf("...%d bytes leaf data\n", filelen);
+	in = Hunk_AllocName(filelen, "EXT_LEAF");
+	if (!fread(in, filelen, 1, f))
+		return;
+	Mod_ProcessLeafs_S((dsleaf_t *)in, filelen);
+}
+
 /*
 =================
 Mod_LoadBrushModel
@@ -2012,8 +2180,11 @@ void Mod_LoadBrushModel (qmodel_t *mod, void *buffer)
 	case BSP2VERSION_BSP2:
 		bsp2 = 2;	//sanitised revision
 		break;
+	case BSPVERSION_QUAKE64:
+		bsp2 = false;
+		break;
 	default:
-		Sys_Error ("Mod_LoadBrushModel: %s has wrong version number (%i should be %i)", mod->name, mod->bspversion, BSPVERSION);
+		Sys_Error ("Mod_LoadBrushModel: %s has unsupported version number (%i)", mod->name, mod->bspversion);
 		break;
 	}
 
@@ -2034,8 +2205,33 @@ void Mod_LoadBrushModel (qmodel_t *mod, void *buffer)
 	Mod_LoadTexinfo (&header->lumps[LUMP_TEXINFO]);
 	Mod_LoadFaces (&header->lumps[LUMP_FACES], bsp2);
 	Mod_LoadMarksurfaces (&header->lumps[LUMP_MARKSURFACES], bsp2);
+
+	if (mod->bspversion == BSPVERSION && external_vis.value && sv.modelname[0] && !q_strcasecmp(loadname, sv.name))
+	{
+		FILE* fvis;
+		Con_DPrintf("trying to open external vis file\n");
+		fvis = Mod_FindVisibilityExternal();
+		if (fvis) {
+			int mark = Hunk_LowMark();
+			loadmodel->leafs = NULL;
+			loadmodel->numleafs = 0;
+			Con_DPrintf("found valid external .vis file for map\n");
+			loadmodel->visdata = Mod_LoadVisibilityExternal(fvis);
+			if (loadmodel->visdata) {
+				Mod_LoadLeafsExternal(fvis);
+			}
+			fclose(fvis);
+			if (loadmodel->visdata && loadmodel->leafs && loadmodel->numleafs) {
+				goto visdone;
+			}
+			Hunk_FreeToLowMark(mark);
+			Con_DPrintf("External VIS data failed, using standard vis.\n");
+		}
+	}
+
 	Mod_LoadVisibility (&header->lumps[LUMP_VISIBILITY]);
 	Mod_LoadLeafs (&header->lumps[LUMP_LEAFS], bsp2);
+visdone:
 	Mod_LoadNodes (&header->lumps[LUMP_NODES], bsp2);
 	Mod_LoadClipnodes (&header->lumps[LUMP_CLIPNODES], bsp2);
 	Mod_LoadEntities (&header->lumps[LUMP_ENTITIES]);
@@ -2136,6 +2332,9 @@ void * Mod_LoadAliasFrame (void * pin, maliasframedesc_t *frame)
 	int				i;
 	daliasframe_t	*pdaliasframe;
 
+	if (posenum >= MAXALIASFRAMES)
+		Sys_Error ("posenum >= MAXALIASFRAMES");
+
 	pdaliasframe = (daliasframe_t *)pin;
 
 	strcpy (frame->name, pdaliasframe->name);
@@ -2199,6 +2398,8 @@ void *Mod_LoadAliasGroup (void * pin,  maliasframedesc_t *frame)
 
 	for (i=0 ; i<numframes ; i++)
 	{
+		if (posenum >= MAXALIASFRAMES) Sys_Error ("posenum >= MAXALIASFRAMES");
+
 		poseverts[posenum] = (trivertx_t *)((daliasframe_t *)ptemp + 1);
 		posenum++;
 
@@ -2411,8 +2612,8 @@ void Mod_CalcAliasBounds (aliashdr_t *a)
 	//clear out all data
 	for (i=0; i<3;i++)
 	{
-		loadmodel->mins[i] = loadmodel->ymins[i] = loadmodel->rmins[i] = 999999;
-		loadmodel->maxs[i] = loadmodel->ymaxs[i] = loadmodel->rmaxs[i] = -999999;
+		loadmodel->mins[i] = loadmodel->ymins[i] = loadmodel->rmins[i] = FLT_MAX;
+		loadmodel->maxs[i] = loadmodel->ymaxs[i] = loadmodel->rmaxs[i] = -FLT_MAX;
 		radius = yawradius = 0;
 	}
 
@@ -2556,7 +2757,7 @@ void Mod_LoadAliasModel (qmodel_t *mod, void *buffer)
 	pheader->skinheight = LittleLong (pinmodel->skinheight);
 
 	if (pheader->skinheight > MAX_LBM_HEIGHT)
-		Sys_Error ("model %s has a skin taller than %d", mod->name,
+		Con_DWarning ("model %s has a skin taller than %d", mod->name,
 				   MAX_LBM_HEIGHT);
 
 	pheader->numverts = LittleLong (pinmodel->numverts);

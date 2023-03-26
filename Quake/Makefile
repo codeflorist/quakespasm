@@ -46,6 +46,7 @@ CC ?= gcc
 LINKER = $(CC)
 
 STRIP ?= strip
+PKG_CONFIG ?= pkg-config
 
 #CPUFLAGS= -mtune=i686
 #CPUFLAGS= -march=pentium4
@@ -124,11 +125,11 @@ $(error Invalid MP3LIB setting)
 endif
 endif
 ifeq ($(MP3LIB),mad)
-mp3_obj=snd_mp3.o
+mp3_obj=snd_mp3
 lib_mp3dec=-lmad
 endif
 ifeq ($(MP3LIB),mpg123)
-mp3_obj=snd_mpg123.o
+mp3_obj=snd_mpg123
 lib_mp3dec=-lmpg123
 endif
 ifeq ($(VORBISLIB),vorbis)
@@ -153,8 +154,8 @@ ifeq ($(USE_CODEC_OPUS),1)
 # but they include the headers without the opus directory
 # prefix and rely on pkg-config. ewww...
 CFLAGS+= -DUSE_CODEC_OPUS
-CFLAGS+= $(shell pkg-config --cflags opusfile)
-CODECLIBS+= $(shell pkg-config --libs   opusfile)
+CFLAGS+= $(shell $(PKG_CONFIG) --cflags opusfile)
+CODECLIBS+= $(shell $(PKG_CONFIG) --libs   opusfile)
 endif
 ifeq ($(USE_CODEC_VORBIS),1)
 CFLAGS+= -DUSE_CODEC_VORBIS $(cpp_vorbisdec)
@@ -205,7 +206,8 @@ MUSIC_OBJS:= bgmusic.o \
 	snd_wave.o \
 	snd_vorbis.o \
 	snd_opus.o \
-	$(mp3_obj) \
+	$(mp3_obj).o \
+	snd_mp3tag.o \
 	snd_mikmod.o \
 	snd_xmp.o \
 	snd_umx.o
@@ -265,6 +267,7 @@ OBJS := strlcat.o \
 	wad.o \
 	cmd.o \
 	common.o \
+	miniz.o \
 	crc.o \
 	cvar.o \
 	cfgfile.o \

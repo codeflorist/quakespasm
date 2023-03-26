@@ -47,21 +47,44 @@ static char *PR_GetTempString (void)
 ===============================================================================
 */
 
+static const char* PF_GetStringArg(int idx, void* userdata)
+{
+	if (userdata)
+		idx += *(int*)userdata;
+	if (idx < 0 || idx >= pr_argc)
+		return "";
+	return LOC_GetString(G_STRING(OFS_PARM0 + idx * 3));
+}
+
 static char *PF_VarString (int	first)
 {
 	int		i;
 	static char out[1024];
+	const char *format;
 	size_t s;
 
 	out[0] = 0;
 	s = 0;
-	for (i = first; i < pr_argc; i++)
+
+	if (first >= pr_argc)
+		return out;
+
+	format = LOC_GetString(G_STRING((OFS_PARM0 + first * 3)));
+	if (LOC_HasPlaceholders(format))
 	{
-		s = q_strlcat(out, G_STRING((OFS_PARM0+i*3)), sizeof(out));
-		if (s >= sizeof(out))
+		int offset = first + 1;
+		s = LOC_Format(format, PF_GetStringArg, &offset, out, sizeof(out));
+	}
+	else
+	{
+		for (i = first; i < pr_argc; i++)
 		{
-			Con_Warning("PF_VarString: overflow (string truncated)\n");
-			return out;
+			s = q_strlcat(out, LOC_GetString(G_STRING(OFS_PARM0+i*3)), sizeof(out));
+			if (s >= sizeof(out))
+			{
+				Con_Warning("PF_VarString: overflow (string truncated)\n");
+				return out;
+			}
 		}
 	}
 	if (s > 255)
@@ -202,8 +225,8 @@ static void SetMinMaxSize (edict_t *e, float *minvec, float *maxvec, qboolean ro
 		VectorCopy (minvec, bounds[0]);
 		VectorCopy (maxvec, bounds[1]);
 
-		rmin[0] = rmin[1] = rmin[2] = 9999;
-		rmax[0] = rmax[1] = rmax[2] = -9999;
+		rmin[0] = rmin[1] = rmin[2] = FLT_MAX;
+		rmax[0] = rmax[1] = rmax[2] = -FLT_MAX;
 
 		for (i = 0; i <= 1; i++)
 		{
@@ -1541,7 +1564,7 @@ static void PF_WriteCoord (void)
 
 static void PF_WriteString (void)
 {
-	MSG_WriteString (WriteDest(), G_STRING(OFS_PARM1));
+	MSG_WriteString (WriteDest(), LOC_GetString(G_STRING(OFS_PARM1)));
 }
 
 static void PF_WriteEntity (void)
@@ -1664,6 +1687,15 @@ static void PF_changelevel (void)
 	Cbuf_AddText (va("changelevel %s\n",s));
 }
 
+/*
+==============
+PF_finalefinished -- used by 2021 release.
+==============
+*/
+static void PF_finalefinished (void)
+{
+}
+
 static void PF_Fixme (void)
 {
 	PR_RunError ("unimplemented builtin");
@@ -1758,7 +1790,10 @@ static builtin_t pr_builtin[] =
 	PF_precache_sound,	// precache_sound2 is different only for qcc
 	PF_precache_file,
 
-	PF_setspawnparms
+	PF_setspawnparms,
+
+	// 2021 release
+	PF_finalefinished,	// void() finaleFinished = #79
 };
 
 builtin_t *pr_builtins = pr_builtin;

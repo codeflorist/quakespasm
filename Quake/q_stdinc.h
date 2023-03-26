@@ -64,6 +64,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <float.h>
 
 /*==========================================================================*/
 
@@ -79,13 +80,11 @@
 #define	Q_MAXSHORT	((short)0x7fff)
 #define	Q_MAXINT	((int)0x7fffffff)
 #define	Q_MAXLONG	((int)0x7fffffff)
-#define	Q_MAXFLOAT	((int)0x7fffffff)
 
 #define	Q_MINCHAR	((char)0x80)
 #define	Q_MINSHORT	((short)0x8000)
 #define	Q_MININT	((int)0x80000000)
 #define	Q_MINLONG	((int)0x80000000)
-#define	Q_MINFLOAT	((int)0x7fffffff)
 
 /* Make sure the types really have the right
  * sizes: These macros are from SDL headers.
@@ -110,7 +109,7 @@ COMPILE_TIME_ASSERT(enum, sizeof(THE_DUMMY_ENUM) == sizeof(int));
  * This variant works on most (but not *all*) systems...
  */
 #ifndef offsetof
-#define offsetof(t,m) ((size_t)&(((t *)0)->m))
+#define offsetof(t,m) ((intptr_t)&(((t *)0)->m))
 #endif
 
 

@@ -84,6 +84,8 @@ cvar_t	temp1 = {"temp1","0",CVAR_NONE};
 
 cvar_t devstats = {"devstats","0",CVAR_NONE}; //johnfitz -- track developer statistics that vary every frame
 
+cvar_t	campaign = {"campaign","0",CVAR_NONE}; // for the 2021 rerelease
+
 devstats_t dev_stats, dev_peakstats;
 overflowtimes_t dev_overflows; //this stores the last time overflow messages were displayed, not the last time overflows occured
 
@@ -281,6 +283,8 @@ void Host_InitLocal (void)
 	Cvar_RegisterVariable (&developer);
 	Cvar_RegisterVariable (&coop);
 	Cvar_RegisterVariable (&deathmatch);
+
+	Cvar_RegisterVariable (&campaign);
 
 	Cvar_RegisterVariable (&pausable);
 
@@ -542,6 +546,7 @@ void Host_ClearMemory (void)
 	Con_DPrintf ("Clearing memory\n");
 	D_FlushCaches ();
 	Mod_ClearAll ();
+	Sky_ClearAll();
 /* host_hunklevel MUST be set at this point */
 	Hunk_FreeToLowMark (host_hunklevel);
 	cls.signon = 0;
@@ -869,6 +874,8 @@ void Host_Init (void)
 		CL_Init ();
 	}
 
+	LOC_Init (); // for 2021 rerelease support.
+
 	Hunk_AllocName (0, "-HOST_HUNKLEVEL-");
 	host_hunklevel = Hunk_LowMark ();
 
@@ -933,5 +940,7 @@ void Host_Shutdown(void)
 	}
 
 	LOG_Close ();
+
+	LOC_Shutdown ();
 }
 
