@@ -37,7 +37,7 @@ static void S_MODPLUG_SetSettings (snd_stream_t *stream)
 	settings.mBits = shm->samplebits;
 	settings.mFrequency = shm->speed;
 	settings.mResamplingMode = MODPLUG_RESAMPLE_SPLINE;/*MODPLUG_RESAMPLE_FIR*/
-	settings.mLoopCount = 0;
+	settings.mLoopCount = -1;		/* to enable module internal loops */
 	ModPlug_SetSettings(&settings);
 
 	if (stream) {
@@ -79,10 +79,8 @@ static qboolean S_MODPLUG_CodecOpenStream (snd_stream_t *stream)
 	}
 
 	ModPlug_Seek((ModPlugFile*)stream->priv, 0);
-#if 0
 	/* default volume (128) sounds rather low? */
 	ModPlug_SetMasterVolume((ModPlugFile*)stream->priv, 384);	/* 0-512 */
-#endif
 	return true;
 }
 
@@ -95,6 +93,12 @@ static void S_MODPLUG_CodecCloseStream (snd_stream_t *stream)
 {
 	ModPlug_Unload((ModPlugFile*)stream->priv);
 	S_CodecUtilClose(&stream);
+}
+
+static int S_MODPLUG_CodecJumpToOrder (snd_stream_t *stream, int to)
+{
+	ModPlug_SeekOrder((ModPlugFile*)stream->priv, to);
+	return 0;
 }
 
 static int S_MODPLUG_CodecRewindStream (snd_stream_t *stream)
@@ -113,9 +117,9 @@ snd_codec_t modplug_codec =
 	S_MODPLUG_CodecOpenStream,
 	S_MODPLUG_CodecReadStream,
 	S_MODPLUG_CodecRewindStream,
+	S_MODPLUG_CodecJumpToOrder,
 	S_MODPLUG_CodecCloseStream,
 	NULL
 };
 
 #endif	/* USE_CODEC_MODPLUG */
-

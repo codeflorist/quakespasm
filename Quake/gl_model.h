@@ -39,6 +39,9 @@ m*_t structures are in-memory
 #define	EF_MUZZLEFLASH 			2
 #define	EF_BRIGHTLIGHT 			4
 #define	EF_DIMLIGHT 			8
+#define EF_QEX_QUADLIGHT		16	// 2021 rerelease
+#define EF_QEX_PENTALIGHT		32	// 2021 rerelease
+#define EF_QEX_CANDLELIGHT		64	// 2021 rerelease
 
 
 /*
@@ -512,7 +515,7 @@ qmodel_t *Mod_ForName (const char *name, qboolean crash);
 void	*Mod_Extradata (qmodel_t *mod);	// handles caching
 void	Mod_TouchModel (const char *name);
 
-mleaf_t *Mod_PointInLeaf (float *p, qmodel_t *model);
+mleaf_t *Mod_PointInLeaf (vec3_t p, qmodel_t *model);
 byte	*Mod_LeafPVS (mleaf_t *leaf, qmodel_t *model);
 byte	*Mod_NoVisPVS (qmodel_t *model);
 

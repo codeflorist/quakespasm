@@ -1178,7 +1178,7 @@ static void Host_Loadgame_f (void)
 	{
 		free (start);
 		start = NULL;
-		Con_Printf ("Savegame is version %i, not %i\n", version, SAVEGAME_VERSION);
+		Host_Error ("Savegame is version %i, not %i", version, SAVEGAME_VERSION);
 		return;
 	}
 	data = COM_ParseStringNewline (data);
@@ -1201,6 +1201,7 @@ static void Host_Loadgame_f (void)
 	{
 		free (start);
 		start = NULL;
+		SCR_EndLoadingPlaque ();
 		Con_Printf ("Couldn't load map\n");
 		return;
 	}
@@ -1208,7 +1209,6 @@ static void Host_Loadgame_f (void)
 	sv.loadgame = true;
 
 // load the light styles
-
 	for (i = 0; i < MAX_LIGHTSTYLES; i++)
 	{
 		data = COM_ParseStringNewline (data);
@@ -1224,7 +1224,7 @@ static void Host_Loadgame_f (void)
 			break;		// end of file
 		if (strcmp(com_token,"{"))
 		{
-			Sys_Error ("First token isn't a brace");
+			Host_Error ("First token isn't a brace");
 		}
 
 		if (entnum == -1)
@@ -2231,7 +2231,7 @@ static void Host_Startdemos_f (void)
 			Cbuf_AddText("map start\n");
 			Cbuf_AddText("centerview\n");
 		}
-		else if (!fitzmode)
+		if (!fitzmode && !cl_startdemos.value)
 		{  /* QuakeSpasm customization: */
 			/* go straight to menu, no CL_NextDemo */
 			cls.demonum = -1;

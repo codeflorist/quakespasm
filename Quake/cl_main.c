@@ -49,6 +49,8 @@ cvar_t	m_side = {"m_side","0.8", CVAR_ARCHIVE};
 cvar_t	cl_maxpitch = {"cl_maxpitch", "90", CVAR_ARCHIVE}; //johnfitz -- variable pitch clamping
 cvar_t	cl_minpitch = {"cl_minpitch", "-90", CVAR_ARCHIVE}; //johnfitz -- variable pitch clamping
 
+cvar_t	cl_startdemos = {"cl_startdemos", "1", CVAR_ARCHIVE};
+
 client_static_t	cls;
 client_state_t	cl;
 // FIXME: put these on hunk?
@@ -163,7 +165,7 @@ void CL_EstablishConnection (const char *host)
 
 	cls.netcon = NET_Connect (host);
 	if (!cls.netcon)
-		Host_Error ("CL_Connect: connect failed\n");
+		Host_Error ("CL_Connect: connect failed");
 	Con_DPrintf ("CL_EstablishConnection: connected to %s\n", host);
 
 	cls.demonum = -1;			// not in the demo loop now
@@ -553,6 +555,26 @@ void CL_RelinkEntities (void)
 			dl->radius = 200 + (rand()&31);
 			dl->die = cl.time + 0.001;
 		}
+		if (ent->effects & EF_QEX_QUADLIGHT)
+		{
+			dl = CL_AllocDlight (i);
+			VectorCopy (ent->origin,  dl->origin);
+			dl->radius = 200 + (rand()&31);
+			dl->die = cl.time + 0.001;
+			dl->color[0] = 0.25f;
+			dl->color[1] = 0.25f;
+			dl->color[2] = 1.0f;
+		}
+		if (ent->effects & EF_QEX_PENTALIGHT)
+		{
+			dl = CL_AllocDlight (i);
+			VectorCopy (ent->origin,  dl->origin);
+			dl->radius = 200 + (rand()&31);
+			dl->die = cl.time + 0.001;
+			dl->color[0] = 1.0f;
+			dl->color[1] = 0.25f;
+			dl->color[2] = 0.25f;
+		}
 
 		if (ent->model->flags & EF_GIB)
 			R_RocketTrail (oldorg, ent->origin, 2);
@@ -810,6 +832,8 @@ void CL_Init (void)
 
 	Cvar_RegisterVariable (&cl_maxpitch); //johnfitz -- variable pitch clamping
 	Cvar_RegisterVariable (&cl_minpitch); //johnfitz -- variable pitch clamping
+
+	Cvar_RegisterVariable (&cl_startdemos);
 
 	Cmd_AddCommand ("entities", CL_PrintEntities_f);
 	Cmd_AddCommand ("disconnect", CL_Disconnect_f);

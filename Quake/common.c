@@ -422,6 +422,9 @@ int Q_atoi (const char *str)
 	int		sign;
 	int		c;
 
+	while (q_isspace (*str))
+		++str;
+
 	if (*str == '-')
 	{
 		sign = -1;
@@ -481,6 +484,9 @@ float Q_atof (const char *str)
 	int		sign;
 	int		c;
 	int	decimal, total;
+
+	while (q_isspace (*str))
+		++str;
 
 	if (*str == '-')
 	{
@@ -964,7 +970,7 @@ void *SZ_GetSpace (sizebuf_t *buf, int length)
 			Sys_Error ("SZ_GetSpace: %i is > full buffer size", length);
 
 		buf->overflowed = true;
-		Con_Printf ("SZ_GetSpace: overflow");
+		Con_Printf ("SZ_GetSpace: overflow\n");
 		SZ_Clear (buf);
 	}
 

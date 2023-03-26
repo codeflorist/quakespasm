@@ -32,6 +32,7 @@ static char	localmodels[MAX_MODELS][8];	// inline model names for precache
 int		sv_protocol = PROTOCOL_FITZQUAKE; //johnfitz
 
 extern qboolean	pr_alpha_supported; //johnfitz
+extern int pr_effects_mask;
 
 //============================================================================
 
@@ -229,15 +230,13 @@ void SV_StartSound (edict_t *entity, int channel, const char *sample, int volume
 	{
 		if (sv.protocol == PROTOCOL_NETQUAKE)
 			return; //don't send any info protocol can't support
-		else
-			field_mask |= SND_LARGEENTITY;
+		field_mask |= SND_LARGEENTITY;
 	}
 	if (sound_num >= 256 || channel >= 8)
 	{
 		if (sv.protocol == PROTOCOL_NETQUAKE)
 			return; //don't send any info protocol can't support
-		else
-			field_mask |= SND_LARGESOUND;
+		field_mask |= SND_LARGESOUND;
 	}
 	//johnfitz
 
@@ -265,6 +264,42 @@ void SV_StartSound (edict_t *entity, int channel, const char *sample, int volume
 
 	for (i = 0; i < 3; i++)
 		MSG_WriteCoord (&sv.datagram, entity->v.origin[i]+0.5*(entity->v.mins[i]+entity->v.maxs[i]), sv.protocolflags);
+}
+
+/*
+==================
+SV_LocalSound - for 2021 rerelease
+==================
+*/
+void SV_LocalSound (client_t *client, const char *sample)
+{
+	int	sound_num, field_mask;
+
+	for (sound_num = 1; sound_num < MAX_SOUNDS && sv.sound_precache[sound_num]; sound_num++)
+	{
+		if (!strcmp(sample, sv.sound_precache[sound_num]))
+			break;
+	}
+	if (sound_num == MAX_SOUNDS || !sv.sound_precache[sound_num])
+	{
+		Con_Printf ("SV_LocalSound: %s not precached\n", sample);
+		return;
+	}
+
+	field_mask = 0;
+	if (sound_num >= 256)
+	{
+		if (sv.protocol == PROTOCOL_NETQUAKE)
+			return;
+		field_mask = SND_LARGESOUND;
+	}
+
+	MSG_WriteByte (&client->message, svc_localsound);
+	MSG_WriteByte (&client->message, field_mask);
+	if (field_mask & SND_LARGESOUND)
+		MSG_WriteShort (&client->message, sound_num);
+	else
+		MSG_WriteByte (&client->message, sound_num);
 }
 
 /*
@@ -312,12 +347,12 @@ void SV_SendServerinfo (client_t *client)
 	MSG_WriteString (&client->message, PR_GetString(sv.edicts->v.message));
 
 	//johnfitz -- only send the first 256 model and sound precaches if protocol is 15
-	for (i=0,s = sv.model_precache+1 ; *s; s++,i++)
+	for (i = 1, s = sv.model_precache+1; *s; s++,i++)
 		if (sv.protocol != PROTOCOL_NETQUAKE || i < 256)
 			MSG_WriteString (&client->message, *s);
 	MSG_WriteByte (&client->message, 0);
 
-	for (i=0,s = sv.sound_precache+1 ; *s ; s++,i++)
+	for (i = 1, s = sv.sound_precache+1; *s; s++, i++)
 		if (sv.protocol != PROTOCOL_NETQUAKE || i < 256)
 			MSG_WriteString (&client->message, *s);
 	MSG_WriteByte (&client->message, 0);
@@ -598,9 +633,11 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 				continue;		// not visible
 		}
 
-		//johnfitz -- max size for protocol 15 is 18 bytes, not 16 as originally
-		//assumed here.  And, for protocol 85 the max size is actually 24 bytes.
-		if (msg->cursize + 24 > msg->maxsize)
+		// johnfitz -- max size for protocol 15 is 18 bytes, not 16 as originally
+		// assumed here.  And, for protocol 85 the max size is actually 24 bytes.
+		// For float coords and angles the limit is 39. 
+		// FIXME: Use tighter limit according to protocol flags and send bits.
+		if (msg->cursize + 39 > msg->maxsize)
 		{
 			//johnfitz -- less spammy overflow message
 			if (!dev_overflows.packetsize || dev_overflows.packetsize + CONSOLE_RESPAM_TIME < realtime )
@@ -643,7 +680,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 		if (ent->baseline.frame != ent->v.frame)
 			bits |= U_FRAME;
 
-		if (ent->baseline.effects != ent->v.effects)
+		if ((ent->baseline.effects ^ (int)ent->v.effects) & pr_effects_mask)
 			bits |= U_EFFECTS;
 
 		if (ent->baseline.modelindex != ent->v.modelindex)
@@ -660,7 +697,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 		}
 
 		//don't send invisible entities unless they have effects
-		if (ent->alpha == ENTALPHA_ZERO && !ent->v.effects)
+		if (ent->alpha == ENTALPHA_ZERO && !((int)ent->v.effects & pr_effects_mask))
 			continue;
 		//johnfitz
 
@@ -712,7 +749,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 		if (bits & U_SKIN)
 			MSG_WriteByte (msg, ent->v.skin);
 		if (bits & U_EFFECTS)
-			MSG_WriteByte (msg, ent->v.effects);
+			MSG_WriteByte (msg, (int)ent->v.effects & pr_effects_mask);
 		if (bits & U_ORIGIN1)
 			MSG_WriteCoord (msg, ent->v.origin[0], sv.protocolflags);
 		if (bits & U_ANGLE1)

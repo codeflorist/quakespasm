@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.94.3</string>
+	<string>0.94.4</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>LSApplicationCategoryType</key>
@@ -30,6 +30,8 @@
 		<string>10.4.0</string>
 		<key>x86_64</key>
 		<string>10.6.0</string>
+		<key>arm64</key>
+		<string>11.0.0</string>
 	</dict>
 	<key>NSMainNibFile</key>
 	<string>Launcher</string>
