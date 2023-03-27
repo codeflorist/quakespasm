@@ -1443,7 +1443,17 @@ void VR_Move(usercmd_t *cmd)
         DoAxis(&controllers[1], 1, K_DOWNARROW, K_UPARROW, vr_joystick_axis_menu_deadzone_extra.value);
 
         vec3_t lfwd, lright, lup;
-        AngleVectors(cl.handrot[0], lfwd, lright, lup);
+
+        // Get HMD orientation for head based movement
+        vec3_t orientation;
+        QuatToYawPitchRoll(current_eye->orientation, orientation);
+
+        if (vr_movement_mode.value == VR_MOVEMENT_MODE_FOLLOW_HEAD) {
+            AngleVectors(orientation, lfwd, lright, lup);
+        }
+        else {
+            AngleVectors(cl.handrot[0], lfwd, lright, lup);
+        }
 
         if (vr_movement_mode.value == VR_MOVEMENT_MODE_RAW_INPUT)
         {
@@ -1492,7 +1502,13 @@ void VR_Move(usercmd_t *cmd)
             cmd->sidemove += cl_forwardspeed.value * right;
         }
 
-        AngleVectors(cl.handrot[0], lfwd, lright, lup);
+        if (vr_movement_mode.value == VR_MOVEMENT_MODE_FOLLOW_HEAD) {
+            AngleVectors(orientation, lfwd, lright, lup);
+        }
+        else {
+            AngleVectors(cl.handrot[0], lfwd, lright, lup);
+        }
+
         cmd->upmove += cl_upspeed.value * GetAxis(&controllers[0].state, 1, 0.0) * lfwd[2];
 
         if (cl_forwardspeed.value > 200 && cl_movespeedkey.value)

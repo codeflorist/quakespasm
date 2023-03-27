@@ -136,6 +136,7 @@ static void VR_MenuPrintOptionValue(int cx, int cy, int option)
         case VR_OPTION_MOVEMENT_MODE:
             switch ((int)vr_movement_mode.value)
             {
+            case VR_MOVEMENT_MODE_FOLLOW_HEAD: value_string = "Follow head"; break;
             case VR_MOVEMENT_MODE_FOLLOW_HAND: value_string = "Follow hand"; break;
             case VR_MOVEMENT_MODE_RAW_INPUT: value_string = "Raw input"; break;
             }
