@@ -175,6 +175,9 @@ static void VR_MenuPrintOptionValue(int cx, int cy, int option)
         case VR_OPTION_HUD_SCALE:                printAsStr(vr_hud_scale); break;
         case VR_OPTION_MENU_SCALE:               printAsStr(vr_menu_scale); break;
         case VR_OPTION_IMPULSE9:                 break;
+        case VR_OPTION_GOD:                      break;
+        case VR_OPTION_NOCLIP:                   break;
+        case VR_OPTION_FLY:                      break;
     }
 #ifdef _MSC_VER
 #undef snprintf
@@ -294,6 +297,18 @@ static void VR_MenuKeyOption(int key, int option)
             VR_MenuPlaySound("items/r_item2.wav", 0.5);
             Cmd_ExecuteString("impulse 9", cmd_source_t::src_command);
             break;
+        case VR_OPTION_GOD:
+            VR_MenuPlaySound("items/r_item2.wav", 0.5);
+            Cmd_ExecuteString("god", cmd_source_t::src_command);
+            break;
+        case VR_OPTION_NOCLIP:
+            VR_MenuPlaySound("items/r_item2.wav", 0.5);
+            Cmd_ExecuteString("noclip", cmd_source_t::src_command);
+            break;
+        case VR_OPTION_FLY:
+            VR_MenuPlaySound("items/r_item2.wav", 0.5);
+            Cmd_ExecuteString("fly", cmd_source_t::src_command);
+            break;
     }
 
 #undef _maxarray
@@ -364,75 +379,75 @@ static void VR_MenuDraw (void)
 	for ( i = 0; i < VR_OPTION_MAX; i++ ) {
 		switch ( i ) {
 			case VR_OPTION_ENABLED:
-				M_Print( 16, y, "            VR Enabled" );
+				M_Print(16, y, "               VR Enabled" );
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_AIMMODE:
-				M_Print( 16, y, "              Aim Mode" );
+				M_Print(16, y, "                 Aim Mode" );
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_DEADZONE:
-				M_Print( 16, y, "              Deadzone" );
+				M_Print(16, y, "                 Deadzone" );
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_CROSSHAIR:
-				M_Print( 16, y, "             Crosshair" );
+				M_Print(16, y, "                Crosshair" );
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_CROSSHAIR_DEPTH:
-				M_Print( 16, y, "       Crosshair Depth" );
+				M_Print(16, y, "          Crosshair Depth" );
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_CROSSHAIR_SIZE:
-				M_Print( 16, y, "        Crosshair Size" );
+				M_Print(16, y, "           Crosshair Size" );
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_CROSSHAIR_ALPHA:
-				M_Print( 16, y, "       Crosshair Alpha" );
+				M_Print(16, y, "          Crosshair Alpha" );
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_WORLD_SCALE:
-				M_Print(16, y, "       World Scale");
+				M_Print(16, y, "              World Scale");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_MOVEMENT_MODE:
-				M_Print(16, y, "       Movement mode");
+				M_Print(16, y, "            Movement mode");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_SNAP_TURN:
-				M_Print(16, y, "       Turn");
+				M_Print(16, y, "                     Turn");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_TURN_SPEED:
-				M_Print(16, y, "       Turn Speed");
+				M_Print(16, y, "               Turn Speed");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_MSAA:
-				M_Print(16, y, "       MSAA");
+				M_Print(16, y, "                     MSAA");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_GUNANGLE:
-				M_Print(16, y, "       Gun Angle");
+				M_Print(16, y, "                Gun Angle");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_FLOOR_OFFSET:
-				M_Print(16, y, "       Floor Offset");
+				M_Print(16, y, "             Floor Offset");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_GUNMODELPITCH:
-				M_Print(16, y, "       Gun Model Pitch");
+				M_Print(16, y, "          Gun Model Pitch");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_GUNMODELSCALE:
-				M_Print(16, y, "       Gun Model Scale");
+				M_Print(16, y, "          Gun Model Scale");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_GUNMODELY:
-				M_Print(16, y, "       Gun Model Y");
+				M_Print(16, y, "              Gun Model Y");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_CROSSHAIRY:
-				M_Print(16, y, "       Crosshair Y");
+				M_Print(16, y, "              Crosshair Y");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_PROJECTILESPAWN_Z_OFFSET:
@@ -440,15 +455,27 @@ static void VR_MenuDraw (void)
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_HUD_SCALE:
-				M_Print(16, y, "       HUD Scale");
+				M_Print(16, y, "                HUD Scale");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_MENU_SCALE:
-				M_Print(16, y, "       Menu Scale");
+				M_Print(16, y, "               Menu Scale");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_IMPULSE9:
-				M_Print(16, y, "       Impulse 9");
+				M_Print(16, y, "         Give all weapons");
+		        VR_MenuPrintOptionValue(240, y, i);
+				break;
+			case VR_OPTION_GOD:
+				M_Print(16, y, "                 God Mode");
+		        VR_MenuPrintOptionValue(240, y, i);
+				break;
+			case VR_OPTION_NOCLIP:
+				M_Print(16, y, "             No Clip Mode");
+		        VR_MenuPrintOptionValue(240, y, i);
+				break;
+			case VR_OPTION_FLY:
+				M_Print(16, y, "                 Fly Mode");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 

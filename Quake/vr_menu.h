@@ -29,6 +29,9 @@ typedef enum _vr_menu_options_t
 	VR_OPTION_HUD_SCALE,
 	VR_OPTION_MENU_SCALE,
 	VR_OPTION_IMPULSE9,
+	VR_OPTION_GOD,
+	VR_OPTION_NOCLIP,
+	VR_OPTION_FLY,
 
 	VR_OPTION_MAX
 } vr_menu_options_t;
