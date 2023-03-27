@@ -17,12 +17,8 @@ static char default_cfg[] =
 "bind c +movedown\n"
 "bind SHIFT +speed\n"
 "bind CTRL +attack\n"
-"bind UPARROW +forward\n"
 "bind w +forward\n"
-"bind DOWNARROW +back\n"
 "bind s +back\n"
-"bind LEFTARROW +left\n"
-"bind RIGHTARROW +right\n"
 
 "bind SPACE +jump\n"
 
@@ -75,10 +71,16 @@ static char default_cfg[] =
 "bind MOUSE1 +attack\n"
 "bind MOUSE2 +jump\n"
 
-"bind LSHOULDER \"impulse 12\"\n"
-"bind RSHOULDER \"impulse 10\"\n"
-"bind LTRIGGER +jump\n"
-"bind RTRIGGER +attack\n"
+// VR Controller bindings
+"bind LTRIGGER \"+jump\"\n"
+"bind RTRIGGER \"+attack\"\n"
+"bind BBUTTON \"impulse 10\"\n"
+"bind LTHUMB \"+speed\"\n"
+"bind RTHUMB \"+jump\"\n"
+"bind LSHOULDER \"+showscores\"\n"
+"bind RSHOULDER \"+jump\"\n"
+"bind ABUTTON \"+showscores\"\n"
+"bind XBUTTON \"impulse 12\"\n"
 
 "gamma 1.0\n"
 "volume 0.7\n"
