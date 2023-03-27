@@ -1135,28 +1135,15 @@ void VR_Draw2D()
     glDisable(GL_DEPTH_TEST); // prevents drawing sprites on sprites from interferring with one another
     glEnable(GL_BLEND);
 
-    if (vr_aimmode.value == VR_AIMMODE_CONTROLLER)
-    {
-        AngleVectors(cl.handrot[1], forward, right, up);
+    // TODO: Make the menus' position sperate from the right hand. Centered on last view dir?
+    VectorCopy(r_refdef.aimangles, menu_angles)
 
-        VectorCopy(cl.handrot[1], menu_angles);
+    if (vr_aimmode.value == VR_AIMMODE_HEAD_MYAW || vr_aimmode.value == VR_AIMMODE_HEAD_MYAW_MPITCH)
+        menu_angles[PITCH] = 0;
 
-        AngleVectors(menu_angles, forward, right, up);
+    AngleVectors(menu_angles, forward, right, up);
 
-        VectorMA(cl.handpos[1], 48, forward, target);
-    }
-    else
-    {
-        // TODO: Make the menus' position sperate from the right hand. Centered on last view dir?
-        VectorCopy(r_refdef.aimangles, menu_angles)
-
-            if (vr_aimmode.value == VR_AIMMODE_HEAD_MYAW || vr_aimmode.value == VR_AIMMODE_HEAD_MYAW_MPITCH)
-                menu_angles[PITCH] = 0;
-
-        AngleVectors(menu_angles, forward, right, up);
-
-        VectorMA(r_refdef.vieworg, 48, forward, target);
-    }
+    VectorMA(r_refdef.vieworg, 48, forward, target);
 
     vec3_t smoothedTarget;
     vec3lerp(smoothedTarget, lastMenuPosition, target, 0.9);
