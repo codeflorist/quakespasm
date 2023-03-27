@@ -1406,31 +1406,54 @@ void VR_Move(usercmd_t *cmd)
     if (!vr_enabled.value)
         return;
 
-    DoTrigger(&controllers[0], K_SPACE);
+    // k_EButton_Axis1 === k_EButton_SteamVR_Trigger
+    DoTrigger(&controllers[0], K_LTRIGGER);
+    DoTrigger(&controllers[1], K_RTRIGGER);
 
-    DoKey(&controllers[0], k_EButton_Grip, K_MWHEELUP);
-    DoKey(&controllers[1], k_EButton_Grip, K_MWHEELDOWN);
+    // k_EButton_Grip
+    DoKey(&controllers[0], k_EButton_Grip, K_LSHOULDER);
+    DoKey(&controllers[1], k_EButton_Grip, K_RSHOULDER);
 
-    DoKey(&controllers[0], k_EButton_SteamVR_Touchpad, K_SHIFT);
-    DoKey(&controllers[1], k_EButton_SteamVR_Touchpad, K_ALT);
+    // k_EButton_Axis0 === k_EButton_SteamVR_Touchpad
+    DoKey(&controllers[0], k_EButton_SteamVR_Touchpad, K_LTHUMB);
+    DoKey(&controllers[1], k_EButton_SteamVR_Touchpad, K_RTHUMB);
 
-    DoKey(&controllers[0], k_EButton_ApplicationMenu, '1');
-    DoKey(&controllers[0], k_EButton_A, '2');
-    DoKey(&controllers[1], k_EButton_A, '3');
+    // k_EButton_ApplicationMenu / k_EButton_IndexController_B
+    DoKey(&controllers[0], k_EButton_ApplicationMenu, K_ESCAPE);
+    DoKey(&controllers[1], k_EButton_ApplicationMenu, K_BBUTTON);
 
-    DoKey(&controllers[1], k_EButton_ApplicationMenu, K_ESCAPE);
+    // k_EButton_A
+    DoKey(&controllers[0], k_EButton_A, K_ABUTTON);
+    DoKey(&controllers[1], k_EButton_A, K_XBUTTON);
+
+    // k_EButton_Axis2 === SteamVR-binding "Right Axis 2 Press" (at least on Index Controller)
+    DoKey(&controllers[0], k_EButton_Axis2, K_YBUTTON);
+    DoKey(&controllers[1], k_EButton_Axis2, K_YBUTTON);
+
+    // k_EButton_Axis3 (unknown if used by any controller at all)
+    DoKey(&controllers[0], k_EButton_Axis3, K_JOY1);
+    DoKey(&controllers[1], k_EButton_Axis3, K_JOY2);
+
+    // k_EButton_Axis4 (unknown if used by any controller at all)
+    DoKey(&controllers[0], k_EButton_Axis4, K_JOY3);
+    DoKey(&controllers[1], k_EButton_Axis4, K_JOY4);
+
     if (key_dest == key_menu)
     {
         for (int i = 0; i < 2; i++)
         {
             DoAxis(&controllers[i], 0, K_LEFTARROW, K_RIGHTARROW, vr_joystick_axis_menu_deadzone_extra.value);
             DoAxis(&controllers[i], 1, K_DOWNARROW, K_UPARROW, vr_joystick_axis_menu_deadzone_extra.value);
-            DoTrigger(&controllers[i], K_ENTER);
         }
+
+        // Enter / Escape in menu with Trigger
+        DoTrigger(&controllers[0], K_ESCAPE);
+        DoTrigger(&controllers[1], K_ENTER);
     }
     else
-    {
-        DoTrigger(&controllers[1], K_MOUSE1);
+    {        
+        DoAxis(&controllers[1], 0, K_LEFTARROW, K_RIGHTARROW, vr_joystick_axis_menu_deadzone_extra.value);
+        DoAxis(&controllers[1], 1, K_DOWNARROW, K_UPARROW, vr_joystick_axis_menu_deadzone_extra.value);
 
         vec3_t lfwd, lright, lup;
         AngleVectors(cl.handrot[0], lfwd, lright, lup);
