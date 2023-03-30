@@ -521,6 +521,7 @@ void InitAllWeaponCVars()
     {	//weapons for vanilla Quake, Scourge of Armagon, Dissolution of Eternity
         //vanilla quake weapons
         InitWeaponCVars(i++, "progs/v_axe.mdl", "-4", "24", "37", "0.33");
+        InitWeaponCVars(i++, "progs/v_axe2.mdl", "-4", "34", "37", "0.33"); //axe from underdark overbright & copper
         InitWeaponCVars(i++, "progs/v_shot.mdl", "1.5", "1", "10", "0.5"); //gun
         InitWeaponCVars(i++, "progs/v_shot2.mdl", "-3.5", "1", "8.5", "0.8"); //shotgun
         InitWeaponCVars(i++, "progs/v_nail.mdl", "-5", "3", "15", "0.5"); //nailgun
