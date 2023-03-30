@@ -1148,7 +1148,7 @@ void VR_Draw2D()
     VectorMA(r_refdef.vieworg, 48, forward, target);
 
     vec3_t smoothedTarget;
-    vec3lerp(smoothedTarget, lastMenuPosition, target, 0.05);
+    vec3lerp(smoothedTarget, lastMenuPosition, target, 0.2);
     VectorCopy(smoothedTarget, lastMenuPosition);
 
     glTranslatef(smoothedTarget[0], smoothedTarget[1], smoothedTarget[2]);
