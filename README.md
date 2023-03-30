@@ -1,22 +1,29 @@
 # Quakespasm-OpenVR
 
-OpenVR support integrated into QuakeSpasm. The goal of this fork is primarily to keep it up-to-date with the current versions of QuakeSpasm and OpenVR. This allows maximized MOD support and support for the Enhanced Edition aka Re-Release of Quake.
+OpenVR support integrated into QuakeSpasm. The goal of this fork is primarily to keep it up-to-date with the current versions of QuakeSpasm and OpenVR. This allows maximized MOD support and support for the Enhanced Edition aka Re-Release of Quake. There is however no big further development planned apart from minor features bugfixes. If your are looking for a much more feature rich VR experience, check out [Quake VR](https://github.com/vittorioromeo/quakevr) (see section on differences to this . 
+
+Here are the changes to the last iterations of Quakespasm-OpenVR by [vittorioromero](https://github.com/vittorioromeo/Quakespasm-OpenVR/tree/wip) and [Fishbiter](https://github.com/Fishbiter/Quakespasm-OpenVR):
+- Update to most current [QuakeSpasm](https://github.com/sezero/quakespasm) (v0.95.1)
+- 64bit build
+- Added head-based movment (in addition to controller-based movement)
+- Improved controller binding
+- Various other fixes and tweaks
 
 ## Quake VR vs Quakespasm-OpenVR?
 
-Vittorio Romeo's most excellent [Quake VR](https://github.com/vittorioromeo/quakevr) is definitely a much more feature rich VR implementation - including teleportation, finger tracking, VR interactions, two-handed weapons, dual wielding, holsters and much more.
+Vittorio Romeo expanded `Quakespasm-OpenVR` considerably into the most excellent [Quake VR](https://github.com/vittorioromeo/quakevr), which is definitely a much more feature rich VR implementation - including teleportation, finger tracking, VR interactions, two-handed weapons, dual wielding, holsters and much more.
 
 It is however a heavily modified version of QuakeSpasm, which is not compatible with enhanced mods (like Arcane Dimensions) out-of-the-box.
 
 I would recommend you to enjoy [Quake VR](https://github.com/vittorioromeo/quakevr) primarily with vanilla Quake, it's official expansions as well as supported maps.
 
-For a more bare-bone experience supporting all features of current QuakeSpasm (e.g. support for `Arcane Dimensions` and the Enhanced Edition), Quakespasm-OpenVR would probably be the better option.
+For a more bare-bone experience supporting all features of current QuakeSpasm (e.g. support for Arcane Dimensions and the Enhanced Edition), Quakespasm-OpenVR would probably be the better option.
 
 ## History
 
 This fork of [QuakeSpasm](https://github.com/sezero/quakespasm)...
 - builds on the most current `Quakespasm-OpenVR` version from [vittorioromeo/Quakespasm-OpenVR](https://github.com/vittorioromeo/Quakespasm-OpenVR/tree/wip)
-  - which was forked from [Fishbiter's improvement on Zackin5's version](https://github.com/Zackin5/Quakespasm-OpenVR)
+  - which was forked from [Fishbiter's improvement on Zackin5's version](https://github.com/Fishbiter/Quakespasm-OpenVR)
     - which was forked from [Zackin5's OpenVR port of Dominic Szablewski's (Phoboslab) Oculus modification of Quakespasm](https://github.com/Zackin5/Quakespasm-OpenVR)
       - which was forked from [Dominic Szablewski's (Phoboslab) Oculus modification of Quakespasm](https://github.com/phoboslab/Quakespasm-Rift) and utilizing the [OpenVR C wrapper by Ben Newhouse](https://github.com/newhouseb/openvr-c).
 
