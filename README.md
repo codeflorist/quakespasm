@@ -61,7 +61,7 @@ Input from VR Controllers are mapped to various joystick-related input (except t
 | Right Pad/Stick Left | `LEFTARROW` | _none_ |
 | Right Pad/Stick Right | `RIGHTARROW` | _none_ |
 
-####Important infos:
+#### Important infos:
 
 - There are problems with re-binding the triggers via the menu at the moment. You'll have to edit your `config.cfg` manually, if you want to change these bindings (using `LTRIGGER` and `RTRIGGER`).
 - In SteamVR's default Legacy bindings, controllers with a dedicated `A` button (e.g. Index Controllers) cannot use this button independently from the `Grip` button. To change this, map `A Button` Click to `Left/Right A Button` instead of `Grip Button` in SteamVR's controller binding for `quakespasm-openvr.exe`. Now `A` buttons and `Grip` can be mapped independently.
