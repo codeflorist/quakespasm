@@ -45,7 +45,7 @@ Input from VR Controllers are mapped to various joystick-related input (except t
 
 | Controller Button | Key Mapping | Default Action |
 | ----------------- | ----------- | -------------- |
-| Left Trigger | `LTRIGGER` | Jump / Escape in Menu |
+| Left Trigger | `LTRIGGER` | Jump |
 | Right Trigger | `RTRIGGER` | Attack / Enter in Menu |
 | Left Application Menu / B Button | `ESCAPE` | Toggle Menu / Escape |
 | Right Application Menu / B Button | `BBUTTON` | Next Weapon |
@@ -55,7 +55,7 @@ Input from VR Controllers are mapped to various joystick-related input (except t
 | Right Grip  | `RSHOULDER` |  Jump  |
 | Left A Button | `ABUTTON` | Show Scores |
 | Right A Button | `XBUTTON` | Previous Weapon |
-| Right Axis 2 Press | `YBUTTON` | exec autoexec.cfg |
+| Right Axis 2 Press | `YBUTTON` | _none_ |
 | Right Pad/Stick Up | `UPARROW` | _none_ |
 | Right Pad/Stick Down | `DOWNARROW` | _none_ |
 | Right Pad/Stick Left | `LEFTARROW` | _none_ |
@@ -63,7 +63,6 @@ Input from VR Controllers are mapped to various joystick-related input (except t
 
 #### Important infos:
 
-- There are problems with re-binding the triggers via the menu at the moment. You'll have to edit your `config.cfg` manually, if you want to change these bindings (using `LTRIGGER` and `RTRIGGER`).
 - In SteamVR's default Legacy bindings, controllers with a dedicated `A` button (e.g. Index Controllers) cannot use this button independently from the `Grip` button. To change this, map `A Button` Click to `Left/Right A Button` instead of `Grip Button` in SteamVR's controller binding for `quakespasm-openvr.exe`. Now `A` buttons and `Grip` can be mapped independently.
 - `Right Axis 2 Press` is not mappef at all in SteamVR's default Legacy bindings. You can bind it e.g. to the `Right Touchpad Click` to get an additional button.
 - By default, the right pad/stick is configured for smooth/snap turning. If you use real roomscale-turning, you can set `Turn Speed` in the VR-Settings to the lowest setting (0) to turn this off. Then you can rebind the pad/stick like a D-Pad with 4 directions. You can use these 4 additional bindings e.g. for quick-loading/-saving or mapping of specific weapons.

@@ -2,6 +2,7 @@
 #include "quakedef.h"
 #include "vr.h"
 #include "vr_menu.h"
+#include "menu.h"
 
 #define UNICODE 1
 #include <mmsystem.h>
@@ -1434,8 +1435,7 @@ void VR_Move(usercmd_t *cmd)
             DoAxis(&controllers[i], 1, K_DOWNARROW, K_UPARROW, vr_joystick_axis_menu_deadzone_extra.value);
         }
 
-        // Enter / Escape in menu with Trigger
-        DoTrigger(&controllers[0], K_ESCAPE);
+        // Enter in menu with Trigger
         DoTrigger(&controllers[1], K_ENTER);
     }
     else
