@@ -1,6 +1,6 @@
 # Quakespasm-OpenVR
 
-OpenVR support integrated into QuakeSpasm. The goal of this fork is primarily to keep it up-to-date with the current versions of QuakeSpasm and OpenVR. This allows maximized MOD support and support for the Enhanced Edition aka Re-Release of Quake. There is however no big further development planned apart from minor features bugfixes. If your are looking for a much more feature rich VR experience, check out [Quake VR](https://github.com/vittorioromeo/quakevr) (see section on differences to this . 
+OpenVR support integrated into QuakeSpasm. The goal of this fork is primarily to keep it up-to-date with the current versions of QuakeSpasm and OpenVR. This allows maximized MOD support and support for the Enhanced Edition aka Re-Release of Quake. There is however no big further development planned apart from minor features bugfixes. If your are looking for a much more feature rich VR experience, check out [Quake VR](https://github.com/vittorioromeo/quakevr) (see section below on differences between both projects). 
 
 Here are the changes to the last iterations of Quakespasm-OpenVR by [vittorioromero](https://github.com/vittorioromeo/Quakespasm-OpenVR/tree/wip) and [Fishbiter](https://github.com/Fishbiter/Quakespasm-OpenVR):
 - Update to most current [QuakeSpasm](https://github.com/sezero/quakespasm) (v0.95.1)
