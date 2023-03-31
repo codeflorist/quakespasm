@@ -2,7 +2,6 @@
 #include "quakedef.h"
 #include "vr.h"
 #include "vr_menu.h"
-#include "menu.h"
 
 #define UNICODE 1
 #include <mmsystem.h>
