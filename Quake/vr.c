@@ -1070,11 +1070,11 @@ void VR_ShowCrosshair()
     vec3_t start, end, impact;
     float size, alpha;
 
-
-    if((int)(sv_player->v.weapon) == IT_AXE)
+    // leads to exception in multiplayer
+/*     if((int)(sv_player->v.weapon) == IT_AXE)
     {
         return;
-    }
+    } */
 
     size = CLAMP(0.0, vr_crosshair_size.value, 32.0);
     alpha = CLAMP(0.0, vr_crosshair_alpha.value, 1.0);
@@ -1153,7 +1153,7 @@ void VR_ShowCrosshair()
     case VR_CROSSHAIR_LINE:
         // trace to first entity
         VectorMA(start, 4096, forward, end);
-        TraceLineToEntity(start, end, impact, sv_player);
+        TraceLine(start, end, impact);
 
         glColor4f(1, 0, 0, alpha);
         glLineWidth(size * glwidth / vid.width);
@@ -1577,7 +1577,7 @@ void VR_Move(usercmd_t *cmd)
             vec3_t vright;
 
             vec3_t vup;
-            vec3_t playerYawOnly = { 0, sv_player->v.v_angle[YAW], 0 };
+            vec3_t playerYawOnly = { 0, cl.aimangles[YAW], 0 };
 
             AngleVectors(playerYawOnly, vfwd, vright, vup);
 
