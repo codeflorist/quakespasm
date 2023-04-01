@@ -1211,7 +1211,7 @@ void VR_Draw2D()
     glEnable(GL_BLEND);
 
     // TODO: Make the menus' position sperate from the right hand. Centered on last view dir?
-    VectorCopy(r_refdef.aimangles, menu_angles)
+    VectorCopy(cl.viewangles, menu_angles)
 
     if (vr_aimmode.value == VR_AIMMODE_HEAD_MYAW || vr_aimmode.value == VR_AIMMODE_HEAD_MYAW_MPITCH)
         menu_angles[PITCH] = 0;
