@@ -7,7 +7,7 @@
 #include <mmsystem.h>
 #undef UNICODE
 
-#include "openvr_c.h"
+#include "openvr.h"
 
 #if SDL_MAJOR_VERSION < 2
 FILE *__iob_func() {
@@ -30,19 +30,19 @@ typedef struct {
 typedef struct {
     int index;
     fbo_t fbo;
-    Hmd_Eye eye;
-    HmdVector3_t position;
-    HmdQuaternion_t orientation;
+    vr::EVREye eye;
+    vr::HmdVector3_t position;
+    vr::HmdQuaternion_t orientation;
     float fov_x, fov_y;
 } vr_eye_t;
 
 typedef struct {
-    VRControllerState_t state;
-    VRControllerState_t lastState;
+    vr::VRControllerState_t state;
+    vr::VRControllerState_t lastState;
     vec3_t position;
     vec3_t orientation;
-    HmdVector3_t rawvector;
-    HmdQuaternion_t raworientation;
+    vr::HmdVector3_t rawvector;
+    vr::HmdQuaternion_t raworientation;
 } vr_controller;
 
 // OpenGL Extensions
@@ -108,8 +108,8 @@ vec3_t vr_viewOffset;
 vec3_t lastHudPosition{ 0.0, 0.0, 0.0 };
 vec3_t lastMenuPosition{ 0.0, 0.0, 0.0 };
 
-IVRSystem *ovrHMD;
-TrackedDevicePose_t ovr_DevicePose[16]; //k_unMaxTrackedDeviceCount
+vr::IVRSystem *ovrHMD;
+vr::TrackedDevicePose_t ovr_DevicePose[vr::k_unMaxTrackedDeviceCount];
 
 static vr_eye_t eyes[2];
 static vr_eye_t *current_eye = NULL;
@@ -282,7 +282,7 @@ void DeleteFBO(fbo_t fbo) {
     glDeleteTextures(1, &fbo.texture);
 }
 
-void QuatToYawPitchRoll(HmdQuaternion_t q, vec3_t out) {
+void QuatToYawPitchRoll(vr::HmdQuaternion_t q, vec3_t out) {
     auto sqw = q.w*q.w;
     auto sqx = q.x*q.x;
     auto sqy = q.y*q.y;
@@ -299,8 +299,8 @@ void Vec3RotateZ(vec3_t in, float angle, vec3_t out) {
     out[2] = in[2];
 }
 
-HmdMatrix44_t TransposeMatrix(HmdMatrix44_t in) {
-    HmdMatrix44_t out;
+vr::HmdMatrix44_t TransposeMatrix(vr::HmdMatrix44_t in) {
+    vr::HmdMatrix44_t out;
     int y, x;
     for (y = 0; y < 4; y++)
         for (x = 0; x < 4; x++)
@@ -309,9 +309,9 @@ HmdMatrix44_t TransposeMatrix(HmdMatrix44_t in) {
     return out;
 }
 
-HmdVector3_t AddVectors(HmdVector3_t a, HmdVector3_t b)
+vr::HmdVector3_t AddVectors(vr::HmdVector3_t a, vr::HmdVector3_t b)
 {
-    HmdVector3_t out;
+    vr::HmdVector3_t out;
 
     out.v[0] = a.v[0] + b.v[0];
     out.v[1] = a.v[1] + b.v[1];
@@ -322,9 +322,9 @@ HmdVector3_t AddVectors(HmdVector3_t a, HmdVector3_t b)
 
 // Rotates a vector by a quaternion and returns the results
 // Based on math from https://gamedev.stackexchange.com/questions/28395/rotating-vector3-by-a-quaternion
-HmdVector3_t RotateVectorByQuaternion(HmdVector3_t v, HmdQuaternion_t q)
+vr::HmdVector3_t RotateVectorByQuaternion(vr::HmdVector3_t v, vr::HmdQuaternion_t q)
 {
-    HmdVector3_t u, result;
+    vr::HmdVector3_t u, result;
     u.v[0] = q.x;
     u.v[1] = q.y;
     u.v[2] = q.z;
@@ -335,7 +335,7 @@ HmdVector3_t RotateVectorByQuaternion(HmdVector3_t v, HmdQuaternion_t q)
     float uuDot = (u.v[0] * u.v[0] + u.v[1] * u.v[1] + u.v[2] * u.v[2]);
 
     // Calculate cross product of u, v
-    HmdVector3_t uvCross;
+    vr::HmdVector3_t uvCross;
     uvCross.v[0] = u.v[1] * v.v[2] - u.v[2] * v.v[1];
     uvCross.v[1] = u.v[2] * v.v[0] - u.v[0] * v.v[2];
     uvCross.v[2] = u.v[0] * v.v[1] - u.v[1] * v.v[0];
@@ -356,9 +356,9 @@ HmdVector3_t RotateVectorByQuaternion(HmdVector3_t v, HmdQuaternion_t q)
 
 // Transforms a HMD Matrix34 to a Vector3
 // Math borrowed from https://github.com/Omnifinity/OpenVR-Tracking-Example
-HmdVector3_t Matrix34ToVector(HmdMatrix34_t in)
+vr::HmdVector3_t Matrix34ToVector(vr::HmdMatrix34_t in)
 {
-    HmdVector3_t vector;
+    vr::HmdVector3_t vector;
 
     vector.v[0] = in.m[0][3];
     vector.v[1] = in.m[1][3];
@@ -369,9 +369,9 @@ HmdVector3_t Matrix34ToVector(HmdMatrix34_t in)
 
 // Transforms a HMD Matrix34 to a Quaternion
 // Function logic nicked from https://github.com/Omnifinity/OpenVR-Tracking-Example
-HmdQuaternion_t Matrix34ToQuaternion(HmdMatrix34_t in)
+vr::HmdQuaternion_t Matrix34ToQuaternion(vr::HmdMatrix34_t in)
 {
-    HmdQuaternion_t q;
+    vr::HmdQuaternion_t q;
 
     q.w = sqrt(fmax(0, 1.0 + in.m[0][0] + in.m[1][1] + in.m[2][2])) / 2.0;
     q.x = sqrt(fmax(0, 1.0 + in.m[0][0] - in.m[1][1] - in.m[2][2])) / 2.0;
@@ -383,7 +383,7 @@ HmdQuaternion_t Matrix34ToQuaternion(HmdMatrix34_t in)
     return q;
 }
 
-void HmdVec3RotateY(HmdVector3_t* pos, float angle)
+void HmdVec3RotateY(vr::HmdVector3_t* pos, float angle)
 {
     float s = sin(angle);
     float c = cos(angle);
@@ -606,28 +606,45 @@ void VR_InitGame()
 
 qboolean VR_Enable()
 {
-    EVRInitError eInit = VRInitError_None;
-    ovrHMD = VR_Init(&eInit, VRApplication_Scene);
+    if(vr_initialized)
+    {
+        return true;
+    }
+    vr::EVRInitError eInit = vr::VRInitError_None;
+    ovrHMD = vr::VR_Init(&eInit, vr::VRApplication_Scene);
 
-    if (eInit != VRInitError_None) {
-        Con_Printf("%s\nFailed to Initialize Steam VR", VR_GetVRInitErrorAsEnglishDescription(eInit));
+    if(eInit != vr::VRInitError_None)
+    {
+        Con_Printf("%s\nFailed to Initialize Steam VR",
+            VR_GetVRInitErrorAsEnglishDescription(eInit));
         return false;
     }
 
-    if (!InitOpenGLExtensions()) {
+    if(!InitOpenGLExtensions())
+    {
         Con_Printf("Failed to initialize OpenGL extensions");
         return false;
     }
 
-    eyes[0].eye = Eye_Left;
-    eyes[1].eye = Eye_Right;
+    eyes[0].eye = vr::Eye_Left;
+    eyes[1].eye = vr::Eye_Right;
 
-    for (int i = 0; i < 2; i++) {
-        uint32_t vrwidth, vrheight;
-        float LeftTan, RightTan, UpTan, DownTan;
+    for(int i = 0; i < 2; i++)
+    {
+        uint32_t vrwidth;
 
-        IVRSystem_GetRecommendedRenderTargetSize(ovrHMD, &vrwidth, &vrheight);
-        IVRSystem_GetProjectionRaw(ovrHMD, eyes[i].eye, &LeftTan, &RightTan, &UpTan, &DownTan);
+        uint32_t vrheight;
+        float LeftTan;
+
+        float RightTan;
+
+        float UpTan;
+
+        float DownTan;
+
+        ovrHMD->GetRecommendedRenderTargetSize(&vrwidth, &vrheight);
+        ovrHMD->GetProjectionRaw(
+            eyes[i].eye, &LeftTan, &RightTan, &UpTan, &DownTan);
 
         eyes[i].index = i;
         eyes[i].fbo = CreateFBO(vrwidth, vrheight);
@@ -635,12 +652,14 @@ qboolean VR_Enable()
         eyes[i].fov_y = (atan(-UpTan) + atan(DownTan)) / M_PI_DIV_180;
     }
 
-    VR_SetTrackingSpace(TrackingUniverseStanding);    // Put us into standing tracking position
+    vr::VRCompositor()->SetTrackingSpace(vr::TrackingUniverseStanding);
     VR_ResetOrientation();     // Recenter the HMD
 
     wglSwapIntervalEXT(0); // Disable V-Sync
 
-    Cbuf_AddText("exec vr_autoexec.cfg\n"); // Load the vr autosec config file incase the user has settings they want
+    Cbuf_AddText(
+        "exec vr_autoexec.cfg\n"); // Load the vr autosec config file incase
+                                   // the user has settings they want
 
     attempt_to_refocus_retry = 900; // Try to refocus our for the first 900 frames :/
     vr_initialized = true;
@@ -650,19 +669,22 @@ qboolean VR_Enable()
 
 void VR_PushYaw()
 {
-    readbackYaw = 1;
+    readbackYaw = true;
 }
 
-void VID_VR_Shutdown() {
+void VID_VR_Shutdown()
+{
     VID_VR_Disable();
 }
 
 void VID_VR_Disable()
 {
-    if (!vr_initialized)
+    if(!vr_initialized)
+    {
         return;
+    }
 
-    VR_Shutdown();
+    vr::VR_Shutdown();
     ovrHMD = NULL;
 
     // Reset the view height
@@ -679,10 +701,15 @@ static void RenderScreenForCurrentEye_OVR()
     int oldglheight = glheight;
     int oldglwidth = glwidth;
 
-    IVRSystem_GetRecommendedRenderTargetSize(ovrHMD, reinterpret_cast<uint32_t*>(&glwidth), reinterpret_cast<uint32_t*>(&glheight));
+    uint32_t cglwidth = glwidth;
+    uint32_t cglheight = glheight;
+    ovrHMD->GetRecommendedRenderTargetSize(&cglwidth, &cglheight);
+    glwidth = cglwidth;
+    glheight = cglheight;
 
-    bool newTextures = glwidth != current_eye->fbo.size.width || glheight != current_eye->fbo.size.height;
-    if (newTextures)
+    bool newTextures = glwidth != current_eye->fbo.size.width ||
+                       glheight != current_eye->fbo.size.height;
+    if(newTextures)
     {
         RecreateTextures(&current_eye->fbo, glwidth, glheight);
     }
@@ -693,10 +720,11 @@ static void RenderScreenForCurrentEye_OVR()
     }
 
     // Set up current FBO
-    if (current_eye->fbo.msaa > 0)
+    if(current_eye->fbo.msaa > 0)
     {
         glEnable(GL_MULTISAMPLE);
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, current_eye->fbo.msaa_framebuffer);
+        glBindFramebufferEXT(
+            GL_FRAMEBUFFER_EXT, current_eye->fbo.msaa_framebuffer);
     }
     else
     {
@@ -720,13 +748,17 @@ static void RenderScreenForCurrentEye_OVR()
     {
         glDisable(GL_MULTISAMPLE);
         glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER, current_eye->fbo.framebuffer);
-        glBindFramebufferEXT(GL_READ_FRAMEBUFFER, current_eye->fbo.msaa_framebuffer);
+        glBindFramebufferEXT(
+            GL_READ_FRAMEBUFFER, current_eye->fbo.msaa_framebuffer);
         glDrawBuffer(GL_BACK);
-        glBlitFramebufferEXT(0, 0, glwidth, glheight, 0, 0, glwidth, glheight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        glBlitFramebufferEXT(0, 0, glwidth, glheight, 0, 0, glwidth, glheight,
+            GL_COLOR_BUFFER_BIT, GL_NEAREST);
     }
 
-    Texture_t eyeTexture = { (void*)current_eye->fbo.texture, TextureType_OpenGL, ColorSpace_Gamma };
-    IVRCompositor_Submit(VRCompositor(), current_eye->eye, &eyeTexture);
+    vr::Texture_t eyeTexture = {
+        reinterpret_cast<void*>(uintptr_t(current_eye->fbo.texture)),
+        vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
+    vr::VRCompositor()->Submit(current_eye->eye, &eyeTexture);
 
     // Reset
     glwidth = oldglwidth;
@@ -770,15 +802,20 @@ void VR_UpdateScreenContent()
     entity_t *player = &cl_entities[cl.viewentity];
 
     // Update poses
-    IVRCompositor_WaitGetPoses(VRCompositor(), ovr_DevicePose, k_unMaxTrackedDeviceCount, NULL, 0);
+    vr::VRCompositor()->WaitGetPoses(
+        ovr_DevicePose, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
 
     // Get the VR devices' orientation and position
-    for (int iDevice = 0; iDevice < k_unMaxTrackedDeviceCount; iDevice++)
+    for(uint32_t iDevice = 0; iDevice < vr::k_unMaxTrackedDeviceCount;
+        iDevice++)
     {
         // HMD vectors update
-        if (ovr_DevicePose[iDevice].bPoseIsValid && IVRSystem_GetTrackedDeviceClass(ovrHMD, iDevice) == TrackedDeviceClass_HMD)
+        if(ovr_DevicePose[iDevice].bPoseIsValid &&
+            ovrHMD->GetTrackedDeviceClass(iDevice) ==
+                vr::TrackedDeviceClass_HMD)
         {
-            HmdVector3_t headPos = Matrix34ToVector(ovr_DevicePose->mDeviceToAbsoluteTracking);
+            vr::HmdVector3_t headPos =
+                Matrix34ToVector(ovr_DevicePose->mDeviceToAbsoluteTracking);
             headOrigin[0] = headPos.v[2];
             headOrigin[1] = headPos.v[0];
             headOrigin[2] = headPos.v[1];
@@ -788,16 +825,20 @@ void VR_UpdateScreenContent()
             moveInTracking[0] *= -meters_to_units;
             moveInTracking[1] *= -meters_to_units;
             moveInTracking[2] = 0;
-            Vec3RotateZ(moveInTracking, vrYaw * M_PI_DIV_180, vr_room_scale_move);
+            Vec3RotateZ(
+                moveInTracking, vrYaw * M_PI_DIV_180, vr_room_scale_move);
 
             _VectorCopy(headOrigin, lastHeadOrigin);
             _VectorSubtract(headOrigin, lastHeadOrigin, headOrigin);
             headPos.v[0] -= lastHeadOrigin[1];
             headPos.v[2] -= lastHeadOrigin[0];
 
-            HmdQuaternion_t headQuat = Matrix34ToQuaternion(ovr_DevicePose->mDeviceToAbsoluteTracking);
-            HmdVector3_t leyePos = Matrix34ToVector(IVRSystem_GetEyeToHeadTransform(ovrHMD, eyes[0].eye));
-            HmdVector3_t reyePos = Matrix34ToVector(IVRSystem_GetEyeToHeadTransform(ovrHMD, eyes[1].eye));
+            vr::HmdQuaternion_t headQuat =
+                Matrix34ToQuaternion(ovr_DevicePose->mDeviceToAbsoluteTracking);
+            vr::HmdVector3_t leyePos =
+                Matrix34ToVector(ovrHMD->GetEyeToHeadTransform(eyes[0].eye));
+            vr::HmdVector3_t reyePos =
+                Matrix34ToVector(ovrHMD->GetEyeToHeadTransform(eyes[1].eye));
 
             leyePos = RotateVectorByQuaternion(leyePos, headQuat);
             reyePos = RotateVectorByQuaternion(reyePos, headQuat);
@@ -813,37 +854,51 @@ void VR_UpdateScreenContent()
             eyes[1].orientation = headQuat;
         }
         // Controller vectors update
-        else if (ovr_DevicePose[iDevice].bPoseIsValid && IVRSystem_GetTrackedDeviceClass(ovrHMD, iDevice) == TrackedDeviceClass_Controller)
+        else if(ovr_DevicePose[iDevice].bPoseIsValid &&
+                ovrHMD->GetTrackedDeviceClass(iDevice) ==
+                    vr::TrackedDeviceClass_Controller)
         {
-            HmdVector3_t rawControllerPos = Matrix34ToVector(ovr_DevicePose[iDevice].mDeviceToAbsoluteTracking);
-            HmdQuaternion_t rawControllerQuat = Matrix34ToQuaternion(ovr_DevicePose[iDevice].mDeviceToAbsoluteTracking);
+            vr::HmdVector3_t rawControllerPos = Matrix34ToVector(
+                ovr_DevicePose[iDevice].mDeviceToAbsoluteTracking);
+            vr::HmdQuaternion_t rawControllerQuat = Matrix34ToQuaternion(
+                ovr_DevicePose[iDevice].mDeviceToAbsoluteTracking);
+            vr::HmdVector3_t rawControllerVel =
+                ovr_DevicePose[iDevice].vVelocity;
 
             int controllerIndex = -1;
 
-            if (IVRSystem_GetControllerRoleForTrackedDeviceIndex(ovrHMD, iDevice) == TrackedControllerRole_LeftHand)
+            if(ovrHMD->GetControllerRoleForTrackedDeviceIndex(iDevice) ==
+                vr::TrackedControllerRole_LeftHand)
             {
                 // Swap controller values for our southpaw players
                 controllerIndex = vr_lefthanded.value ? 1 : 0;
             }
-            else if (IVRSystem_GetControllerRoleForTrackedDeviceIndex(ovrHMD, iDevice) == TrackedControllerRole_RightHand)
+            else if(ovrHMD->GetControllerRoleForTrackedDeviceIndex(iDevice) ==
+                    vr::TrackedControllerRole_RightHand)
             {
                 // Swap controller values for our southpaw players
                 controllerIndex = vr_lefthanded.value ? 0 : 1;
             }
 
-            if (controllerIndex != -1)
+            if(controllerIndex != -1)
             {
                 vr_controller* controller = &controllers[controllerIndex];
 
                 IdentifyAxes(iDevice);
 
                 controller->lastState = controller->state;
-                IVRSystem_GetControllerState(VRSystem(), iDevice, &controller->state);
+                vr::VRSystem()->GetControllerState(
+                    iDevice, &controller->state, sizeof(controller->state));
                 controller->rawvector = rawControllerPos;
                 controller->raworientation = rawControllerQuat;
-                controller->position[0] = (rawControllerPos.v[2] - lastHeadOrigin[0]) * meters_to_units;
-                controller->position[1] = (rawControllerPos.v[0] - lastHeadOrigin[1]) * meters_to_units;
-                controller->position[2] = (rawControllerPos.v[1]) * meters_to_units;
+                controller->position[0] =
+                    (rawControllerPos.v[2] - lastHeadOrigin[0]) *
+                    meters_to_units;
+                controller->position[1] =
+                    (rawControllerPos.v[0] - lastHeadOrigin[1]) *
+                    meters_to_units;
+                controller->position[2] =
+                    (rawControllerPos.v[1]) * meters_to_units;
                 QuatToYawPitchRoll(rawControllerQuat, controller->orientation);
             }
         }
@@ -856,7 +911,7 @@ void VR_UpdateScreenContent()
     if (readbackYaw)
     {
         vrYaw = cl.viewangles[YAW] - (orientation[YAW] - vrYaw);
-        readbackYaw = 0;
+        readbackYaw = false;
     }
 
     switch ((int)vr_aimmode.value)
@@ -865,14 +920,18 @@ void VR_UpdateScreenContent()
     default:
     case VR_AIMMODE_HEAD_MYAW:
         cl.viewangles[PITCH] = cl.aimangles[PITCH] = orientation[PITCH];
-        cl.aimangles[YAW] = cl.viewangles[YAW] = cl.aimangles[YAW] + orientation[YAW] - lastOrientation[YAW];
+            cl.aimangles[YAW] = cl.viewangles[YAW] =
+                cl.aimangles[YAW] + orientation[YAW] - lastOrientation[YAW];
         break;
 
         // 2: Head Aiming; View YAW and PITCH is mouse+head (this is stupid)
     case VR_AIMMODE_HEAD_MYAW_MPITCH:
-        cl.viewangles[PITCH] = cl.aimangles[PITCH] = cl.aimangles[PITCH] + orientation[PITCH] - lastOrientation[PITCH];
-        cl.aimangles[YAW] = cl.viewangles[YAW] = cl.aimangles[YAW] + orientation[YAW] - lastOrientation[YAW];
-        break;
+            cl.viewangles[PITCH] = cl.aimangles[PITCH] = cl.aimangles[PITCH] +
+                                                         orientation[PITCH] -
+                                                         lastOrientation[PITCH];
+            cl.aimangles[YAW] = cl.viewangles[YAW] =
+                cl.aimangles[YAW] + orientation[YAW] - lastOrientation[YAW];
+            break;
 
         // 3: Mouse Aiming; View YAW is mouse+head, PITCH is head
     case VR_AIMMODE_MOUSE_MYAW:
@@ -954,7 +1013,8 @@ void VR_UpdateScreenContent()
     VectorCopy(cl.aimangles, r_refdef.aimangles);
 
     // Render the scene for each eye into their FBOs
-    for (i = 0; i < 2; i++) {
+    for(int i = 0; i < 2; i++)
+    {
         current_eye = &eyes[i];
 
         vec3_t temp, orientation;
@@ -964,7 +1024,9 @@ void VR_UpdateScreenContent()
         temp[0] = -current_eye->position.v[2] * meters_to_units; // X
         temp[1] = -current_eye->position.v[0] * meters_to_units; // Y
         temp[2] = current_eye->position.v[1] * meters_to_units;  // Z
-        Vec3RotateZ(temp, (r_refdef.viewangles[YAW] - orientation[YAW])*M_PI_DIV_180, vr_viewOffset);
+        Vec3RotateZ(temp,
+            (r_refdef.viewangles[YAW] - orientation[YAW]) * M_PI_DIV_180,
+            vr_viewOffset);
         vr_viewOffset[2] += vr_floor_offset.value;
 
         RenderScreenForCurrentEye_OVR();
@@ -973,15 +1035,18 @@ void VR_UpdateScreenContent()
     // Blit mirror texture to backbuffer
     glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, eyes[0].fbo.framebuffer);
     glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
-    glBlitFramebufferEXT(0, eyes[0].fbo.size.width, eyes[0].fbo.size.height, 0, 0, h, w, 0, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+    glBlitFramebufferEXT(0, eyes[0].fbo.size.width, eyes[0].fbo.size.height, 0,
+        0, h, w, 0, GL_COLOR_BUFFER_BIT, GL_LINEAR);
     glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
 }
 
-void VR_SetMatrices() {
-    HmdMatrix44_t projection;
+void VR_SetMatrices()
+{
+    vr::HmdMatrix44_t projection;
 
     // Calculate HMD projection matrix and view offset position
-    projection = TransposeMatrix(IVRSystem_GetProjectionMatrix(ovrHMD, current_eye->eye, 4.f, gl_farclip.value));
+    projection = TransposeMatrix(
+        ovrHMD->GetProjectionMatrix(current_eye->eye, 4.f, gl_farclip.value));
 
     // Set OpenGL projection and view matrices
     glMatrixMode(GL_PROJECTION);
@@ -1005,14 +1070,19 @@ void VR_ShowCrosshair()
     vec3_t start, end, impact;
     float size, alpha;
 
-    if ((sv_player && (int)(sv_player->v.weapon) == IT_AXE))
+
+    if((int)(sv_player->v.weapon) == IT_AXE)
+    {
         return;
+    }
 
     size = CLAMP(0.0, vr_crosshair_size.value, 32.0);
     alpha = CLAMP(0.0, vr_crosshair_alpha.value, 1.0);
 
-    if (size <= 0 || alpha <= 0)
+    if(size <= 0 || alpha <= 0)
+    {
         return;
+    }
 
     // setup gl
     glDisable(GL_DEPTH_TEST);
@@ -1036,7 +1106,8 @@ void VR_ShowCrosshair()
         };
 
         AngleVectors(cl.handrot[1], forward, right, up);
-        vec3_t fwd2; VectorCopy(forward, fwd2);
+        vec3_t fwd2;
+        VectorCopy(forward, fwd2);
         fwd2[0] *= vr_gunmodelscale.value * ofs[2];
         fwd2[1] *= vr_gunmodelscale.value * ofs[2];
         fwd2[2] *= vr_gunmodelscale.value * ofs[2];
@@ -1054,17 +1125,20 @@ void VR_ShowCrosshair()
     {
     default:
     case VR_CROSSHAIR_POINT:
-        if (vr_crosshair_depth.value <= 0) {
-            // trace to first wall
-            VectorMA(start, 4096, forward, end);
+            if(vr_crosshair_depth.value <= 0)
+            {
+                // trace to first wall
+                VectorMA(start, 4096, forward, end);
 
-            end[2] += vr_crosshairy.value;
-            TraceLine(start, end, impact);
-        }
-        else {
-            // fix crosshair to specific depth
-            VectorMA(start, vr_crosshair_depth.value * meters_to_units, forward, impact);
-        }
+                end[2] += vr_crosshairy.value;
+                TraceLine(start, end, impact);
+            }
+            else
+            {
+                // fix crosshair to specific depth
+                VectorMA(start, vr_crosshair_depth.value * meters_to_units,
+                    forward, impact);
+            }
 
         glEnable(GL_POINT_SMOOTH);
         glColor4f(1, 0, 0, alpha);
@@ -1153,17 +1227,23 @@ void VR_Draw2D()
     glTranslatef(smoothedTarget[0], smoothedTarget[1], smoothedTarget[2]);
 
     glRotatef(menu_angles[YAW] - 90, 0, 0, 1); // rotate around z
-    glRotatef(90 + menu_angles[PITCH], -1, 0, 0); // keep bar at constant angled pitch towards user
-    glTranslatef(-(320.0 * scale_hud / 2), -(200.0 * scale_hud / 2), 0); // center the status bar
+    glRotatef(90 + menu_angles[PITCH], -1, 0,
+        0); // keep bar at constant angled pitch towards user
+    glTranslatef(-(320.0 * scale_hud / 2), -(200.0 * scale_hud / 2),
+        0); // center the status bar
     glScalef(scale_hud, scale_hud, scale_hud);
 
 
-    if (scr_drawdialog) //new game confirm
+    if(scr_drawdialog) // new game confirm
     {
-        if (con_forcedup)
+        if(con_forcedup)
+        {
             Draw_ConsoleBackground();
+        }
         else
-            draw_sbar = true; //Sbar_Draw ();
+        {
+            draw_sbar = true; // Sbar_Draw ();
+        }
         Draw_FadeScreen();
         SCR_DrawNotifyString();
     }
@@ -1200,8 +1280,10 @@ void VR_Draw2D()
     glEnable(GL_DEPTH_TEST);
     glPopMatrix();
 
-    if (draw_sbar)
+    if(draw_sbar)
+    {
         VR_DrawSbar();
+    }
 
     glwidth = oldglwidth;
     glheight = oldglheight;
@@ -1269,16 +1351,11 @@ void VR_ResetOrientation()
 {
     cl.aimangles[YAW] = cl.viewangles[YAW];
     cl.aimangles[PITCH] = cl.viewangles[PITCH];
-    if (vr_enabled.value) {
+    if(vr_enabled.value)
+    {
         //IVRSystem_ResetSeatedZeroPose(ovrHMD);
         VectorCopy(cl.aimangles, lastAim);
     }
-}
-
-void VR_SetTrackingSpace(int n)
-{
-    if (n >= 0 || n < 3)
-        IVRCompositor_SetTrackingSpace(VRCompositor(), (ETrackingUniverseOrigin) n);
 }
 
 int axisTrackpad = -1;
@@ -1288,57 +1365,83 @@ bool identified = false;
 
 void IdentifyAxes(int device)
 {
-    if (identified)
-        return;
-
-    for (int i = 0; i < k_unControllerStateAxisCount; i++)
+    if(identified)
     {
-        switch (IVRSystem_GetInt32TrackedDeviceProperty(VRSystem(), device, (ETrackedDeviceProperty) (Prop_Axis0Type_Int32 + i), nullptr))
+        return;
+    }
+
+    for(uint32_t i = 0; i < vr::k_unControllerStateAxisCount; i++)
+    {
+        switch(vr::VRSystem()->GetInt32TrackedDeviceProperty(device,
+            (vr::ETrackedDeviceProperty)(vr::Prop_Axis0Type_Int32 + i),
+            nullptr))
         {
-        case k_eControllerAxis_TrackPad:
-            if (axisTrackpad == -1) axisTrackpad = i;
-            break;
-        case k_eControllerAxis_Joystick:
-            if (axisJoystick == -1) axisJoystick = i;
-            break;
-        case k_eControllerAxis_Trigger:
-            if (axisTrigger == -1) axisTrigger = i;
-            break;
+            case vr::k_eControllerAxis_TrackPad:
+                if(axisTrackpad == -1)
+                {
+                    axisTrackpad = i;
+                }
+                break;
+            case vr::k_eControllerAxis_Joystick:
+                if(axisJoystick == -1)
+                {
+                    axisJoystick = i;
+                }
+                break;
+            case vr::k_eControllerAxis_Trigger:
+                if(axisTrigger == -1)
+                {
+                    axisTrigger = i;
+                }
+                break;
         }
     }
 
     identified = true;
 }
 
-float GetAxis(VRControllerState_t* state, int axis, double deadzoneExtra)
+float GetAxis(vr::VRControllerState_t* state, int axis, double deadzoneExtra)
 {
     float v = 0;
 
-    if (axis == 0)
+    if(axis == 0)
     {
-        if (axisTrackpad != -1) v += state->rAxis[axisTrackpad].x;
-        if (axisJoystick != -1) v += state->rAxis[axisJoystick].x;
+        if(axisTrackpad != -1)
+        {
+            v += state->rAxis[axisTrackpad].x;
+        }
+        if(axisJoystick != -1)
+        {
+            v += state->rAxis[axisJoystick].x;
+        }
     }
     else
     {
-        if (axisTrackpad != -1) v += state->rAxis[axisTrackpad].y;
-        if (axisJoystick != -1) v += state->rAxis[axisJoystick].y;
+        if(axisTrackpad != -1)
+        {
+            v += state->rAxis[axisTrackpad].y;
+        }
+        if(axisJoystick != -1)
+        {
+            v += state->rAxis[axisJoystick].y;
+        }
     }
 
     int sign = (v > 0) - (v < 0);
     v = fabsf(v);
 
-    if (v < vr_joystick_axis_deadzone.value + deadzoneExtra)
+    if(v < vr_joystick_axis_deadzone.value + deadzoneExtra)
     {
         return 0.0f;
     }
 
-    if (vr_joystick_deadzone_trunc.value == 0)
+    if(vr_joystick_deadzone_trunc.value == 0)
     {
-        v = (v - vr_joystick_axis_deadzone.value) / (1 - vr_joystick_axis_deadzone.value);
+        v = (v - vr_joystick_axis_deadzone.value) /
+            (1 - vr_joystick_axis_deadzone.value);
     }
 
-    if (vr_joystick_axis_exponent.value >= 0)
+    if(vr_joystick_axis_exponent.value >= 0)
     {
         v = powf(v, vr_joystick_axis_exponent.value);
     }
@@ -1346,11 +1449,13 @@ float GetAxis(VRControllerState_t* state, int axis, double deadzoneExtra)
     return sign * v;
 }
 
-void DoKey(vr_controller* controller, EVRButtonId vrButton, int quakeKey)
+void DoKey(vr_controller* controller, vr::EVRButtonId vrButton, int quakeKey)
 {
-    bool wasDown = (controller->lastState.ulButtonPressed & ButtonMaskFromId(vrButton)) != 0;
-    bool isDown = (controller->state.ulButtonPressed & ButtonMaskFromId(vrButton)) != 0;
-    if (isDown != wasDown)
+    bool wasDown = (controller->lastState.ulButtonPressed &
+                       vr::ButtonMaskFromId(vrButton)) != 0;
+    bool isDown = (controller->state.ulButtonPressed &
+                      vr::ButtonMaskFromId(vrButton)) != 0;
+    if(isDown != wasDown)
     {
         Key_Event(quakeKey, isDown);
     }
@@ -1369,7 +1474,8 @@ void DoTrigger(vr_controller* controller, int quakeKey)
     }
 }
 
-void DoAxis(vr_controller* controller, int axis, int quakeKeyNeg, int quakeKeyPos, double deadzoneExtra)
+void DoAxis(vr_controller* controller, int axis, int quakeKeyNeg,
+    int quakeKeyPos, double deadzoneExtra)
 {
     float lastVal = GetAxis(&controller->lastState, axis, deadzoneExtra);
     float val = GetAxis(&controller->state, axis, deadzoneExtra);
@@ -1391,40 +1497,42 @@ void DoAxis(vr_controller* controller, int axis, int quakeKeyNeg, int quakeKeyPo
 
 void VR_Move(usercmd_t *cmd)
 {
-    if (!vr_enabled.value)
+    if(!vr_enabled.value)
+    {
         return;
+    }
 
     // k_EButton_Axis1 === k_EButton_SteamVR_Trigger
     DoTrigger(&controllers[0], K_LTRIGGER);
     DoTrigger(&controllers[1], K_RTRIGGER);
 
     // k_EButton_Grip
-    DoKey(&controllers[0], k_EButton_Grip, K_LSHOULDER);
-    DoKey(&controllers[1], k_EButton_Grip, K_RSHOULDER);
+    DoKey(&controllers[0], vr::k_EButton_Grip, K_LSHOULDER);
+    DoKey(&controllers[1], vr::k_EButton_Grip, K_RSHOULDER);
 
     // k_EButton_Axis0 === k_EButton_SteamVR_Touchpad
-    DoKey(&controllers[0], k_EButton_SteamVR_Touchpad, K_LTHUMB);
-    DoKey(&controllers[1], k_EButton_SteamVR_Touchpad, K_RTHUMB);
+    DoKey(&controllers[0], vr::k_EButton_SteamVR_Touchpad, K_LTHUMB);
+    DoKey(&controllers[1], vr::k_EButton_SteamVR_Touchpad, K_RTHUMB);
 
     // k_EButton_ApplicationMenu / k_EButton_IndexController_B
-    DoKey(&controllers[0], k_EButton_ApplicationMenu, K_ESCAPE);
-    DoKey(&controllers[1], k_EButton_ApplicationMenu, K_BBUTTON);
+    DoKey(&controllers[0], vr::k_EButton_ApplicationMenu, K_ESCAPE);
+    DoKey(&controllers[1], vr::k_EButton_ApplicationMenu, K_BBUTTON);
 
     // k_EButton_A
-    DoKey(&controllers[0], k_EButton_A, K_ABUTTON);
-    DoKey(&controllers[1], k_EButton_A, K_XBUTTON);
+    DoKey(&controllers[0], vr::k_EButton_A, K_ABUTTON);
+    DoKey(&controllers[1], vr::k_EButton_A, K_XBUTTON);
 
     // k_EButton_Axis2 === SteamVR-binding "Right Axis 2 Press" (at least on Index Controller)
-    DoKey(&controllers[0], k_EButton_Axis2, K_YBUTTON);
-    DoKey(&controllers[1], k_EButton_Axis2, K_YBUTTON);
+    DoKey(&controllers[0], vr::k_EButton_Axis2, K_YBUTTON);
+    DoKey(&controllers[1], vr::k_EButton_Axis2, K_YBUTTON);
 
     // k_EButton_Axis3 (unknown if used by any controller at all)
-    DoKey(&controllers[0], k_EButton_Axis3, K_JOY1);
-    DoKey(&controllers[1], k_EButton_Axis3, K_JOY2);
+    DoKey(&controllers[0], vr::k_EButton_Axis3, K_JOY1);
+    DoKey(&controllers[1], vr::k_EButton_Axis3, K_JOY2);
 
     // k_EButton_Axis4 (unknown if used by any controller at all)
-    DoKey(&controllers[0], k_EButton_Axis4, K_JOY3);
-    DoKey(&controllers[1], k_EButton_Axis4, K_JOY4);
+    DoKey(&controllers[0], vr::k_EButton_Axis4, K_JOY3);
+    DoKey(&controllers[1], vr::k_EButton_Axis4, K_JOY4);
 
     if (key_dest == key_menu)
     {
@@ -1457,12 +1565,18 @@ void VR_Move(usercmd_t *cmd)
 
         if (vr_movement_mode.value == VR_MOVEMENT_MODE_RAW_INPUT)
         {
-            cmd->forwardmove += cl_forwardspeed.value * GetAxis(&controllers[0].state, 1, 0.0);
-            cmd->sidemove += cl_forwardspeed.value * GetAxis(&controllers[0].state, 0, 0.0);
+            cmd->forwardmove +=
+                cl_forwardspeed.value * GetAxis(&controllers[0].state, 1, 0.0);
+            cmd->sidemove +=
+                cl_forwardspeed.value * GetAxis(&controllers[0].state, 0, 0.0);
         }
         else
         {
-            vec3_t vfwd, vright, vup;
+            vec3_t vfwd;
+
+            vec3_t vright;
+
+            vec3_t vup;
             vec3_t playerYawOnly = { 0, sv_player->v.v_angle[YAW], 0 };
 
             AngleVectors(playerYawOnly, vfwd, vright, vup);
@@ -1492,7 +1606,8 @@ void VR_Move(usercmd_t *cmd)
 
             vec3_t move = { 0, 0, 0 };
             VectorMA(move, GetAxis(&controllers[0].state, 1, 0.0), lfwd, move);
-            VectorMA(move, GetAxis(&controllers[0].state, 0, 0.0), lright, move);
+            VectorMA(
+                move, GetAxis(&controllers[0].state, 0, 0.0), lright, move);
 
             float fwd = DotProduct(move, vfwd);
             float right = DotProduct(move, vright);
@@ -1509,11 +1624,14 @@ void VR_Move(usercmd_t *cmd)
             AngleVectors(cl.handrot[0], lfwd, lright, lup);
         }
 
-        cmd->upmove += cl_upspeed.value * GetAxis(&controllers[0].state, 1, 0.0) * lfwd[2];
+        cmd->upmove +=
+            cl_upspeed.value * GetAxis(&controllers[0].state, 1, 0.0) * lfwd[2];
 
-        if (cl_forwardspeed.value > 200 && cl_movespeedkey.value)
+        if(cl_forwardspeed.value > 200 && cl_movespeedkey.value)
+        {
             cmd->forwardmove /= cl_movespeedkey.value;
-        if ((cl_forwardspeed.value > 200) ^ (in_speed.state & 1))
+        }
+        if((cl_forwardspeed.value > 200) ^ (in_speed.state & 1))
         {
             cmd->forwardmove *= cl_movespeedkey.value;
             cmd->sidemove *= cl_movespeedkey.value;
@@ -1534,7 +1652,9 @@ void VR_Move(usercmd_t *cmd)
         }
         else
         {
-            vrYaw -= (yawMove * host_frametime * 100.0f * vr_joystick_yaw_multi.value) * vr_turn_speed.value;
+            vrYaw -= (yawMove * host_frametime * 100.0f *
+                         vr_joystick_yaw_multi.value) *
+                     vr_turn_speed.value;
         }
     }
 }
