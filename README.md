@@ -145,5 +145,4 @@ Here is how to build this fork on Windows:
 1. Install current version of Visual Studio (17.5.3 at the time of writing) with C++ workloads.
 2. Open the file `.\Windows\VisualStudio\quakespasm.sln` in Visual Studio
 3. Build `quakespasm-sdl2`.
-4. Copy `.\Windows\OpenVR\bin\win64\openvr_api.dll` to you build output folder `.\Windows\VisualStudio\Build-quakespasm-sdl2\x64\Release`.
-5. As usual you also need a `id1` folder with a `PAK0.PAK` to be able to launch the game.
+4. As usual you also need a `id1` folder with a `PAK0.PAK` to be able to launch the game.
