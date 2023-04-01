@@ -559,31 +559,43 @@ void V_PolyBlend (void)
 
 	GL_DisableMultitexture();
 
+    glPushAttrib(GL_TRANSFORM_BIT);
 	glDisable (GL_ALPHA_TEST);
 	glDisable (GL_TEXTURE_2D);
 	glDisable (GL_DEPTH_TEST);
 	glEnable (GL_BLEND);
 
 	glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
 	glLoadIdentity ();
 	glOrtho (0, 1, 1, 0, -99999, 99999);
 	glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
 	glLoadIdentity ();
 
-	glBegin (GL_QUADS);
 
 	glColor4fv (v_blend); // inside glBegin / glEnd to workaround an AMD driver bug
 
+    glBegin(GL_QUADS);
 	glVertex2f (0,0);
 	glVertex2f (1, 0);
 	glVertex2f (1, 1);
 	glVertex2f (0, 1);
 	glEnd ();
 
+    glColor3f(1, 1, 1);
 	glDisable (GL_BLEND);
 	glEnable (GL_DEPTH_TEST);
 	glEnable (GL_TEXTURE_2D);
 	glEnable (GL_ALPHA_TEST);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+
+    glPopAttrib();
 }
 
 /*
