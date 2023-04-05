@@ -69,7 +69,7 @@ Input from VR Controllers are mapped to various joystick-related input (except t
 #### Important infos:
 
 - In SteamVR's default Legacy bindings, controllers with a dedicated `A` button (e.g. Index Controllers) cannot use this button independently from the `Grip` button. To change this, map `A Button` Click to `Left/Right A Button` instead of `Grip Button` in SteamVR's controller binding for `quakespasm-openvr.exe`. Now `A` buttons and `Grip` can be mapped independently.
-- `Right Axis 2 Press` is not mappef at all in SteamVR's default Legacy bindings. You can bind it e.g. to the `Right Touchpad Click` to get an additional button.
+- `Right Axis 2 Press` is not mapped at all in SteamVR's default Legacy bindings. You can bind it e.g. to the `Right Touchpad Click` to get an additional button.
 - By default, the right pad/stick is configured for smooth/snap turning. If you use real roomscale-turning, you can set `Turn Speed` in the VR-Settings to the lowest setting (0) to turn this off. Then you can rebind the pad/stick like a D-Pad with 4 directions. You can use these 4 additional bindings e.g. for quick-loading/-saving or mapping of specific weapons.
 - Check out the Community Binding `Index Controller Bindings` by `gameflorist` in SteamVR for a preset for Index Controllers, that makes the maximum buttons available for binding.
 
@@ -90,10 +90,8 @@ Quake Enhanced Edtion (aka Re-Release) stores it's Add-Ons in `C:/[Users]/Saved 
 
 #### Known Issues
 
-- Dissolution of Eternity
-  - When using the Lava Nailgun, no targeting dot/laser sight are drawn, but the weapon still fires where you would expect it to.
 - Arcane Dimensions
-  - When launching AD it will not display anything in VR. Press the __Enter__ key twice in order to get in game and play in VR.
+  - When launching Arcane Dimensions it will not display anything in VR. Press the __Enter__ key twice in order to get in game and play in VR.
 
 ### Cvars
 
