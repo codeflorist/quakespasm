@@ -42,6 +42,8 @@ Launch `quakespasm-openvr.exe`.
 
 There is a [HD textures](https://drive.google.com/file/d/1UAH4la2uOv3lwMkMk05yZuYmiPIyExU_/view?usp=sharing) package available. Simply extract the zip-file into the `Id1` subfolder (where `PAK0.PAK` is located).
 
+You can also download a HD texture pack for __Arcane Dimensions__ [here](https://www.moddb.com/games/quake/addons/hires-texture-pack-for-arcane-dimensions). Simply extract the `textures` folder into your `ad` directory.
+
 ### Controls
 
 Both head-based (default) and controller-based movement is supported. You can change it in the VR options.
