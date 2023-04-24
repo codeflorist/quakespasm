@@ -88,7 +88,7 @@ All mission packs, add-ons and mods (supported by QuakeSpasm) should work out of
 
 As usual, expansion packs and mods are placed inside subfolders and then launched by stating the subfolder via the `game` parameter (e.g. `quakespasm-openvr.exe -game hipnotic`). This package comes included with a standard set of batch files for all expansion packs and the most common add-ons.
 
-Quake Enhanced Edtion (aka Re-Release) stores it's Add-Ons in `C:/[Users]/Saved Games/Nightdive Studios/Quake/`. You have to copy the subfolders (e.g. `honey` or `q64`) of this folder into the folder where `quakespasm-openvr.exe` is located and launch the Add-On like stated above.
+Quake Enhanced Edtion (aka Re-Release) stores it's Add-Ons in `C:\Users\<your-user>\Saved Games\Nightdive Studios\Quake\`. You have to copy the subfolders (e.g. `honey` or `q64`) of this folder into the folder where `quakespasm-openvr.exe` is located and launch the Add-On like stated above.
 
 #### Known Issues
 
