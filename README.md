@@ -34,7 +34,7 @@ This fork of [QuakeSpasm](https://github.com/sezero/quakespasm)...
 
 ## Setup and Usage
 
-Extract the most recent [release](https://github.com/codeflorist/quakespasm-openvr/releases) into your `Quake` or `Quake\rerelease` folder (where the subfolder `Id1` resides).
+Extract the most recent [release](https://github.com/gameflorist/quakespasm-openvr/releases) into your `Quake` or `Quake\rerelease` folder (where the subfolder `Id1` resides).
 
 Launch `quakespasm-openvr.exe`.
 
