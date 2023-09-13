@@ -949,6 +949,21 @@ Should NOT be called during an interrupt!
 */
 void Key_Event (int key, qboolean down)
 {
+	Key_EventWithKeycode (key, down, 0);
+}
+
+/*
+===================
+Key_EventWithKeycode
+
+Called by the system between frames for both key up and key down events
+Should NOT be called during an interrupt!
+keycode parameter should have the key's actual keycode using the current keyboard layout,
+not necessarily the US-keyboard-based scancode. Pass 0 if not applicable.
+===================
+*/
+void Key_EventWithKeycode (int key, qboolean down, int keycode)
+{
 	char	*kb;
 	char	cmd[1024];
 
@@ -981,7 +996,11 @@ void Key_Event (int key, qboolean down)
 	if (key_inputgrab.active)
 	{
 		if (down)
+		{
 			key_inputgrab.lastkey = key;
+			if (keycode > 0)
+				key_inputgrab.lastchar = keycode;
+		}
 		return;
 	}
 
@@ -1135,7 +1154,11 @@ Key_TextEntry
 qboolean Key_TextEntry (void)
 {
 	if (key_inputgrab.active)
-		return true;
+	{
+		// This path is used for simple single-letter inputs (y/n prompts) that also
+		// accept controller input, so we don't want an onscreen keyboard for this case.
+		return false;
+	}
 
 	switch (key_dest)
 	{
@@ -1144,9 +1167,10 @@ qboolean Key_TextEntry (void)
 	case key_menu:
 		return M_TextEntry();
 	case key_game:
-		if (!con_forcedup)
-			return false;
-		/* fallthrough */
+		// Don't return true even during con_forcedup, because that happens while starting a
+		// game and we don't to trigger text input (and the onscreen keyboard on some devices)
+		// during this.
+		return false;
 	case key_console:
 		return true;
 	default:

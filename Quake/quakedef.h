@@ -36,8 +36,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	X11_VERSION		1.10
 
 #define	FITZQUAKE_VERSION	0.85	//johnfitz
-#define	QUAKESPASM_VERSION	0.95
-#define	QUAKESPASM_VER_PATCH	1	// helper to print a string like 0.94.7
+#define	QUAKESPASM_VERSION	0.96
+#define	QUAKESPASM_VER_PATCH	0	// helper to print a string like 0.94.7
 #ifndef	QUAKESPASM_VER_SUFFIX
 #define	QUAKESPASM_VER_SUFFIX		// optional version suffix string literal like "-beta1"
 #endif
@@ -81,7 +81,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	DIST_EPSILON	(0.03125)	// 1/32 epsilon to keep floating point happy (moved from world.c)
 
 #define	MAX_MSGLEN	64000		// max length of a reliable message //ericw -- was 32000
-#define	MAX_DATAGRAM	32000		// max length of unreliable message //johnfitz -- was 1024
+#define	MAX_DATAGRAM	64000		// max length of unreliable message //johnfitz -- was 1024
 
 #define	DATAGRAM_MTU	1400		// johnfitz -- actual limit for unreliable messages to nonlocal clients
 

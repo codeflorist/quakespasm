@@ -948,7 +948,7 @@ static void Host_Reconnect_f (void)
 		return;
 
 	SCR_BeginLoadingPlaque ();
-	cls.signon = 0;		// need new connection messages
+	CL_ClearSignons ();		// need new connection messages
 }
 
 /*
@@ -1252,6 +1252,10 @@ static void Host_Loadgame_f (void)
 		entnum++;
 	}
 
+	// Free edicts allocated during map loading but no longer used after restoring saved game state
+	for (i = entnum; i < sv.num_edicts; i++)
+		ED_Free(EDICT_NUM(i));
+
 	sv.num_edicts = entnum;
 	sv.time = time;
 
@@ -1266,6 +1270,9 @@ static void Host_Loadgame_f (void)
 		CL_EstablishConnection ("local");
 		Host_Reconnect_f ();
 	}
+
+	if (cls.state != ca_dedicated)
+		IN_Activate(); // moved to here from M_Load_Key()
 }
 
 //============================================================================
@@ -1602,10 +1609,8 @@ static void Host_PreSpawn_f (void)
 		return;
 	}
 
-	SZ_Write (&host_client->message, sv.signon.data, sv.signon.cursize);
-	MSG_WriteByte (&host_client->message, svc_signonnum);
-	MSG_WriteByte (&host_client->message, 2);
-	host_client->sendsignon = true;
+	host_client->sendsignon = PRESPAWN_SIGNONBUFS;
+	host_client->signonidx = 0;
 }
 
 /*
@@ -1724,7 +1729,7 @@ static void Host_Spawn_f (void)
 
 	MSG_WriteByte (&host_client->message, svc_signonnum);
 	MSG_WriteByte (&host_client->message, 3);
-	host_client->sendsignon = true;
+	host_client->sendsignon = PRESPAWN_FLUSH;
 }
 
 /*

@@ -32,33 +32,30 @@ ALIAS MODEL DISPLAY LIST GENERATION
 =================================================================
 */
 
-qmodel_t	*aliasmodel;
-aliashdr_t	*paliashdr;
-
-int		used[8192]; // qboolean
+static unsigned char	used[MAXALIASTRIS];
 
 // the command list holds counts and s/t values that are valid for
 // every frame
-int		commands[8192];
-int		numcommands;
+static int		commands[MAXALIASTRIS*7 + 1];
+static int		numcommands;
 
 // all frames will have their vertexes rearranged and expanded
 // so they are in the order expected by the command list
-int		vertexorder[8192];
-int		numorder;
+static int		vertexorder[MAXALIASTRIS * 3];
+static int		numorder;
 
-int		allverts, alltris;
+static int		allverts, alltris;
 
-int		stripverts[128];
-int		striptris[128];
-int		stripcount;
+static int		stripverts[MAXALIASTRIS + 2];
+static int		striptris[MAXALIASTRIS];
+static int		stripcount;
 
 /*
 ================
 StripLength
 ================
 */
-int	StripLength (int starttri, int startv)
+static int StripLength (int starttri, int startv)
 {
 	int			m1, m2;
 	int			j;
@@ -127,7 +124,7 @@ done:
 FanLength
 ===========
 */
-int	FanLength (int starttri, int startv)
+static int FanLength (int starttri, int startv)
 {
 	int		m1, m2;
 	int		j;
@@ -198,14 +195,14 @@ Generate a list of trifans or strips
 for the model, which holds for all frames
 ================
 */
-void BuildTris (void)
+static void BuildTris (void)
 {
 	int		i, j, k;
 	int		startv;
 	float	s, t;
 	int		len, bestlen, besttype;
-	int		bestverts[1024];
-	int		besttris[1024];
+	int		bestverts[MAXALIASTRIS + 2];
+	int		besttris[MAXALIASTRIS];
 	int		type;
 
 	//
@@ -287,7 +284,7 @@ void BuildTris (void)
 	alltris += pheader->numtris;
 }
 
-static void GL_MakeAliasModelDisplayLists_VBO (void);
+static void GL_MakeAliasModelDisplayLists_VBO (qmodel_t *, aliashdr_t *);
 static void GLMesh_LoadVertexBuffer (qmodel_t *m, const aliashdr_t *hdr);
 
 /*
@@ -303,14 +300,12 @@ void GL_MakeAliasModelDisplayLists (qmodel_t *m, aliashdr_t *hdr)
 	float	hscale, vscale; //johnfitz -- padded skins
 	int		count; //johnfitz -- precompute texcoords for padded skins
 	int		*loadcmds; //johnfitz
+	aliashdr_t	*paliashdr = hdr;	// (aliashdr_t *)Mod_Extradata (m);
 
 	//johnfitz -- padded skins
 	hscale = (float)hdr->skinwidth/(float)TexMgr_PadConditional(hdr->skinwidth);
 	vscale = (float)hdr->skinheight/(float)TexMgr_PadConditional(hdr->skinheight);
 	//johnfitz
-
-	aliasmodel = m;
-	paliashdr = hdr;	// (aliashdr_t *)Mod_Extradata (m);
 
 //johnfitz -- generate meshes
 	Con_DPrintf2 ("meshing %s...\n",m->name);
@@ -350,7 +345,7 @@ void GL_MakeAliasModelDisplayLists (qmodel_t *m, aliashdr_t *hdr)
 			*verts++ = poseverts[i][vertexorder[j]];
 
 	// ericw
-	GL_MakeAliasModelDisplayLists_VBO ();
+	GL_MakeAliasModelDisplayLists_VBO (m, paliashdr);
 }
 
 unsigned int r_meshindexbuffer = 0;
@@ -366,12 +361,13 @@ is copied to Mod_Extradata.
 Original code by MH from RMQEngine
 ================
 */
-void GL_MakeAliasModelDisplayLists_VBO (void)
+static void GL_MakeAliasModelDisplayLists_VBO (qmodel_t *aliasmodel, aliashdr_t *paliashdr)
 {
 	int i, j;
-	int maxverts_vbo;
+	int mark;
 	trivertx_t *verts;
 	unsigned short *indexes;
+	unsigned short *remap;
 	aliasmesh_t *desc;
 
 	if (!gl_glsl_alias_able)
@@ -385,59 +381,63 @@ void GL_MakeAliasModelDisplayLists_VBO (void)
 			verts[i*paliashdr->numverts + j] = poseverts[i][j];
 
 	// there can never be more than this number of verts and we just put them all on the hunk
-	maxverts_vbo = pheader->numtris * 3;
-	desc = (aliasmesh_t *) Hunk_Alloc (sizeof (aliasmesh_t) * maxverts_vbo);
+	// (each vertex can be used twice, once with the original UVs and once with the seam adjustment)
+	desc = (aliasmesh_t *) Hunk_Alloc (sizeof (aliasmesh_t) * pheader->numverts * 2);
 
 	// there will always be this number of indexes
-	indexes = (unsigned short *) Hunk_Alloc (sizeof (unsigned short) * maxverts_vbo);
+	indexes = (unsigned short *) Hunk_Alloc (sizeof (unsigned short) * pheader->numtris * 3);
 
 	pheader->indexes = (intptr_t) indexes - (intptr_t) pheader;
 	pheader->meshdesc = (intptr_t) desc - (intptr_t) pheader;
 	pheader->numindexes = 0;
 	pheader->numverts_vbo = 0;
 
+	mark = Hunk_LowMark ();
+
+	// each pair of elements in the remap array corresponds to one source vertex
+	// each value is the final index + 1, or 0 if the corresponding vertex hasn't been emitted yet
+	remap = (unsigned short *) Hunk_Alloc (paliashdr->numverts * 2 * sizeof (remap[0]));
+
 	for (i = 0; i < pheader->numtris; i++)
 	{
 		for (j = 0; j < 3; j++)
 		{
-			int v;
-
 			// index into hdr->vertexes
 			unsigned short vertindex = triangles[i].vertindex[j];
 
-			// basic s/t coords
-			int s = stverts[vertindex].s;
-			int t = stverts[vertindex].t;
+			// index into remap table
+			int v = vertindex * 2;
 
-			// check for back side and adjust texcoord s
-			if (!triangles[i].facesfront && stverts[vertindex].onseam) s += pheader->skinwidth / 2;
+			// check for back side
+			if (!triangles[i].facesfront && stverts[vertindex].onseam)
+				v++;
 
-			// see does this vert already exist
-			for (v = 0; v < pheader->numverts_vbo; v++)
+			// emit new vertex if it doesn't already exist
+			if (!remap[v])
 			{
-				// it could use the same xyz but have different s and t
-				if (desc[v].vertindex == vertindex && (int) desc[v].st[0] == s && (int) desc[v].st[1] == t)
-				{
-					// exists; emit an index for it
-					indexes[pheader->numindexes++] = v;
+				// basic s/t coords
+				int s = stverts[vertindex].s;
+				int t = stverts[vertindex].t;
 
-					// no need to check any more
-					break;
-				}
-			}
-
-			if (v == pheader->numverts_vbo)
-			{
-				// doesn't exist; emit a new vert and index
-				indexes[pheader->numindexes++] = pheader->numverts_vbo;
+				// check for back side and adjust texcoord s
+				if (v & 1)
+					s += paliashdr->skinwidth / 2;
 
 				desc[pheader->numverts_vbo].vertindex = vertindex;
 				desc[pheader->numverts_vbo].st[0] = s;
-				desc[pheader->numverts_vbo++].st[1] = t;
+				desc[pheader->numverts_vbo].st[1] = t;
+
+				remap[v] = ++pheader->numverts_vbo;
 			}
+
+			// emit index
+			indexes[pheader->numindexes++] = remap[v] - 1;
 		}
 	}
-	
+
+	// free temporary data
+	Hunk_FreeToLowMark (mark);
+
 	// upload immediately
 	GLMesh_LoadVertexBuffer (aliasmodel, pheader);
 }
@@ -532,15 +532,15 @@ static void GLMesh_LoadVertexBuffer (qmodel_t *m, const aliashdr_t *hdr)
 		float hscale, vscale;
 
 		//johnfitz -- padded skins
-		hscale = (float)hdr->skinwidth/(float)TexMgr_PadConditional(hdr->skinwidth);
-		vscale = (float)hdr->skinheight/(float)TexMgr_PadConditional(hdr->skinheight);
+		hscale = 1.0f / (float)TexMgr_PadConditional(hdr->skinwidth);
+		vscale = 1.0f / (float)TexMgr_PadConditional(hdr->skinheight);
 		//johnfitz
 
 		st = (meshst_t *) (vbodata + m->vbostofs);
 		for (f = 0; f < hdr->numverts_vbo; f++)
 		{
-			st[f].st[0] = hscale * ((float) desc[f].st[0] + 0.5f) / (float) hdr->skinwidth;
-			st[f].st[1] = vscale * ((float) desc[f].st[1] + 0.5f) / (float) hdr->skinheight;
+			st[f].st[0] = hscale * ((float) desc[f].st[0] + 0.5f);
+			st[f].st[1] = vscale * ((float) desc[f].st[1] + 0.5f);
 		}
 	}
 

@@ -2157,7 +2157,7 @@ static byte *Mod_LoadVisibilityExternal(FILE* f)
 	byte*	visdata;
 
 	filelen = 0;
-	fread(&filelen, 1, 4, f);
+	if (!fread(&filelen, 4, 1, f)) return NULL;
 	filelen = LittleLong(filelen);
 	if (filelen <= 0) return NULL;
 	Con_DPrintf("...%d bytes visibility data\n", filelen);
@@ -2173,7 +2173,7 @@ static void Mod_LoadLeafsExternal(FILE* f)
 	void*	in;
 
 	filelen = 0;
-	fread(&filelen, 1, 4, f);
+	if (!fread(&filelen, 4, 1, f)) return;
 	filelen = LittleLong(filelen);
 	if (filelen <= 0) return;
 	Con_DPrintf("...%d bytes leaf data\n", filelen);
@@ -2959,7 +2959,7 @@ static void *Mod_LoadSpriteFrame (void * pin, mspriteframe_t **ppframe, int fram
 Mod_LoadSpriteGroup
 =================
 */
-static void *Mod_LoadSpriteGroup (void * pin, mspriteframe_t **ppframe, int framenum)
+static void *Mod_LoadSpriteGroup (void * pin, mspriteframe_t **ppframe, int framenum, spriteframetype_t type)
 {
 	dspritegroup_t		*pingroup;
 	mspritegroup_t		*pspritegroup;
@@ -2971,6 +2971,8 @@ static void *Mod_LoadSpriteGroup (void * pin, mspriteframe_t **ppframe, int fram
 	pingroup = (dspritegroup_t *)pin;
 
 	numframes = LittleLong (pingroup->numframes);
+	if (type == SPR_ANGLED && numframes != 8)
+		Sys_Error ("Mod_LoadSpriteGroup: Bad # of frames: %d", numframes);
 
 	pspritegroup = (mspritegroup_t *) Hunk_AllocName (sizeof (mspritegroup_t) +
 				(numframes - 1) * sizeof (pspritegroup->frames[0]), loadname);
@@ -3074,7 +3076,7 @@ static void Mod_LoadSpriteModel (qmodel_t *mod, void *buffer)
 		else
 		{
 			pframetype = (dspriteframetype_t *)
-					Mod_LoadSpriteGroup (pframetype + 1, &psprite->frames[i].frameptr, i);
+					Mod_LoadSpriteGroup (pframetype + 1, &psprite->frames[i].frameptr, i, frametype);
 		}
 	}
 

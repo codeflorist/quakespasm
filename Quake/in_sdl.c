@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SDL.h"
 #endif
 
+static qboolean windowhasfocus = true;	//just in case sdl fails to tell us...
 static qboolean	textmode;
 
 static cvar_t in_debugkeys = {"in_debugkeys", "0", CVAR_NONE};
@@ -49,13 +50,16 @@ static cvar_t in_debugkeys = {"in_debugkeys", "0", CVAR_NONE};
 #endif
 
 // SDL2 Game Controller cvars
-cvar_t	joy_deadzone = { "joy_deadzone", "0.175", CVAR_ARCHIVE };
+cvar_t	joy_deadzone_look = { "joy_deadzone_look", "0.175", CVAR_ARCHIVE };
+cvar_t	joy_deadzone_move = { "joy_deadzone_move", "0.175", CVAR_ARCHIVE };
+cvar_t	joy_outer_threshold_look = { "joy_outer_threshold_look", "0.02", CVAR_ARCHIVE };
+cvar_t	joy_outer_threshold_move = { "joy_outer_threshold_move", "0.02", CVAR_ARCHIVE };
 cvar_t	joy_deadzone_trigger = { "joy_deadzone_trigger", "0.2", CVAR_ARCHIVE };
-cvar_t	joy_sensitivity_yaw = { "joy_sensitivity_yaw", "300", CVAR_ARCHIVE };
-cvar_t	joy_sensitivity_pitch = { "joy_sensitivity_pitch", "150", CVAR_ARCHIVE };
+cvar_t	joy_sensitivity_yaw = { "joy_sensitivity_yaw", "240", CVAR_ARCHIVE };
+cvar_t	joy_sensitivity_pitch = { "joy_sensitivity_pitch", "130", CVAR_ARCHIVE };
 cvar_t	joy_invert = { "joy_invert", "0", CVAR_ARCHIVE };
-cvar_t	joy_exponent = { "joy_exponent", "3", CVAR_ARCHIVE };
-cvar_t	joy_exponent_move = { "joy_exponent_move", "3", CVAR_ARCHIVE };
+cvar_t	joy_exponent = { "joy_exponent", "2", CVAR_ARCHIVE };
+cvar_t	joy_exponent_move = { "joy_exponent_move", "2", CVAR_ARCHIVE };
 cvar_t	joy_swapmovelook = { "joy_swapmovelook", "0", CVAR_ARCHIVE };
 cvar_t	joy_enable = { "joy_enable", "1", CVAR_ARCHIVE };
 
@@ -212,6 +216,15 @@ void IN_Activate (void)
 #endif
 
 #if defined(USE_SDL2)
+#ifdef __APPLE__
+	{
+		// Work around https://github.com/sezero/quakespasm/issues/48
+		int width, height;
+		SDL_GetWindowSize((SDL_Window*) VID_GetWindow(), &width, &height);
+		SDL_WarpMouseInWindow((SDL_Window*) VID_GetWindow(), width / 2, height / 2);
+	}
+#endif
+
 	if (SDL_SetRelativeMouseMode(SDL_TRUE) != 0)
 	{
 		Con_Printf("WARNING: SDL_SetRelativeMouseMode(SDL_TRUE) failed.\n");
@@ -367,7 +380,10 @@ void IN_Init (void)
 	Cvar_RegisterVariable(&in_debugkeys);
 	Cvar_RegisterVariable(&joy_sensitivity_yaw);
 	Cvar_RegisterVariable(&joy_sensitivity_pitch);
-	Cvar_RegisterVariable(&joy_deadzone);
+	Cvar_RegisterVariable(&joy_deadzone_look);
+	Cvar_RegisterVariable(&joy_deadzone_move);
+	Cvar_RegisterVariable(&joy_outer_threshold_look);
+	Cvar_RegisterVariable(&joy_outer_threshold_move);
 	Cvar_RegisterVariable(&joy_deadzone_trigger);
 	Cvar_RegisterVariable(&joy_invert);
 	Cvar_RegisterVariable(&joy_exponent);
@@ -391,6 +407,8 @@ extern cvar_t cl_minpitch; /* johnfitz -- variable pitch clamping */
 
 void IN_MouseMotion(int dx, int dy)
 {
+	if (!windowhasfocus)
+		dx = dy = 0;	//don't change view angles etc while unfocused.
 	total_dx += dx;
 	total_dy += dy;
 }
@@ -416,7 +434,7 @@ static joybuttonstate_t joy_buttonstate;
 static joyaxisstate_t joy_axisstate;
 
 static double joy_buttontimer[SDL_CONTROLLER_BUTTON_MAX];
-static double joy_emulatedkeytimer[10];
+static double joy_emulatedkeytimer[6];
 
 #ifdef __WATCOMC__ /* OW1.9 doesn't have powf() / sqrtf() */
 #define powf pow
@@ -462,48 +480,27 @@ static joyaxis_t IN_ApplyEasing(joyaxis_t axis, float exponent)
 
 /*
 ================
-IN_ApplyMoveEasing
-
-same as IN_ApplyEasing, but scales the output by sqrt(2).
-this gives diagonal stick inputs coordinates of (+/-1,+/-1).
-
-forward/back/left/right will return +/- 1.41; this shouldn't be a problem because
-you can pull back on the stick to go slower (and the final speed is clamped
-by sv_maxspeed).
-================
-*/
-static joyaxis_t IN_ApplyMoveEasing(joyaxis_t axis, float exponent)
-{
-	joyaxis_t result = IN_ApplyEasing(axis, exponent);
-	const float v = sqrtf(2.0f);
-	
-	result.x *= v;
-	result.y *= v;
-
-	return result;
-}
-
-/*
-================
 IN_ApplyDeadzone
 
 in: raw joystick axis values converted to floats in +-1
-out: applies a circular deadzone and clamps the magnitude at 1
+out: applies a circular inner deadzone and a circular outer threshold and clamps the magnitude at 1
      (my 360 controller is slightly non-circular and the stick travels further on the diagonals)
 
-deadzone is expected to satisfy 0 < deadzone < 1
+deadzone is expected to satisfy 0 < deadzone < 1 - outer_threshold
+outer_threshold is expected to satisfy 0 < outer_threshold < 1 - deadzone
 
 from https://github.com/jeremiah-sypult/Quakespasm-Rift
 and adapted from http://www.third-helix.com/2013/04/12/doing-thumbstick-dead-zones-right.html
 ================
 */
-static joyaxis_t IN_ApplyDeadzone(joyaxis_t axis, float deadzone)
+static joyaxis_t IN_ApplyDeadzone(joyaxis_t axis, float deadzone, float outer_threshold)
 {
 	joyaxis_t result = {0};
 	vec_t magnitude = IN_AxisMagnitude(axis);
 	
 	if ( magnitude > deadzone ) {
-		const vec_t new_magnitude = q_min(1.0, (magnitude - deadzone) / (1.0 - deadzone));
+		// rescale the magnitude so deadzone becomes 0, and 1-outer_threshold becomes 1
+		const vec_t new_magnitude = q_min(1.0, (magnitude - deadzone) / (1.0 - deadzone - outer_threshold));
 		const vec_t scale = new_magnitude / magnitude;
 		result.x = axis.x * scale;
 		result.y = axis.y * scale;
@@ -626,15 +623,11 @@ void IN_Commands (void)
 		IN_JoyKeyEvent(joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_LEFTX] > stickthreshold,  newaxisstate.axisvalue[SDL_CONTROLLER_AXIS_LEFTX] > stickthreshold, K_RIGHTARROW, &joy_emulatedkeytimer[1]);
 		IN_JoyKeyEvent(joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_LEFTY] < -stickthreshold, newaxisstate.axisvalue[SDL_CONTROLLER_AXIS_LEFTY] < -stickthreshold, K_UPARROW, &joy_emulatedkeytimer[2]);
 		IN_JoyKeyEvent(joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_LEFTY] > stickthreshold,  newaxisstate.axisvalue[SDL_CONTROLLER_AXIS_LEFTY] > stickthreshold, K_DOWNARROW, &joy_emulatedkeytimer[3]);
-		IN_JoyKeyEvent(joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_RIGHTX] < -stickthreshold,newaxisstate.axisvalue[SDL_CONTROLLER_AXIS_RIGHTX] < -stickthreshold, K_LEFTARROW, &joy_emulatedkeytimer[4]);
-		IN_JoyKeyEvent(joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_RIGHTX] > stickthreshold, newaxisstate.axisvalue[SDL_CONTROLLER_AXIS_RIGHTX] > stickthreshold, K_RIGHTARROW, &joy_emulatedkeytimer[5]);
-		IN_JoyKeyEvent(joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_RIGHTY] < -stickthreshold,newaxisstate.axisvalue[SDL_CONTROLLER_AXIS_RIGHTY] < -stickthreshold, K_UPARROW, &joy_emulatedkeytimer[6]);
-		IN_JoyKeyEvent(joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_RIGHTY] > stickthreshold, newaxisstate.axisvalue[SDL_CONTROLLER_AXIS_RIGHTY] > stickthreshold, K_DOWNARROW, &joy_emulatedkeytimer[7]);
 	}
 	
 	// emit emulated keys for the analog triggers
-	IN_JoyKeyEvent(joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_TRIGGERLEFT] > triggerthreshold,  newaxisstate.axisvalue[SDL_CONTROLLER_AXIS_TRIGGERLEFT] > triggerthreshold, K_LTRIGGER, &joy_emulatedkeytimer[8]);
-	IN_JoyKeyEvent(joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_TRIGGERRIGHT] > triggerthreshold, newaxisstate.axisvalue[SDL_CONTROLLER_AXIS_TRIGGERRIGHT] > triggerthreshold, K_RTRIGGER, &joy_emulatedkeytimer[9]);
+	IN_JoyKeyEvent(joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_TRIGGERLEFT] > triggerthreshold,  newaxisstate.axisvalue[SDL_CONTROLLER_AXIS_TRIGGERLEFT] > triggerthreshold, K_LTRIGGER, &joy_emulatedkeytimer[4]);
+	IN_JoyKeyEvent(joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_TRIGGERRIGHT] > triggerthreshold, newaxisstate.axisvalue[SDL_CONTROLLER_AXIS_TRIGGERRIGHT] > triggerthreshold, K_RTRIGGER, &joy_emulatedkeytimer[5]);
 	
 	joy_axisstate = newaxisstate;
 #endif
@@ -651,11 +644,15 @@ void IN_JoyMove (usercmd_t *cmd)
 	float	speed;
 	joyaxis_t moveRaw, moveDeadzone, moveEased;
 	joyaxis_t lookRaw, lookDeadzone, lookEased;
+	extern	cvar_t	sv_maxspeed;
 
 	if (!joy_enable.value)
 		return;
 	
 	if (!joy_active_controller)
+		return;
+
+	if (cl.paused || key_dest != key_game)
 		return;
 	
 	moveRaw.x = joy_axisstate.axisvalue[SDL_CONTROLLER_AXIS_LEFTX];
@@ -670,19 +667,24 @@ void IN_JoyMove (usercmd_t *cmd)
 		lookRaw = temp;
 	}
 	
-	moveDeadzone = IN_ApplyDeadzone(moveRaw, joy_deadzone.value);
-	lookDeadzone = IN_ApplyDeadzone(lookRaw, joy_deadzone.value);
+	moveDeadzone = IN_ApplyDeadzone(moveRaw, joy_deadzone_move.value, joy_outer_threshold_move.value);
+	lookDeadzone = IN_ApplyDeadzone(lookRaw, joy_deadzone_look.value, joy_outer_threshold_look.value);
 
-	moveEased = IN_ApplyMoveEasing(moveDeadzone, joy_exponent_move.value);
+	moveEased = IN_ApplyEasing(moveDeadzone, joy_exponent_move.value);
 	lookEased = IN_ApplyEasing(lookDeadzone, joy_exponent.value);
-	
-	if ((in_speed.state & 1) ^ (cl_alwaysrun.value != 0.0))
-		speed = cl_movespeedkey.value;
-	else
-		speed = 1;
 
-	cmd->sidemove += (cl_sidespeed.value * speed * moveEased.x);
-	cmd->forwardmove -= (cl_forwardspeed.value * speed * moveEased.y);
+	if ((in_speed.state & 1) ^ (cl_alwaysrun.value != 0.0 || cl_forwardspeed.value >= sv_maxspeed.value))
+		// running
+		speed = sv_maxspeed.value;
+	else if (cl_forwardspeed.value >= sv_maxspeed.value)
+		// not running, with always run = vanilla
+		speed = q_min(sv_maxspeed.value, cl_forwardspeed.value / cl_movespeedkey.value);
+	else
+		// not running, with always run = off or quakespasm
+		speed = cl_forwardspeed.value;
+
+	cmd->sidemove += speed * moveEased.x;
+	cmd->forwardmove -= speed * moveEased.y;
 
 	cl.viewangles[YAW] -= lookEased.x * joy_sensitivity_yaw.value * host_frametime;
 	cl.viewangles[PITCH] += lookEased.y * joy_sensitivity_pitch.value * (joy_invert.value ? -1.0 : 1.0) * host_frametime;
@@ -707,6 +709,10 @@ void IN_MouseMove(usercmd_t *cmd)
 
 	total_dx = 0;
 	total_dy = 0;
+
+	// do pause check after resetting total_d* so mouse movements during pause don't accumulate
+	if (cl.paused || key_dest != key_game)
+		return;
 
 	if ( (in_strafe.state & 1) || (lookstrafe.value && (in_mlook.state & 1) ))
 		cmd->sidemove += m_side.value * dmx;
@@ -1011,17 +1017,30 @@ void IN_SendKeyEvents (void)
 #if defined(USE_SDL2)
 		case SDL_WINDOWEVENT:
 			if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+			{
+				windowhasfocus = true;
 				S_UnblockSound();
+			}
 			else if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+			{
+				windowhasfocus = false;
 				S_BlockSound();
+			}
 			break;
 #else
 		case SDL_ACTIVEEVENT:
 			if (event.active.state & (SDL_APPINPUTFOCUS|SDL_APPACTIVE))
 			{
 				if (event.active.gain)
+				{
+					windowhasfocus = true;
 					S_UnblockSound();
-				else	S_BlockSound();
+				}
+				else
+				{
+					windowhasfocus = false;
+					S_BlockSound();
+				}
 			}
 			break;
 #endif
@@ -1056,7 +1075,8 @@ void IN_SendKeyEvents (void)
 			key = IN_SDL_KeysymToQuakeKey(event.key.keysym.sym);
 #endif
 
-			Key_Event (key, down);
+		// also pass along the underlying keycode using the proper current layout for Y/N prompts.
+			Key_EventWithKeycode (key, down, event.key.keysym.sym);
 
 #if !defined(USE_SDL2)
 			if (down && (event.key.keysym.unicode & ~0x7F) == 0)

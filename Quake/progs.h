@@ -49,6 +49,8 @@ typedef struct edict_s
 	unsigned char	alpha;			/* johnfitz -- hack to support alpha since it's not part of entvars_t */
 	unsigned char	scale;			/* Quakespasm: added for model scale support. */
 	qboolean	sendinterval;		/* johnfitz -- send time until nextthink to client for better lerp timing */
+	float		oldframe;
+	float		oldthinktime;
 
 	float		freetime;		/* sv.time when the object was freed */
 	entvars_t	v;			/* C exported fields from progs */
@@ -101,7 +103,7 @@ int NUM_FOR_EDICT(edict_t*);
 
 #define	NEXT_EDICT(e)		((edict_t *)( (byte *)e + pr_edict_size))
 
-#define	EDICT_TO_PROG(e)	((byte *)e - (byte *)sv.edicts)
+#define	EDICT_TO_PROG(e)	(int)((byte *)e - (byte *)sv.edicts)
 #define PROG_TO_EDICT(e)	((edict_t *)((byte *)sv.edicts + e))
 
 #define	G_FLOAT(o)		(pr_globals[o])

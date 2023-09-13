@@ -51,6 +51,8 @@ extern cvar_t gl_zfix; // QuakeSpasm z-fighting fix
 
 extern gltexture_t *playertextures[MAX_SCOREBOARD]; //johnfitz
 
+cvar_t	r_lightmapwide = {"r_lightmapwide","0",CVAR_ROM};
+
 
 /*
 ====================
@@ -164,8 +166,6 @@ R_Init
 */
 void R_Init (void)
 {
-	extern cvar_t gl_finish;
-
 	Cmd_AddCommand ("timerefresh", R_TimeRefresh_f);
 	Cmd_AddCommand ("pointfile", R_ReadPointFile_f);
 
@@ -220,6 +220,8 @@ void R_Init (void)
 	Cvar_RegisterVariable (&r_noshadow_list);
 	Cvar_SetCallback (&r_noshadow_list, R_Model_ExtraFlags_List_f);
 	//johnfitz
+	Cvar_RegisterVariable (&r_lightmapwide);
+	Cvar_SetROM ("r_lightmapwide", gl_packed_pixels ? "1" : "0");
 
 	Cvar_RegisterVariable (&gl_zfix); // QuakeSpasm z-fighting fix
 	Cvar_RegisterVariable (&r_lavaalpha);
@@ -252,8 +254,10 @@ void R_TranslatePlayerSkin (int playernum)
 
 	//FIXME: if gl_nocolors is on, then turned off, the textures may be out of sync with the scoreboard colors.
 	if (!gl_nocolors.value)
+	{
 		if (playertextures[playernum])
 			TexMgr_ReloadImage (playertextures[playernum], top, bottom);
+	}
 }
 
 /*
@@ -334,6 +338,7 @@ static void R_ParseWorldspawn (void)
 		return; // error
 	if (com_token[0] != '{')
 		return; // error
+
 	while (1)
 	{
 		data = COM_Parse(data);
@@ -586,7 +591,7 @@ void R_DeleteShaders (void)
 	gl_num_programs = 0;
 }
 
-GLuint current_array_buffer, current_element_array_buffer;
+static GLuint current_array_buffer, current_element_array_buffer;
 
 /*
 ====================
@@ -630,7 +635,7 @@ This must be called if you do anything that could make the cached bindings
 invalid (e.g. manually binding, destroying the context).
 ====================
 */
-void GL_ClearBufferBindings ()
+void GL_ClearBufferBindings (void)
 {
 	if (!gl_vbo_able)
 		return;

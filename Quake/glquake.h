@@ -134,6 +134,7 @@ extern	cvar_t	r_pos;
 extern	cvar_t	r_waterwarp;
 extern	cvar_t	r_fullbright;
 extern	cvar_t	r_lightmap;
+extern	cvar_t	r_lightmapwide;
 extern	cvar_t	r_shadows;
 extern	cvar_t	r_wateralpha;
 extern	cvar_t	r_lavaalpha;
@@ -151,6 +152,7 @@ extern	cvar_t	gl_affinemodels;
 extern	cvar_t	gl_polyblend;
 extern	cvar_t	gl_flashblend;
 extern	cvar_t	gl_nocolors;
+extern	cvar_t	gl_finish;
 
 extern	cvar_t	gl_playermip;
 
@@ -251,6 +253,12 @@ extern	qboolean	gl_texture_NPOT;
 #define OFFSET_FOG -2
 #define OFFSET_SHOWTRIS -3
 void GL_PolygonOffset (int);
+
+//GL_EXT_packed_pixels
+#ifndef GL_UNSIGNED_INT_10_10_10_2
+#define GL_UNSIGNED_INT_10_10_10_2 0x8036
+#endif
+extern qboolean gl_packed_pixels;
 
 //johnfitz -- GL_EXT_texture_env_combine
 //the values for GL_ARB_ are identical
@@ -416,7 +424,7 @@ void R_DrawTextureChains (qmodel_t *model, entity_t *ent, texchain_t chain);
 void R_DrawWorld_Water (void);
 
 void GL_BindBuffer (GLenum target, GLuint buffer);
-void GL_ClearBufferBindings ();
+void GL_ClearBufferBindings (void);
 
 void GLSLGamma_DeleteTexture (void);
 void GLSLGamma_GammaCorrect (void);

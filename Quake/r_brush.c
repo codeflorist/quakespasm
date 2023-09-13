@@ -32,11 +32,12 @@ int		lightmap_bytes;
 
 #define MAX_SANITY_LIGHTMAPS (1u<<20)
 struct lightmap_s	*lightmaps;
-int					lightmap_count;
-int					last_lightmap_allocated;
-int					allocated[LMBLOCK_WIDTH];
+int		lightmap_count;
 
-unsigned	blocklights[LMBLOCK_WIDTH*LMBLOCK_HEIGHT*3]; //johnfitz -- was 18*18, added lit support (*3) and loosened surface extents maximum (LMBLOCK_WIDTH*LMBLOCK_HEIGHT)
+static int	allocated[LMBLOCK_WIDTH];
+static int	last_lightmap_allocated;
+
+static unsigned	blocklights[LMBLOCK_WIDTH*LMBLOCK_HEIGHT*3]; //johnfitz -- was 18*18, added lit support (*3) and loosened surface extents maximum (LMBLOCK_WIDTH*LMBLOCK_HEIGHT)
 
 
 /*
@@ -769,10 +770,8 @@ int AllocBlock (int w, int h, int *x, int *y)
 }
 
 
-mvertex_t	*r_pcurrentvertbase;
-qmodel_t	*currentmodel;
-
-int	nColinElim;
+static mvertex_t	*r_pcurrentvertbase;
+static  qmodel_t	*currentmodel;
 
 /*
 ========================
@@ -1165,8 +1164,11 @@ Combine and scale multiple lightmaps into the 8.8 format in blocklights
 */
 void R_BuildLightMap (msurface_t *surf, byte *dest, int stride)
 {
+	const int overbright = !!gl_overbright.value;
+	const int wide10bits = !!r_lightmapwide.value;
+
 	int			smax, tmax;
-	int			r,g,b;
+	unsigned		r, g, b;
 	int			i, j, size;
 	byte		*lightmap;
 	unsigned	scale;
@@ -1226,7 +1228,7 @@ void R_BuildLightMap (msurface_t *surf, byte *dest, int stride)
 		{
 			for (j=0 ; j<smax ; j++)
 			{
-				if (gl_overbright.value)
+				if (overbright)
 				{
 					r = *bl++ >> 8;
 					g = *bl++ >> 8;
@@ -1237,11 +1239,30 @@ void R_BuildLightMap (msurface_t *surf, byte *dest, int stride)
 					r = *bl++ >> 7;
 					g = *bl++ >> 7;
 					b = *bl++ >> 7;
+					if (wide10bits) {
+						// artifically clamp to 255 so gl_overbright 0 renders as expected in the wide10bits case
+						r = (r > 255) ? 255 : r;
+						g = (g > 255) ? 255 : g;
+						b = (b > 255) ? 255 : b;
+						goto loc0;
+					}
 				}
-				*dest++ = (r > 255)? 255 : r;
-				*dest++ = (g > 255)? 255 : g;
-				*dest++ = (b > 255)? 255 : b;
-				*dest++ = 255;
+				if (wide10bits)
+				{
+					r = (r > 1023)? 1023 : r;
+					g = (g > 1023)? 1023 : g;
+					b = (b > 1023)? 1023 : b;
+					loc0:
+					*(unsigned int*)dest = (r<<22) | (g<<12) | (b<<2) | 3;
+					dest += 4;
+				}
+				else
+				{
+					*dest++ = (r > 255)? 255 : r;
+					*dest++ = (g > 255)? 255 : g;
+					*dest++ = (b > 255)? 255 : b;
+					*dest++ = 255;
+				}
 			}
 		}
 		break;
@@ -1252,7 +1273,7 @@ void R_BuildLightMap (msurface_t *surf, byte *dest, int stride)
 		{
 			for (j=0 ; j<smax ; j++)
 			{
-				if (gl_overbright.value)
+				if (overbright)
 				{
 					r = *bl++ >> 8;
 					g = *bl++ >> 8;
@@ -1263,11 +1284,30 @@ void R_BuildLightMap (msurface_t *surf, byte *dest, int stride)
 					r = *bl++ >> 7;
 					g = *bl++ >> 7;
 					b = *bl++ >> 7;
+					if (wide10bits) {
+						// artifically clamp to 255 so gl_overbright 0 renders as expected in the wide10bits case
+						r = (r > 255) ? 255 : r;
+						g = (g > 255) ? 255 : g;
+						b = (b > 255) ? 255 : b;
+						goto loc1;
+					}
 				}
-				*dest++ = (b > 255)? 255 : b;
-				*dest++ = (g > 255)? 255 : g;
-				*dest++ = (r > 255)? 255 : r;
-				*dest++ = 255;
+				if (wide10bits)
+				{
+					r = (r > 1023)? 1023 : r;
+					g = (g > 1023)? 1023 : g;
+					b = (b > 1023)? 1023 : b;
+					loc1:
+					*(unsigned int*)dest = (b<<22) | (g<<12) | (r<<2) | 3;
+					dest += 4;
+				}
+				else
+				{
+					*dest++ = (b > 255)? 255 : b;
+					*dest++ = (g > 255)? 255 : g;
+					*dest++ = (r > 255)? 255 : r;
+					*dest++ = 255;
+				}
 			}
 		}
 		break;
@@ -1285,6 +1325,9 @@ assumes lightmap texture is already bound
 */
 static void R_UploadLightmap(int lmap)
 {
+	const int wide10bits = !!r_lightmapwide.value;
+	const GLenum type = wide10bits ?
+	    GL_UNSIGNED_INT_10_10_10_2 : GL_UNSIGNED_BYTE;
 	struct lightmap_s *lm = &lightmaps[lmap];
 
 	if (!lm->modified)
@@ -1293,7 +1336,7 @@ static void R_UploadLightmap(int lmap)
 	lm->modified = false;
 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, lm->rectchange.t, LMBLOCK_WIDTH, lm->rectchange.h, gl_lightmap_format,
-			GL_UNSIGNED_BYTE, lm->data+lm->rectchange.t*LMBLOCK_WIDTH*lightmap_bytes);
+			type, lm->data + lm->rectchange.t*LMBLOCK_WIDTH*lightmap_bytes);
 	lm->rectchange.l = LMBLOCK_WIDTH;
 	lm->rectchange.t = LMBLOCK_HEIGHT;
 	lm->rectchange.h = 0;
@@ -1323,6 +1366,9 @@ R_RebuildAllLightmaps -- johnfitz -- called when gl_overbright gets toggled
 */
 void R_RebuildAllLightmaps (void)
 {
+	const int wide10bits = !!r_lightmapwide.value;
+	const GLenum type = wide10bits ?
+	    GL_UNSIGNED_INT_10_10_10_2 : GL_UNSIGNED_BYTE;
 	int			i, j;
 	qmodel_t	*mod;
 	msurface_t	*fa;
@@ -1352,6 +1398,6 @@ void R_RebuildAllLightmaps (void)
 	{
 		GL_Bind (lightmaps[i].texture);
 		glTexSubImage2D (GL_TEXTURE_2D, 0, 0, 0, LMBLOCK_WIDTH, LMBLOCK_HEIGHT, gl_lightmap_format,
-				 GL_UNSIGNED_BYTE, lightmaps[i].data);
+				 type, lightmaps[i].data);
 	}
 }

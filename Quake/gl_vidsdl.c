@@ -98,6 +98,7 @@ modestate_t	modestate = MS_UNINIT;
 qboolean	scr_skipupdate;
 
 qboolean gl_mtexable = false;
+qboolean gl_packed_pixels = false;
 qboolean gl_texture_env_combine = false; //johnfitz
 qboolean gl_texture_env_add = false; //johnfitz
 qboolean gl_swap_control = false; //johnfitz
@@ -1184,7 +1185,7 @@ static void GL_CheckExtensions (void)
 	{
 		Con_Warning ("texture_non_power_of_two not supported\n");
 	}
-	
+
 	// GLSL
 	//
 	if (COM_CheckParm("-noglsl"))
@@ -1216,28 +1217,28 @@ static void GL_CheckExtensions (void)
 		GL_Uniform4fFunc = (QS_PFNGLUNIFORM4FPROC) SDL_GL_GetProcAddress("glUniform4f");
 
 		if (GL_CreateShaderFunc &&
-			GL_DeleteShaderFunc &&
-			GL_DeleteProgramFunc &&
-			GL_ShaderSourceFunc &&
-			GL_CompileShaderFunc &&
-			GL_GetShaderivFunc &&
-			GL_GetShaderInfoLogFunc &&
-			GL_GetProgramivFunc &&
-			GL_GetProgramInfoLogFunc &&
-			GL_CreateProgramFunc &&
-			GL_AttachShaderFunc &&
-			GL_LinkProgramFunc &&
-			GL_BindAttribLocationFunc &&
-			GL_UseProgramFunc &&
-			GL_GetAttribLocationFunc &&
-			GL_VertexAttribPointerFunc &&
-			GL_EnableVertexAttribArrayFunc &&
-			GL_DisableVertexAttribArrayFunc &&
-			GL_GetUniformLocationFunc &&
-			GL_Uniform1iFunc &&
-			GL_Uniform1fFunc &&
-			GL_Uniform3fFunc &&
-			GL_Uniform4fFunc)
+		    GL_DeleteShaderFunc &&
+		    GL_DeleteProgramFunc &&
+		    GL_ShaderSourceFunc &&
+		    GL_CompileShaderFunc &&
+		    GL_GetShaderivFunc &&
+		    GL_GetShaderInfoLogFunc &&
+		    GL_GetProgramivFunc &&
+		    GL_GetProgramInfoLogFunc &&
+		    GL_CreateProgramFunc &&
+		    GL_AttachShaderFunc &&
+		    GL_LinkProgramFunc &&
+		    GL_BindAttribLocationFunc &&
+		    GL_UseProgramFunc &&
+		    GL_GetAttribLocationFunc &&
+		    GL_VertexAttribPointerFunc &&
+		    GL_EnableVertexAttribArrayFunc &&
+		    GL_DisableVertexAttribArrayFunc &&
+		    GL_GetUniformLocationFunc &&
+		    GL_Uniform1iFunc &&
+		    GL_Uniform1fFunc &&
+		    GL_Uniform3fFunc &&
+		    GL_Uniform4fFunc)
 		{
 			Con_Printf("FOUND: GLSL\n");
 			gl_glsl_able = true;
@@ -1251,7 +1252,6 @@ static void GL_CheckExtensions (void)
 	{
 		Con_Warning ("OpenGL version < 2, GLSL not available\n");
 	}
-	
 	// GLSL gamma
 	//
 	if (COM_CheckParm("-noglslgamma"))
@@ -1259,32 +1259,72 @@ static void GL_CheckExtensions (void)
 	else if (gl_glsl_able)
 	{
 		gl_glsl_gamma_able = true;
+		Con_Printf("Enabled: GLSL gamma\n");
 	}
 	else
 	{
 		Con_Warning ("GLSL gamma not available, using hardware gamma\n");
 	}
-    
-    // GLSL alias model rendering
-    //
+	// GLSL alias model rendering
+	//
 	if (COM_CheckParm("-noglslalias"))
 		Con_Warning ("GLSL alias model rendering disabled at command line\n");
 	else if (gl_glsl_able && gl_vbo_able && gl_max_texture_units >= 3)
 	{
 		gl_glsl_alias_able = true;
+		Con_Printf("Enabled: GLSL alias model rendering\n");
 	}
 	else
 	{
 		Con_Warning ("GLSL alias model rendering not available, using Fitz renderer\n");
 	}
 
+	// packed_pixels
+	//
+	if (COM_CheckParm("-nopackedpixels"))
+		Con_Warning ("EXT_packed_pixels disabled at command line\n");
+	else if (gl_glsl_alias_able)
+	{
+		gl_packed_pixels = true;
+		Con_Printf("Enabled: EXT_packed_pixels\n");
+	}
+	#if 0 /* Disabling for non-GLSL path, needs more surgery. */
+	else if (GL_ParseExtensionList(gl_extensions, "GL_APPLE_packed_pixels"))
+	{
+		Con_Printf("FOUND: APPLE_packed_pixels\n");
+		gl_packed_pixels = true;
+	}
+	else if (GL_ParseExtensionList(gl_extensions, "GL_EXT_packed_pixels"))
+	{
+		Con_Printf("FOUND: EXT_packed_pixels\n");
+		gl_packed_pixels = true;
+	}
+	else
+	{
+		Con_Warning ("packed_pixels not supported\n");
+	}
+	#endif
+
 	// glGenerateMipmap for warp textures
 	if (COM_CheckParm("-nowarpmipmaps"))
 		Con_Warning ("glGenerateMipmap disabled at command line\n");
-	else if ((GL_GenerateMipmap = (QS_PFNGENERATEMIPMAP) SDL_GL_GetProcAddress("glGenerateMipmap")) != NULL)
-		Con_Printf ("FOUND: glGenerateMipmap\n");
 	else
-		Con_Warning ("glGenerateMipmap not available, liquids won't have mipmaps\n");
+	{
+		if (gl_version_major >= 3 || GL_ParseExtensionList(gl_extensions, "GL_ARB_framebuffer_object"))
+		{
+			GL_GenerateMipmap = (QS_PFNGENERATEMIPMAP) SDL_GL_GetProcAddress("glGenerateMipmap");
+			if (GL_GenerateMipmap != NULL)
+				Con_Printf ("FOUND: glGenerateMipmap\n");
+		}
+		else if (GL_ParseExtensionList(gl_extensions, "GL_EXT_framebuffer_object"))
+		{
+			GL_GenerateMipmap = (QS_PFNGENERATEMIPMAP) SDL_GL_GetProcAddress("glGenerateMipmapEXT");
+			if (GL_GenerateMipmap != NULL)
+				Con_Printf ("FOUND: glGenerateMipmapEXT\n");
+		}
+		if (GL_GenerateMipmap == NULL)
+			Con_Warning ("glGenerateMipmap not available, liquids won't have mipmaps\n");
+	}
 }
 
 /*
@@ -1401,12 +1441,13 @@ void	VID_Shutdown (void)
 	if (vid_initialized)
 	{
 		VID_Gamma_Shutdown (); //johnfitz
-
+#if defined(USE_SDL2)
+		SDL_GL_DeleteContext(gl_context);
+		gl_context = NULL;
+		SDL_DestroyWindow(draw_context);
+#endif
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		draw_context = NULL;
-#if defined(USE_SDL2)
-		gl_context = NULL;
-#endif
 		PL_VID_Shutdown();
 	}
 }
@@ -2356,4 +2397,3 @@ static void VID_Menu_f (void)
 	VID_Menu_RebuildBppList ();
 	VID_Menu_RebuildRateList ();
 }
-
