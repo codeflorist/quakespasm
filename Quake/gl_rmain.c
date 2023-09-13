@@ -232,6 +232,9 @@ void GLSLGamma_GammaCorrect (void)
 // copy the framebuffer to the texture
 	GL_DisableMultitexture();
 	glBindTexture (GL_TEXTURE_2D, r_gamma_texture);
+
+    VR_HandleGammaCorrect();
+
 	glCopyTexSubImage2D (GL_TEXTURE_2D, 0, 0, 0, glx, gly, glwidth, glheight);
 
 // draw the texture back to the framebuffer with a fragment shader

@@ -767,6 +767,14 @@ static void RenderScreenForCurrentEye_OVR()
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
+void VR_HandleGammaCorrect()
+{
+    // TODO VR: (P2) this only affects 2D rendering, doesn't affect HMD
+    // rendering
+    glBindFramebufferEXT(GL_FRAMEBUFFER, eyes[0].fbo.framebuffer);
+    glReadBuffer(GL_FRONT);
+}
+
 void SetHandPos(int index, entity_t *player)
 {
     vec3_t headLocalPreRot;
