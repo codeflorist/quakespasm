@@ -1075,8 +1075,6 @@ void SCR_UpdateScreenContent(void)
 	}
 
 	V_UpdateBlend(); //johnfitz -- V_UpdatePalette cleaned up and renamed
-
-	GLSLGamma_GammaCorrect();
 }
 
 /*
@@ -1133,6 +1131,7 @@ void SCR_UpdateScreen (void)
 		VectorCopy(cl.aimangles, r_refdef.aimangles);
 
 		SCR_UpdateScreenContent();
+        GLSLGamma_GammaCorrect();
 	}
 
 	GL_EndRendering ();

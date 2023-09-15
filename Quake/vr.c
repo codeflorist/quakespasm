@@ -81,6 +81,7 @@ struct {
 // main screen & 2D drawing
 extern void SCR_SetUpToDrawConsole(void);
 extern void SCR_UpdateScreenContent();
+extern void GLSLGamma_GammaCorrect(void);
 extern qboolean	scr_drawdialog;
 extern void SCR_DrawNotifyString(void);
 extern qboolean	scr_drawloading;
@@ -753,6 +754,9 @@ static void RenderScreenForCurrentEye_OVR()
         glDrawBuffer(GL_BACK);
         glBlitFramebufferEXT(0, 0, glwidth, glheight, 0, 0, glwidth, glheight,
             GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        GLSLGamma_GammaCorrect();
+    } else {
+        GLSLGamma_GammaCorrect();
     }
 
     vr::Texture_t eyeTexture = {
@@ -769,9 +773,12 @@ static void RenderScreenForCurrentEye_OVR()
 
 void VR_HandleGammaCorrect()
 {
-    // TODO VR: (P2) this only affects 2D rendering, doesn't affect HMD
-    // rendering
-    glBindFramebufferEXT(GL_FRAMEBUFFER, eyes[0].fbo.framebuffer);
+    if (current_eye)
+    {
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, current_eye->fbo.framebuffer);
+    } else {
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, eyes[0].fbo.framebuffer);
+    }
     glReadBuffer(GL_FRONT);
 }
 

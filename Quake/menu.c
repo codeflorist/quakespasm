@@ -1054,7 +1054,7 @@ void M_AdjustSliders (int dir)
 	case OPT_GAMMA:	// gamma
 		f = vid_gamma.value - dir * 0.05;
 		if (f < 0.5)	f = 0.5;
-		else if (f > 1)	f = 1;
+		else if (f > 2)	f = 2;
 		Cvar_SetValue ("gamma", f);
 		break;
 	case OPT_CONTRAST:	// contrast
@@ -1202,7 +1202,7 @@ void M_Options_Draw (void)
 
 	// OPT_GAMMA:
 	M_Print (16, 32 + 8*OPT_GAMMA,		"            Brightness");
-	r = (1.0 - vid_gamma.value) / 0.5;
+	r = (2.0 - vid_gamma.value) / 1.5;
 	M_DrawSlider (220, 32 + 8*OPT_GAMMA, r);
 
 	// OPT_CONTRAST:
