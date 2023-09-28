@@ -123,7 +123,13 @@ __New cvars for analog stick (and touchpad?) tuning on VR controllers.__ Default
 
 ### Note about weapons
 
-Quake's weapons don't seem to be particularly consistently sized or offset. To work around this there are cvars to position/scale correct the weapons. Set up for the default weapons are included but mods may require new offsets.
+Quake's weapons don't seem to be particularly consistently sized or offset. To work around this there are cvars to position/scale correct the weapons. Working default offsets are included for the following weapons:
+
+- Vanilla Quake, Scourge of Armagon and Dissolution of Eternity weapons
+- Arcane Dimensions weapons (be sure to use folder-name `ad` and start game with `-game ad` to have them applied)
+- Underdark Overbright's axe (be sure to use folder-name `udob` and start game with `-game udob` to have them applied)
+
+Unsupported mods may require new offsets. You can modify offsets by using the following cvars:
 
 There are 20 slots for weapon VR offsets. There are 5 cvars for each (nn can be 01 to 20):
 
@@ -133,7 +139,32 @@ There are 20 slots for weapon VR offsets. There are 5 cvars for each (nn can be 
 - `vr_wofs_y_nn` : Y offset
 - `vr_wofs_z_nn` : Z offset
 
-You can place these in an autoexec.cfg in the mod's directory.
+Here are the `nn` values for all vanilla and mission pack weapons:
+
+| Weapon | nn |
+| ----------------- | ----------- |
+| Axe | 01 |
+| Shotgun | 02 |
+| Super Shotgun | 03 |
+| Nailgun | 04 |
+| Super Nailgun | 05 |
+| Grenade Launcher | 06 |
+| Rocket Launcher | 07 |
+| ___Scourge of Armagon (hipnotic):___ |
+| Thunderbold | 08 |
+| Mjolnir Hammer | 09 |
+| Laser Cannon | 10 |
+| Proximity Launcher | 11 |
+| ___Dissolution of Eternity (rogue):___ |
+| Lava Nailgun | 12 |
+| Lava Super Nailgun | 13 |
+| Multi Grenade Launcher | 14 |
+| Multi Rocket Launcher | 15 |
+| Plasma Gun | 16 |
+
+You can place any modified cvars in an `autoexec.cfg` in the mod's directory to apply them for a mod, or in `id1` to apply them globally.
+
+If you have found working values for a mod, feel free to create an issue, and i will try to include support for them out-of-the-box!
 
 ## Development and Building
 
