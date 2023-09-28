@@ -57,7 +57,7 @@ First of all you have to download the [Quakespasm compatible versions of the mod
 There are 2 ways to use them with Quakespasm-OpenVR:
 
 - Extract the `enhanced` folder of the downloaded archive into your `Quake` folder, and start the game with `-game enhanced`. This should automatically load vanilla Quake with the new models and correctly apply the correct weapon offsets.
-- If you want to use the new models globally with all expansions and add-ons, rename `pak0.pak` from the `enhanced` folder by changing the `0` to a number higher then the highest existing `pak`-file inside your `id1` folder. If you are using `pak` files from vanilla Quake this will be `pak2.pak`, and if your are using the Re-Release, it will be `pak1.pak`. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Enhanced`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes seperate configs per mod.)
+- If you want to use the new models globally with all expansions and add-ons, rename `pak0.pak` from the `enhanced` folder by changing the `0` to a number higher then the highest existing `pak`-file inside your `id1` folder. If you are using `pak` files from vanilla Quake this will be `pak2.pak`, and if you're using the Re-Release, it will be `pak1.pak`. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Enhanced`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes seperate configs per mod.)
 
 ### Controls
 
