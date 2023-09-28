@@ -522,7 +522,6 @@ void InitAllWeaponCVars()
     {	//weapons for vanilla Quake, Scourge of Armagon, Dissolution of Eternity
         //vanilla quake weapons
         InitWeaponCVars(i++, "progs/v_axe.mdl", "-4", "24", "37", "0.33");
-        InitWeaponCVars(i++, "progs/v_axe2.mdl", "-4", "34", "37", "0.33"); //axe from underdark overbright & copper
         InitWeaponCVars(i++, "progs/v_shot.mdl", "1.5", "1", "10", "0.5"); //gun
         InitWeaponCVars(i++, "progs/v_shot2.mdl", "-3.5", "1", "8.5", "0.8"); //shotgun
         InitWeaponCVars(i++, "progs/v_nail.mdl", "-5", "3", "15", "0.5"); //nailgun
@@ -540,6 +539,12 @@ void InitAllWeaponCVars()
         InitWeaponCVars(i++, "progs/v_multi.mdl", "10", "1.5", "13", "0.5"); //multigrenade - same as grenade
         InitWeaponCVars(i++, "progs/v_multi2.mdl", "10", "7", "19", "0.5"); //multirocket - same as rocket
         InitWeaponCVars(i++, "progs/v_plasma.mdl", "3", "4", "13", "0.5"); //plasma - same as lightning
+
+        //additional weapons from mods
+        //underdark overbright & copper
+        if (!strcmp(COM_SkipPath(com_gamedir), "udob")) {
+            InitWeaponCVars(i++, "progs/v_axe2.mdl", "-4", "34", "37", "0.33"); //axe
+        }
     }
 
     while (i < MAX_WEAPONS)
