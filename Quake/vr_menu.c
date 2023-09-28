@@ -166,6 +166,13 @@ static void VR_MenuPrintOptionValue(int cx, int cy, int option)
                 value_string = value_buffer;
             }
             break;
+        case VR_OPTION_GUNMODELOFFSETS:
+            switch ((int)vr_gunmodeloffsets.value)
+            {
+            case VR_GUNMODELOFFSETS_VANILLA: value_string = "Vanilla"; break;
+            case VR_GUNMODELOFFSETS_ENHANCED: value_string = "Enhanced"; break;
+            }
+            break;
         case VR_OPTION_GUNANGLE:                 printAsStr(vr_gunangle); break;
         case VR_OPTION_FLOOR_OFFSET:             printAsStr(vr_floor_offset); break;
         case VR_OPTION_GUNMODELPITCH:            printAsStr(vr_gunmodelpitch); break;
@@ -272,6 +279,9 @@ static void VR_MenuKeyOption(int key, int option)
             break;
         case VR_OPTION_FLOOR_OFFSET:
             adjustF(vr_floor_offset, 2.5f, -VR_MAX_FLOOR_OFFSET, VR_MAX_FLOOR_OFFSET);
+            break;
+        case VR_OPTION_GUNMODELOFFSETS:
+            adjustI(vr_gunmodeloffsets, 1, 0.f, VR_MAX_GUNMODELOFFSETS);
             break;
         case VR_OPTION_GUNMODELPITCH:
             adjustF(vr_gunmodelpitch, 0.5f, -90.f, 90.f);
@@ -433,6 +443,10 @@ static void VR_MenuDraw (void)
 				break;
 			case VR_OPTION_FLOOR_OFFSET:
 				M_Print(16, y, "             Floor Offset");
+		        VR_MenuPrintOptionValue(240, y, i);
+				break;
+			case VR_OPTION_GUNMODELOFFSETS:
+				M_Print(16, y, "        Gun Model Offsets");
 		        VR_MenuPrintOptionValue(240, y, i);
 				break;
 			case VR_OPTION_GUNMODELPITCH:

@@ -152,6 +152,7 @@ DEFINE_CVAR(vr_crosshair_alpha, 0.25, CVAR_ARCHIVE);
 DEFINE_CVAR(vr_aimmode, 7, CVAR_ARCHIVE);
 DEFINE_CVAR(vr_deadzone, 30, CVAR_ARCHIVE);
 DEFINE_CVAR(vr_gunangle, 32, CVAR_ARCHIVE);
+DEFINE_CVAR(vr_gunmodeloffsets, 0, CVAR_ARCHIVE);
 DEFINE_CVAR(vr_gunmodelpitch, 0, CVAR_ARCHIVE);
 DEFINE_CVAR(vr_gunmodelscale, 1.0, CVAR_ARCHIVE);
 DEFINE_CVAR(vr_gunmodely, 0, CVAR_ARCHIVE);
@@ -409,7 +410,10 @@ static void VR_Enabled_f(cvar_t *var)
         Cvar_SetValueQuick(&vr_enabled, 0);
 }
 
-
+static void VR_Gunmodeloffsets_f(cvar_t *var)
+{
+    InitAllWeaponCVars();
+}
 
 static void VR_Deadzone_f(cvar_t *var)
 {
@@ -520,15 +524,30 @@ void InitAllWeaponCVars()
     }
     else
     {	//weapons for vanilla Quake, Scourge of Armagon, Dissolution of Eternity
+
         //vanilla quake weapons
-        InitWeaponCVars(i++, "progs/v_axe.mdl", "-4", "24", "37", "0.33");
-        InitWeaponCVars(i++, "progs/v_shot.mdl", "1.5", "1", "10", "0.5"); //gun
-        InitWeaponCVars(i++, "progs/v_shot2.mdl", "-3.5", "1", "8.5", "0.8"); //shotgun
-        InitWeaponCVars(i++, "progs/v_nail.mdl", "-5", "3", "15", "0.5"); //nailgun
-        InitWeaponCVars(i++, "progs/v_nail2.mdl", "0", "3", "19", "0.5"); //supernailgun
-        InitWeaponCVars(i++, "progs/v_rock.mdl", "10", "1.5", "13", "0.5"); //grenade
-        InitWeaponCVars(i++, "progs/v_rock2.mdl", "10", "7", "19", "0.5"); //rocket
-        InitWeaponCVars(i++, "progs/v_light.mdl", "3", "4", "13", "0.5"); //lightning
+        if (!strcmp(COM_SkipPath(com_gamedir), "enhanced") || vr_gunmodeloffsets.value == VR_GUNMODELOFFSETS_ENHANCED) {
+            //in their enhanced variant
+            InitWeaponCVars(i++, "progs/v_axe.mdl", "-4", "24", "37", "0.33"); //axe
+            InitWeaponCVars(i++, "progs/v_shot.mdl", "1.5", "1", "10", "0.5"); //shotgun
+            InitWeaponCVars(i++, "progs/v_shot2.mdl", "-7", "0.3", "7", "0.9"); //supershotgun
+            InitWeaponCVars(i++, "progs/v_nail.mdl", "-1.9", "5.7", "15", "0.4"); //nailgun
+            InitWeaponCVars(i++, "progs/v_nail2.mdl", "5.5", "3.6", "19", "0.4"); //supernailgun
+            InitWeaponCVars(i++, "progs/v_rock.mdl", "10", "1.2", "13", "0.5"); //grenade
+            InitWeaponCVars(i++, "progs/v_rock2.mdl", "24", "4.5", "21", "0.3"); //rocket
+            InitWeaponCVars(i++, "progs/v_light.mdl", "10", "3", "13", "0.5"); //lightning
+        }
+        else {
+            //in their vanilla variant
+            InitWeaponCVars(i++, "progs/v_axe.mdl", "-4", "24", "37", "0.33"); //axe
+            InitWeaponCVars(i++, "progs/v_shot.mdl", "1.5", "1", "10", "0.5"); //shotgun
+            InitWeaponCVars(i++, "progs/v_shot2.mdl", "-3.5", "1", "8.5", "0.8"); //supershotgun
+            InitWeaponCVars(i++, "progs/v_nail.mdl", "-5", "3", "15", "0.5"); //nailgun
+            InitWeaponCVars(i++, "progs/v_nail2.mdl", "0", "3", "19", "0.5"); //supernailgun
+            InitWeaponCVars(i++, "progs/v_rock.mdl", "10", "1.5", "13", "0.5"); //grenade
+            InitWeaponCVars(i++, "progs/v_rock2.mdl", "10", "7", "19", "0.5"); //rocket
+            InitWeaponCVars(i++, "progs/v_light.mdl", "3", "4", "13", "0.5"); //lightning
+        }
         //hipnotic weapons
         InitWeaponCVars(i++, "progs/v_hammer.mdl", "-4", "18", "37", "0.33"); //mjolnir hammer
         InitWeaponCVars(i++, "progs/v_laserg.mdl", "65", "3.7", "17", "0.33"); //laser
@@ -569,6 +588,8 @@ void VID_VR_Init()
     Cvar_RegisterVariable(&vr_deadzone);
     Cvar_RegisterVariable(&vr_floor_offset);
     Cvar_RegisterVariable(&vr_gunangle);
+    Cvar_RegisterVariable(&vr_gunmodeloffsets);
+    Cvar_SetCallback(&vr_gunmodeloffsets, VR_Gunmodeloffsets_f);
     Cvar_RegisterVariable(&vr_gunmodelpitch);
     Cvar_RegisterVariable(&vr_gunmodelscale);
     Cvar_RegisterVariable(&vr_gunmodely);

@@ -22,6 +22,10 @@
 #define VR_MOVEMENT_MODE_RAW_INPUT 2
 #define VR_MAX_MOVEMENT_MODE VR_MOVEMENT_MODE_RAW_INPUT
 
+#define VR_GUNMODELOFFSETS_VANILLA 0    // Gun model offset defaults for vanilla weapons
+#define VR_GUNMODELOFFSETS_ENHANCED 1   // Gun model offset defaults for enhanced weapons
+#define VR_MAX_GUNMODELOFFSETS VR_GUNMODELOFFSETS_ENHANCED
+
 void VID_VR_Init();
 void VID_VR_Shutdown();
 qboolean VR_Enable();
@@ -39,12 +43,14 @@ void VR_SetAngles(vec3_t angles);
 void VR_ResetOrientation();
 void VR_SetMatrices();
 void VR_HandleGammaCorrect();
+void InitAllWeaponCVars();
 
 extern cvar_t vr_enabled;
 extern cvar_t vr_crosshair;
 extern cvar_t vr_msaa;
 extern cvar_t vr_movement_mode;
 extern cvar_t vr_gunangle;
+extern cvar_t vr_gunmodeloffsets;
 extern cvar_t vr_gunmodelpitch;
 extern cvar_t vr_gunmodelscale;
 extern cvar_t vr_gunmodely;

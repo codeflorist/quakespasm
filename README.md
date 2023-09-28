@@ -48,6 +48,17 @@ There is a [HD textures](https://drive.google.com/file/d/1UAH4la2uOv3lwMkMk05yZu
 
 You can also download a HD texture pack for __Arcane Dimensions__ [here](https://www.moddb.com/games/quake/addons/hires-texture-pack-for-arcane-dimensions). Simply extract the `textures` folder into your `ad` directory.
 
+### Enhanced Models (from Quake Re-Release)
+
+Quake's Re-Release also features enhanced models for enemies and weapons. These can also be used with Quakespasm-OpenVR.
+
+First of all you have to download the [Quakespasm compatible versions of the models made by OSJC](https://quakeone.com/forum/quake-mod-releases/finished-works/283295-osjc-s-enhanced-quake1-model-conversions-pack-v1).
+
+There are 2 ways to use them with Quakespasm-OpenVR:
+
+- Extract the `enhanced` folder of the downloaded archive into your `Quake` folder, and start the game with `-game enhanced`. This should automatically load vanilla Quake with the new models and correctly apply the correct weapon offsets.
+- If you want to use the new models globally with all expansions and add-ons, rename `pak0.pak` from the `enhanced` folder by changing the `0` to a number higher then the highest existing `pak`-file inside your `id1` folder. If you are using `pak` files from vanilla Quake this will be `pak2.pak`, and if your are using the Re-Release, it will be `pak1.pak`. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Enhanced`.
+
 ### Controls
 
 Both head-based (default) and controller-based movement is supported. You can change it in the VR options.
