@@ -171,6 +171,7 @@ static void VR_MenuPrintOptionValue(int cx, int cy, int option)
             {
             case VR_GUNMODELOFFSETS_VANILLA: value_string = "Vanilla"; break;
             case VR_GUNMODELOFFSETS_ENHANCED: value_string = "Enhanced"; break;
+            case VR_GUNMODELOFFSETS_AUTHENTIC: value_string = "Authentic"; break;
             }
             break;
         case VR_OPTION_GUNANGLE:                 printAsStr(vr_gunangle); break;

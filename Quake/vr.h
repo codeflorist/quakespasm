@@ -22,9 +22,10 @@
 #define VR_MOVEMENT_MODE_RAW_INPUT 2
 #define VR_MAX_MOVEMENT_MODE VR_MOVEMENT_MODE_RAW_INPUT
 
-#define VR_GUNMODELOFFSETS_VANILLA 0    // Gun model offset defaults for vanilla weapons
-#define VR_GUNMODELOFFSETS_ENHANCED 1   // Gun model offset defaults for enhanced weapons
-#define VR_MAX_GUNMODELOFFSETS VR_GUNMODELOFFSETS_ENHANCED
+#define VR_GUNMODELOFFSETS_VANILLA 0    // Gun model offset defaults for vanilla models
+#define VR_GUNMODELOFFSETS_ENHANCED 1   // Gun model offset defaults for enhanced models pack (https://quakeone.com/forum/quake-mod-releases/finished-works/283295-osjc-s-enhanced-quake1-model-conversions-pack-v1)
+#define VR_GUNMODELOFFSETS_AUTHENTIC 2   // Gun model offset defaults for authentic models pack (https://github.com/NightFright2k19/quake_authmdl)
+#define VR_MAX_GUNMODELOFFSETS VR_GUNMODELOFFSETS_AUTHENTIC
 
 void VID_VR_Init();
 void VID_VR_Shutdown();

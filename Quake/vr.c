@@ -523,11 +523,12 @@ void InitAllWeaponCVars()
         InitWeaponCVars(i++, "progs/v_plasma.mdl", "2.8", "1.8", "22.5", "0.5"); //plasma
     }
     else
-    {	//weapons for vanilla Quake, Scourge of Armagon, Dissolution of Eternity
+    {
+        //weapons for vanilla Quake, Scourge of Armagon, Dissolution of Eternity
 
-        //vanilla quake weapons
+        //enhanced model conversion pack (https://quakeone.com/forum/quake-mod-releases/finished-works/283295-osjc-s-enhanced-quake1-model-conversions-pack-v1)
         if (!strcmp(COM_SkipPath(com_gamedir), "enhanced") || vr_gunmodeloffsets.value == VR_GUNMODELOFFSETS_ENHANCED) {
-            //in their enhanced variant
+            //vanilla weapons
             InitWeaponCVars(i++, "progs/v_axe.mdl", "-4", "24", "37", "0.33"); //axe
             InitWeaponCVars(i++, "progs/v_shot.mdl", "1.5", "1", "10", "0.5"); //shotgun
             InitWeaponCVars(i++, "progs/v_shot2.mdl", "-7", "0.3", "7", "0.9"); //supershotgun
@@ -536,9 +537,42 @@ void InitAllWeaponCVars()
             InitWeaponCVars(i++, "progs/v_rock.mdl", "10", "1.2", "13", "0.5"); //grenade
             InitWeaponCVars(i++, "progs/v_rock2.mdl", "24", "4.5", "21", "0.3"); //rocket
             InitWeaponCVars(i++, "progs/v_light.mdl", "10", "3", "13", "0.5"); //lightning
+            //hipnotic weapons
+            InitWeaponCVars(i++, "progs/v_hammer.mdl", "-4", "17.5", "36", "0.33"); //mjolnir hammer (vanilla model)
+            InitWeaponCVars(i++, "progs/v_laserg.mdl", "65", "3.7", "15", "0.33"); //laser (vanilla model)
+            InitWeaponCVars(i++, "progs/v_prox.mdl", "10", "1.5", "13", "0.5"); //proximity (vanilla model)
+            //rogue weapons
+            InitWeaponCVars(i++, "progs/v_lava.mdl", "-5", "3", "15", "0.5"); //lava nailgun (vanilla model)
+            InitWeaponCVars(i++, "progs/v_lava2.mdl", "0", "3", "19", "0.5"); //lava supernailgun (vanilla model)
+            InitWeaponCVars(i++, "progs/v_multi.mdl", "10", "1.5", "13", "0.5"); //multigrenade (vanilla model)
+            InitWeaponCVars(i++, "progs/v_multi2.mdl", "10", "7", "19", "0.5"); //multirocket (vanilla model)
+            InitWeaponCVars(i++, "progs/v_plasma.mdl", "3", "4", "13", "0.5"); //plasma (vanilla model)
         }
+        // authentic model improvements (https://github.com/NightFright2k19/quake_authmdl)
+        else if (vr_gunmodeloffsets.value == VR_GUNMODELOFFSETS_AUTHENTIC) {
+            //vanilla weapons
+            InitWeaponCVars(i++, "progs/v_axe.mdl", "-1", "24", "37", "0.33"); //axe
+            InitWeaponCVars(i++, "progs/v_shot.mdl", "-1", "2.5", "15.3", "0.33"); //shotgun
+            InitWeaponCVars(i++, "progs/v_shot2.mdl", "-2", "2", "11.4", "0.5"); //supershotgun
+            InitWeaponCVars(i++, "progs/v_nail.mdl", "-7", "4", "15.7", "0.4"); //nailgun
+            InitWeaponCVars(i++, "progs/v_nail2.mdl", "-13.6", "4", "17.8", "0.4"); //supernailgun
+            InitWeaponCVars(i++, "progs/v_rock.mdl", "11", "2", "12.5", "0.5"); //grenade
+            InitWeaponCVars(i++, "progs/v_rock2.mdl", "23", "5", "31", "0.3"); //rocket
+            InitWeaponCVars(i++, "progs/v_light.mdl", "-6", "3.6", "11", "0.5"); //lightning
+            //hipnotic weapons
+            InitWeaponCVars(i++, "progs/v_hammer.mdl", "-4", "17.5", "36", "0.33"); //mjolnir hammer (vanilla model)
+            InitWeaponCVars(i++, "progs/v_laserg.mdl", "65", "3.7", "15", "0.33"); //laser (vanilla model)
+            InitWeaponCVars(i++, "progs/v_prox.mdl", "-2.4", "1.8", "14.6", "0.5"); //proximity
+            //rogue weapons
+            InitWeaponCVars(i++, "progs/v_lava.mdl", "-10.2", "4", "15.7", "0.4"); //lava nailgun
+            InitWeaponCVars(i++, "progs/v_lava2.mdl", "-13.6", "4", "17.8", "0.4"); //lava supernailgun - same as supernailgun
+            InitWeaponCVars(i++, "progs/v_multi.mdl", "11", "2", "12.5", "0.5"); //multigrenade - same as grenade
+            InitWeaponCVars(i++, "progs/v_multi2.mdl", "23", "5", "31", "0.3"); //multirocket - same as rocket
+            InitWeaponCVars(i++, "progs/v_plasma.mdl", "-6", "3.6", "11", "0.5"); //plasma - same as lightning
+        }
+        // Vanilla models
         else {
-            //in their vanilla variant
+            //vanilla weapons
             InitWeaponCVars(i++, "progs/v_axe.mdl", "-4", "24", "37", "0.33"); //axe
             InitWeaponCVars(i++, "progs/v_shot.mdl", "1.5", "1", "10", "0.5"); //shotgun
             InitWeaponCVars(i++, "progs/v_shot2.mdl", "-3.5", "1", "8.5", "0.8"); //supershotgun
@@ -547,17 +581,17 @@ void InitAllWeaponCVars()
             InitWeaponCVars(i++, "progs/v_rock.mdl", "10", "1.5", "13", "0.5"); //grenade
             InitWeaponCVars(i++, "progs/v_rock2.mdl", "10", "7", "19", "0.5"); //rocket
             InitWeaponCVars(i++, "progs/v_light.mdl", "3", "4", "13", "0.5"); //lightning
+            //hipnotic weapons
+            InitWeaponCVars(i++, "progs/v_hammer.mdl", "-4", "17.5", "36", "0.33"); //mjolnir hammer
+            InitWeaponCVars(i++, "progs/v_laserg.mdl", "65", "3.7", "15", "0.33"); //laser
+            InitWeaponCVars(i++, "progs/v_prox.mdl", "10", "1.5", "13", "0.5"); //proximity - same as grenade
+            //rogue weapons
+            InitWeaponCVars(i++, "progs/v_lava.mdl", "-5", "3", "15", "0.5"); //lava nailgun - same as nailgun
+            InitWeaponCVars(i++, "progs/v_lava2.mdl", "0", "3", "19", "0.5"); //lava supernailgun - same as supernailgun
+            InitWeaponCVars(i++, "progs/v_multi.mdl", "10", "1.5", "13", "0.5"); //multigrenade - same as grenade
+            InitWeaponCVars(i++, "progs/v_multi2.mdl", "10", "7", "19", "0.5"); //multirocket - same as rocket
+            InitWeaponCVars(i++, "progs/v_plasma.mdl", "3", "4", "13", "0.5"); //plasma - same as lightning
         }
-        //hipnotic weapons
-        InitWeaponCVars(i++, "progs/v_hammer.mdl", "-4", "18", "37", "0.33"); //mjolnir hammer
-        InitWeaponCVars(i++, "progs/v_laserg.mdl", "65", "3.7", "17", "0.33"); //laser
-        InitWeaponCVars(i++, "progs/v_prox.mdl", "10", "1.5", "13", "0.5"); //proximity - same as grenade
-        //rogue weapons
-        InitWeaponCVars(i++, "progs/v_lava.mdl", "-5", "3", "15", "0.5"); //lava nailgun - same as nailgun
-        InitWeaponCVars(i++, "progs/v_lava2.mdl", "0", "3", "19", "0.5"); //lava supernailgun - same as supernailgun
-        InitWeaponCVars(i++, "progs/v_multi.mdl", "10", "1.5", "13", "0.5"); //multigrenade - same as grenade
-        InitWeaponCVars(i++, "progs/v_multi2.mdl", "10", "7", "19", "0.5"); //multirocket - same as rocket
-        InitWeaponCVars(i++, "progs/v_plasma.mdl", "3", "4", "13", "0.5"); //plasma - same as lightning
 
         //additional weapons from mods
         //underdark overbright & copper
