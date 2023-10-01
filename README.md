@@ -113,6 +113,8 @@ Quake Enhanced Edtion (aka Re-Release) stores it's Add-Ons in `C:\Users\<your-us
 
 - Arcane Dimensions
   - When launching Arcane Dimensions it will not display anything in VR. Press the __Enter__ key twice in order to get in game and play in VR.
+- Underdark Overbright & Copper
+  - Water is rendered differently per eye in Underdark Overbright & Copper. The problem can be alleviated a bit by setting `r_wateralpha "0"` in your `config.cfg`.
 
 ### Cvars
 
