@@ -61,7 +61,9 @@ There are also 2 mods available containing enhanced models for enemies and weapo
 
 - [__Authentic Model Improvements__](https://github.com/NightFright2k19/quake_authmdl):
 
-  This pack contains considerably more models as the one above - including converted ones from the Re-Release. To use them with Quakespasm-OpenVR, extract it into your `Quake` folder and rename the `pakz.pak` files by changing the `z` to a number higher then the highest existing `pak`-file inside your `id1`, `hipnotic`, and `rogue` folders. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Authentic`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
+  This pack contains considerably more models as the one above - including converted ones from the Re-Release, but some weapons look worse than the Enhanced Model Conversion Pack linked above. To use them with Quakespasm-OpenVR, extract it into your `Quake` folder and rename the `pakz.pak` files by changing the `z` to a number higher then the highest existing `pak`-file inside your `id1`, `hipnotic`, and `rogue` folders. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Authentic`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
+
+You can also use both MODs in conjunction. E.g. load the Authentic pack first as e.g. `pak1.pak` to get the wide arrange of models and then the Enhanced Pack second e.g. as `pak2.pak` to get the better weapon models. Of course you have to set `Gun Model Offsets` to `Enhanced` in this case.
 
 ### Controls
 
