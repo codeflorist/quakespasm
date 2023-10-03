@@ -531,12 +531,12 @@ void InitAllWeaponCVars()
             //vanilla weapons
             InitWeaponCVars(i++, "progs/v_axe.mdl", "-4", "24", "37", "0.33"); //axe
             InitWeaponCVars(i++, "progs/v_shot.mdl", "1.5", "1", "10", "0.5"); //shotgun
-            InitWeaponCVars(i++, "progs/v_shot2.mdl", "-7", "0.3", "7", "0.9"); //supershotgun
+            InitWeaponCVars(i++, "progs/v_shot2.mdl", "-6", "0.3", "7", "0.9"); //supershotgun
             InitWeaponCVars(i++, "progs/v_nail.mdl", "-1.9", "5.7", "15", "0.4"); //nailgun
             InitWeaponCVars(i++, "progs/v_nail2.mdl", "5.5", "3.6", "19", "0.4"); //supernailgun
             InitWeaponCVars(i++, "progs/v_rock.mdl", "10", "1.2", "13", "0.5"); //grenade
-            InitWeaponCVars(i++, "progs/v_rock2.mdl", "24", "4.5", "21", "0.3"); //rocket
-            InitWeaponCVars(i++, "progs/v_light.mdl", "10", "3", "13", "0.5"); //lightning
+            InitWeaponCVars(i++, "progs/v_rock2.mdl", "26", "4.5", "21", "0.3"); //rocket
+            InitWeaponCVars(i++, "progs/v_light.mdl", "12", "3", "13", "0.5"); //lightning
             //hipnotic weapons
             InitWeaponCVars(i++, "progs/v_hammer.mdl", "-4", "17.5", "36", "0.33"); //mjolnir hammer (vanilla model)
             InitWeaponCVars(i++, "progs/v_laserg.mdl", "65", "3.7", "15", "0.33"); //laser (vanilla model)
@@ -552,7 +552,7 @@ void InitAllWeaponCVars()
         else if (vr_gunmodeloffsets.value == VR_GUNMODELOFFSETS_AUTHENTIC) {
             //vanilla weapons
             InitWeaponCVars(i++, "progs/v_axe.mdl", "-1", "24", "37", "0.33"); //axe
-            InitWeaponCVars(i++, "progs/v_shot.mdl", "-1", "2.5", "15.3", "0.33"); //shotgun
+            InitWeaponCVars(i++, "progs/v_shot.mdl", "-1", "2", "15.3", "0.33"); //shotgun
             InitWeaponCVars(i++, "progs/v_shot2.mdl", "-2", "2", "11.4", "0.5"); //supershotgun
             InitWeaponCVars(i++, "progs/v_nail.mdl", "-7", "4", "15.7", "0.4"); //nailgun
             InitWeaponCVars(i++, "progs/v_nail2.mdl", "-13.6", "4", "17.8", "0.4"); //supernailgun
