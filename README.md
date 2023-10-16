@@ -1,4 +1,4 @@
-# Quakespasm-OpenVR
+# QuakeSpasm-OpenVR
 
 [![Latest Release](https://img.shields.io/github/v/release/gameflorist/quakespasm-openvr?display_name=tag&label=Download%20Latest%20Release&style=for-the-badge)](https://github.com/gameflorist/quakespasm-openvr/releases)
 
@@ -10,7 +10,8 @@ There is however no big further development planned apart from minor features an
 
 If your are looking for a much more feature rich VR experience, check out [Quake VR](https://github.com/vittorioromeo/quakevr) (see section below on differences between both projects).
 
-Here are the changes to the last iterations of Quakespasm-OpenVR by [vittorioromero](https://github.com/vittorioromeo/Quakespasm-OpenVR/tree/wip) and [Fishbiter](https://github.com/Fishbiter/Quakespasm-OpenVR):
+Here are the changes to the last iterations of QuakeSpasm-OpenVR by [vittorioromero](https://github.com/vittorioromeo/Quakespasm-OpenVR/tree/wip) and [Fishbiter](https://github.com/Fishbiter/Quakespasm-OpenVR):
+
 - Update to most current [QuakeSpasm](https://github.com/sezero/quakespasm) (v0.96.1)
 - 64bit build
 - Added head-based movment (in addition to controller-based movement)
@@ -19,20 +20,21 @@ Here are the changes to the last iterations of Quakespasm-OpenVR by [vittoriorom
 - Support for [enhanced weapon models](#enhanced-models)
 - Various other fixes and tweaks
 
-## Quake VR vs Quakespasm-OpenVR?
+## Quake VR vs QuakeSpasm-OpenVR?
 
-Vittorio Romeo expanded `Quakespasm-OpenVR` considerably into the most excellent [Quake VR](https://github.com/vittorioromeo/quakevr), which is definitely a much more feature rich VR implementation - including teleportation, finger tracking, VR interactions, two-handed weapons, dual wielding, holsters and much more.
+Vittorio Romeo expanded `QuakeSpasm-OpenVR` considerably into the most excellent [Quake VR](https://github.com/vittorioromeo/quakevr), which is definitely a much more feature rich VR implementation - including teleportation, finger tracking, VR interactions, two-handed weapons, dual wielding, holsters and much more.
 
 It is however a heavily modified version of QuakeSpasm, which is not compatible with enhanced mods (like Arcane Dimensions) out-of-the-box, and does not allow multiplayer-crossplay with non-VR players.
 
 I would recommend you to enjoy [Quake VR](https://github.com/vittorioromeo/quakevr) primarily with vanilla Quake, it's official expansions as well as supported maps.
 
-For a more bare-bone experience supporting all features of current QuakeSpasm (e.g. support for Arcane Dimensions and the Enhanced Edition), or cross-play multiplayer with non-VR-players Quakespasm-OpenVR would probably be the better option.
+For a more bare-bone experience supporting all features of current QuakeSpasm (e.g. support for Arcane Dimensions and the Enhanced Edition), or cross-play multiplayer with non-VR-players QuakeSpasm-OpenVR would probably be the better option.
 
 ## History
 
 This fork of [QuakeSpasm](https://github.com/sezero/quakespasm)...
-- builds on the most current `Quakespasm-OpenVR` version from [vittorioromeo/Quakespasm-OpenVR](https://github.com/vittorioromeo/Quakespasm-OpenVR/tree/wip)
+
+- builds on the most current `QuakeSpasm-OpenVR` version from [vittorioromeo/Quakespasm-OpenVR](https://github.com/vittorioromeo/Quakespasm-OpenVR/tree/wip)
   - which was forked from [Fishbiter's improvement on Zackin5's version](https://github.com/Fishbiter/Quakespasm-OpenVR)
     - which was forked from [Zackin5's OpenVR port of Dominic Szablewski's (Phoboslab) Oculus modification of Quakespasm](https://github.com/Zackin5/Quakespasm-OpenVR)
       - which was forked from [Dominic Szablewski's (Phoboslab) Oculus modification of Quakespasm](https://github.com/phoboslab/Quakespasm-Rift) and utilizing the [OpenVR C wrapper by Ben Newhouse](https://github.com/newhouseb/openvr-c).
@@ -51,18 +53,18 @@ You can also download a HD texture pack for __Arcane Dimensions__ [here](https:/
 
 ### Enhanced Models
 
-There are also 2 mods available containing enhanced models for enemies and weapons. These can also be used with Quakespasm-OpenVR.
+There are also 2 mods available containing enhanced models for enemies and weapons. These can also be used with QuakeSpasm-OpenVR.
 
 - [__Enhanced Model Conversions Pack__](https://quakeone.com/forum/quake-mod-releases/finished-works/283295-osjc-s-enhanced-quake1-model-conversions-pack-v1):
 
-  This pack is a conversion of the enhanced models from Quake's Re-Release. Models from the expansions are missing though. There are 2 ways to use it with Quakespasm-OpenVR:
+  This pack is a conversion of the enhanced models from Quake's Re-Release. Models from the expansions are missing though. There are 2 ways to use it with QuakeSpasm-OpenVR:
 
   - Extract the `enhanced` folder of the downloaded archive into your `Quake` folder, and start the game with `-game enhanced`. This should automatically load vanilla Quake with the new models and correctly apply the correct weapon offsets.
   - If you want to use the new models globally with all expansions and add-ons, rename `pak0.pak` from the `enhanced` folder by changing the `0` to a number higher then the highest existing `pak`-file inside your `id1` folder. If you are using `pak` files from vanilla Quake this will be `pak2.pak`, and if you're using the Re-Release, it will be `pak1.pak`. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Enhanced`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
 
 - [__Authentic Model Improvements__](https://github.com/NightFright2k19/quake_authmdl):
 
-  This pack contains considerably more models as the one above - including converted ones from the Re-Release, but some weapons look worse than the Enhanced Model Conversion Pack linked above. To use them with Quakespasm-OpenVR, extract it into your `Quake` folder and rename the `pakz.pak` files by changing the `z` to a number higher then the highest existing `pak`-file inside your `id1`, `hipnotic`, and `rogue` folders. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Authentic`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
+  This pack contains considerably more models as the one above - including converted ones from the Re-Release, but some weapons look worse than the Enhanced Model Conversion Pack linked above. To use them with QuakeSpasm-OpenVR, extract it into your `Quake` folder and rename the `pakz.pak` files by changing the `z` to a number higher then the highest existing `pak`-file inside your `id1`, `hipnotic`, and `rogue` folders. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Authentic`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
 
 You can also use both MODs in conjunction. E.g. load the Authentic pack first as e.g. `pak1.pak` to get the wide arrange of models and then the Enhanced Pack second e.g. as `pak2.pak` to get the better weapon models. Of course you have to set `Gun Model Offsets` to `Enhanced` in this case.
 
