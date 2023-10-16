@@ -11,11 +11,12 @@ There is however no big further development planned apart from minor features an
 If your are looking for a much more feature rich VR experience, check out [Quake VR](https://github.com/vittorioromeo/quakevr) (see section below on differences between both projects).
 
 Here are the changes to the last iterations of Quakespasm-OpenVR by [vittorioromero](https://github.com/vittorioromeo/Quakespasm-OpenVR/tree/wip) and [Fishbiter](https://github.com/Fishbiter/Quakespasm-OpenVR):
-- Update to most current [QuakeSpasm](https://github.com/sezero/quakespasm) (v0.96.0)
+- Update to most current [QuakeSpasm](https://github.com/sezero/quakespasm) (v0.96.1)
 - 64bit build
 - Added head-based movment (in addition to controller-based movement)
 - Fixed Multiplayer (Cross-Play with non-VR players should be possible!)
 - Improved controller binding
+- Support for [enhanced weapon models](#enhanced-models)
 - Various other fixes and tweaks
 
 ## Quake VR vs Quakespasm-OpenVR?
