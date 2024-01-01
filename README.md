@@ -59,7 +59,11 @@ There are also 3 mods available containing enhanced models for enemies and weapo
 
   This pack contains the fully modelled weapons by [Plague](https://members.optusnet.com.au/%7eplaguespak/), adapted and animated for VR by Skizot, and expansion weapons added by codeflorist. This pack is perfect for VR.
 
-  To use them with QuakeSpasm-OpenVR, extract `pakz.pak` into your `id1` sub-folder and rename it by changing the `z` to a number higher then the highest existing `pak`-file inside your `id1` folder. If you are using `pak` files from vanilla Quake this will be `pak2.pak`, and if you're using the Re-Release, it will be `pak1.pak`. For the expansions, do exactly the same with the `hipnotic`, and `rogue` sub-folders. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Plague`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
+  To use them with QuakeSpasm-OpenVR, extract `pakz.pak` into your `id1` subfolder and rename it by changing the `z` to a number higher then the highest existing `pak`-file inside your `id1` folder. If you are using `pak` files from vanilla Quake this will be `pak2.pak`, and if you're using the Re-Release, it will be `pak1.pak`.
+  
+  For the expansions, as as well as Arcane Dimensions, do exactly the same with the `hipnotic`, `rogue` and `ad` subfolders. There is also a special pack available for the Alkaline mod. Simply extract it into the `alk` subfolder.
+  
+  You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Plague`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
 
 - [__Enhanced Model Conversions Pack__](https://quakeone.com/forum/quake-mod-releases/finished-works/283295-osjc-s-enhanced-quake1-model-conversions-pack-v1):
 
@@ -113,7 +117,8 @@ All mission packs, add-ons and mods (supported by QuakeSpasm) should work out of
 - Dissolution of Eternity
 - Dimension of the Past
 - Dimension of the Machine
-- Arcane Dimensions
+- Arcane Dimensions (be sure to place it in a `ad` subfolder)
+- [Alkaline](https://alkalinequake.wordpress.com/) (be sure to place it in a `alk` subfolder)
 - etc.
 
 As usual, expansion packs and mods are placed inside subfolders and then launched by stating the subfolder via the `game` parameter (e.g. `quakespasm-openvr.exe -game hipnotic`).
@@ -122,8 +127,8 @@ Quake Enhanced Edtion (aka Re-Release) stores it's Add-Ons in `C:\Users\<your-us
 
 #### Known Issues
 
-- Arcane Dimensions
-  - When launching Arcane Dimensions it will not display anything in VR. Press the __Enter__ key twice in order to get in game and play in VR.
+- Arcane Dimensions and Alkaline
+  - When launching one of these mods, it will not display anything in VR at first. Press the __Enter__ key twice in order to get in game and play in VR.
 - Underdark Overbright & Copper
   - Water is rendered differently per eye in Underdark Overbright & Copper. The problem can be alleviated a bit by setting `r_wateralpha "0"` in your `config.cfg`.
 
@@ -153,8 +158,9 @@ __New cvars for analog stick (and touchpad?) tuning on VR controllers.__ Default
 
 Quake's weapons don't seem to be particularly consistently sized or offset. To work around this there are cvars to position/scale correct the weapons. Working default offsets are included for the following weapons:
 
-- Vanilla Quake, Scourge of Armagon and Dissolution of Eternity weapons (including the Enhanced and Authentic Model Packs - [see info above for details](#enhanced-models)!)
-- Arcane Dimensions weapons (be sure to use folder-name `ad` and start game with `-game ad` to have them applied)
+- Vanilla Quake, Scourge of Armagon and Dissolution of Eternity weapons (including the VR versions of Plague's weapon pack and Enhanced and Authentic Model Packs - [see info above for details](#enhanced-models)!)
+- Arcane Dimensions weapons (be sure to use folder-name `ad` and start game with `-game ad` to have them applied, [see info above for use of VR weapons](#enhanced-models))
+- Alkaline weapons (be sure to use folder-name `alk` and start game with `-game alk` to have them applied, [see info above for use of VR weapons](#enhanced-models))
 - Underdark Overbright's axe (be sure to use folder-name `udob` and start game with `-game udob` to have them applied)
 
 Unsupported mods may require new offsets. You can modify offsets by using the following cvars:

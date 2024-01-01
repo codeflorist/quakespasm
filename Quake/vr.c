@@ -508,8 +508,10 @@ void InitWeaponCVars(int i, const char* id, const char* offsetX, const char* off
 void InitAllWeaponCVars()
 {
     int i = 0;
+
+    //weapons for Arcane Dimensions mod; initially made for v1.70 + patch1
     if (!strcmp(COM_SkipPath(com_gamedir), "ad"))
-    {	//weapons for Arcane Dimensions mod; initially made for v1.70 + patch1
+    {
         InitWeaponCVars(i++, "progs/v_shadaxe0.mdl", "-1.5", "43.1", "41", "0.25"); //shadow axe
         InitWeaponCVars(i++, "progs/v_shadaxe3.mdl", "-1.5", "43.1", "41", "0.25"); //shadow axe upgrade, same numbers
         InitWeaponCVars(i++, "progs/v_shot.mdl", "1.5", "1.7", "17.5", "0.33"); //shotgun
@@ -521,6 +523,39 @@ void InitAllWeaponCVars()
         InitWeaponCVars(i++, "progs/v_rock2.mdl", "0", "5.55", "22.5", "0.45"); //rocket
         InitWeaponCVars(i++, "progs/v_light.mdl", "-4", "3.1", "13", "0.5"); //lightning
         InitWeaponCVars(i++, "progs/v_plasma.mdl", "2.8", "1.8", "22.5", "0.5"); //plasma
+    }
+    //weapons for Alkaline
+    else if (!strcmp(COM_SkipPath(com_gamedir), "alk"))
+    {
+        //alkaline specific models
+        InitWeaponCVars(i++, "progs/v_alkaxe20fps.mdl", "12", "54", "39.5", "0.25"); // alkaline axe
+        InitWeaponCVars(i++, "progs/v_saw.mdl", "-6.5", "27.5", "42", "0.25"); //chainsaw
+        InitWeaponCVars(i++, "progs/v_plasma.mdl", "16", "6", "16", "0.4"); //plasma
+
+        // Plague's models (https://github.com/gameflorist/quake-plague-weapons-vr/releases)
+        if (vr_gunmodeloffsets.value == VR_GUNMODELOFFSETS_PLAGUE) {
+            InitWeaponCVars(i++, "progs/v_shot40fps.mdl", "-1", "1.3", "7", "0.6"); //shotgun
+            InitWeaponCVars(i++, "progs/v_shot2_40fps.mdl", "-5.9", "1.1", "8.5", "0.6"); //supershotgun
+            InitWeaponCVars(i++, "progs/v_nail_alk40fps.mdl", "-11", "5.1", "19", "0.32"); //nailgun
+            InitWeaponCVars(i++, "progs/v_nail3.mdl", "-11.6", "4.6", "21.8", "0.26"); //supernailgun
+            InitWeaponCVars(i++, "progs/v_rock_40fps.mdl", "-3.5", "2.6", "12", "0.36"); //grenade
+            InitWeaponCVars(i++, "progs/v_rock2_40fps.mdl", "-7.2", "4", "18.2", "0.32"); //rocket
+            InitWeaponCVars(i++, "progs/v_light.mdl", "-3.1", "4.4", "14.2", "0.37"); //lightning
+            InitWeaponCVars(i++, "progs/v_laserg40fps.mdl", "-5", "3.4", "22", "0.33"); //laser
+            InitWeaponCVars(i++, "progs/v_mine_40fps.mdl", "-3.5", "2.6", "12", "0.36"); //proximity
+        }
+        // vanilla alkaline models
+        else {
+            InitWeaponCVars(i++, "progs/v_shot40fps.mdl", "1.5", "1.8", "15.8", "0.33"); //shotgun
+            InitWeaponCVars(i++, "progs/v_shot2_40fps.mdl", "-3", "1.7", "12", "0.5"); //supershotgun
+            InitWeaponCVars(i++, "progs/v_nail_alk40fps.mdl", "-6", "3.8", "17", "0.38"); //nailgun
+            InitWeaponCVars(i++, "progs/v_nail3.mdl", "-4", "3.5", "19", "0.35"); //supernailgun
+            InitWeaponCVars(i++, "progs/v_rock_40fps.mdl", "-3", "1.25", "17", "0.5"); //grenade - same as AD grenade
+            InitWeaponCVars(i++, "progs/v_rock2_40fps.mdl", "20", "8.3", "21", "0.38"); //rocket
+            InitWeaponCVars(i++, "progs/v_light.mdl", "-4", "3.1", "13", "0.5"); //lightning
+            InitWeaponCVars(i++, "progs/v_laserg40fps.mdl", "45", "3", "15", "0.22"); //laser
+            InitWeaponCVars(i++, "progs/v_mine_40fps.mdl", "-3", "1.3", "15", "0.5"); //proximity
+        }
     }
     else
     {
@@ -570,7 +605,7 @@ void InitAllWeaponCVars()
             InitWeaponCVars(i++, "progs/v_multi2.mdl", "23", "5", "31", "0.3"); //multirocket - same as rocket
             InitWeaponCVars(i++, "progs/v_plasma.mdl", "-6", "3.6", "11", "0.5"); //plasma - same as lightning
         }
-        // Plague's models (https://github.com/NightFright2k19/quake_authmdl)
+        // Plague's models (https://github.com/gameflorist/quake-plague-weapons-vr/releases)
         else if (vr_gunmodeloffsets.value == VR_GUNMODELOFFSETS_PLAGUE) {
             //vanilla weapons
             InitWeaponCVars(i++, "progs/v_axe.mdl", "-4", "24", "37", "0.33"); //axe (enhanced model)
