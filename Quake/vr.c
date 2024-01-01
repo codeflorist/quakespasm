@@ -570,6 +570,28 @@ void InitAllWeaponCVars()
             InitWeaponCVars(i++, "progs/v_multi2.mdl", "23", "5", "31", "0.3"); //multirocket - same as rocket
             InitWeaponCVars(i++, "progs/v_plasma.mdl", "-6", "3.6", "11", "0.5"); //plasma - same as lightning
         }
+        // Plague's models (https://github.com/NightFright2k19/quake_authmdl)
+        else if (vr_gunmodeloffsets.value == VR_GUNMODELOFFSETS_PLAGUE) {
+            //vanilla weapons
+            InitWeaponCVars(i++, "progs/v_axe.mdl", "-4", "24", "37", "0.33"); //axe (enhanced model)
+            InitWeaponCVars(i++, "progs/v_shot.mdl", "-1", "1.3", "7", "0.6"); //shotgun
+            InitWeaponCVars(i++, "progs/v_shot2.mdl", "-5.9", "1.1", "8.5", "0.6"); //supershotgun
+            InitWeaponCVars(i++, "progs/v_nail.mdl", "-11", "5.1", "19", "0.32"); //nailgun
+            InitWeaponCVars(i++, "progs/v_nail2.mdl", "-11.6", "4.6", "21.8", "0.26"); //supernailgun
+            InitWeaponCVars(i++, "progs/v_rock.mdl", "-3.5", "2.6", "12", "0.36"); //grenade
+            InitWeaponCVars(i++, "progs/v_rock2.mdl", "-7.2", "4", "18.2", "0.32"); //rocket
+            InitWeaponCVars(i++, "progs/v_light.mdl", "-3.1", "4.4", "14.2", "0.37"); //lightning
+            //hipnotic weapons
+            InitWeaponCVars(i++, "progs/v_hammer.mdl", "-4", "17.5", "36", "0.33"); //mjolnir hammer (vanilla model)
+            InitWeaponCVars(i++, "progs/v_laserg.mdl", "-5", "3.4", "22", "0.33"); //laser
+            InitWeaponCVars(i++, "progs/v_prox.mdl", "-3.5", "2.6", "12", "0.36"); //proximity
+            //rogue weapons
+            InitWeaponCVars(i++, "progs/v_lava.mdl", "-11", "5.1", "19", "0.32"); //lava nailgun - same as nailgun
+            InitWeaponCVars(i++, "progs/v_lava2.mdl", "-11.6", "4.6", "21.8", "0.26"); //lava supernailgun - same as supernailgun
+            InitWeaponCVars(i++, "progs/v_multi.mdl", "-3.5", "2.6", "12", "0.36"); //multigrenade - same as grenade
+            InitWeaponCVars(i++, "progs/v_multi2.mdl", "-7.2", "4", "18.2", "0.32"); //multirocket - same as rocket
+            InitWeaponCVars(i++, "progs/v_plasma.mdl", "-3.1", "4.4", "14.2", "0.37"); //plasma - same as lightning
+        }
         // Vanilla models
         else {
             //vanilla weapons

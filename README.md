@@ -53,7 +53,13 @@ You can also download a HD texture pack for __Arcane Dimensions__ [here](https:/
 
 ### Enhanced Models
 
-There are also 2 mods available containing enhanced models for enemies and weapons. These can also be used with QuakeSpasm-OpenVR.
+There are also 3 mods available containing enhanced models for enemies and weapons. These can also be used with QuakeSpasm-OpenVR.
+
+- [__Plague's Weapon Pack for VR__](https://github.com/gameflorist/quake-plague-weapons-vr/releases):
+
+  This pack contains the fully modelled weapons by [Plague](https://members.optusnet.com.au/%7eplaguespak/), adapted and animated for VR by Skizot, and expansion weapons added by codeflorist. This pack is perfect for VR.
+
+  To use them with QuakeSpasm-OpenVR, extract `pakz.pak` into your `id1` sub-folder and rename it by changing the `z` to a number higher then the highest existing `pak`-file inside your `id1` folder. If you are using `pak` files from vanilla Quake this will be `pak2.pak`, and if you're using the Re-Release, it will be `pak1.pak`. For the expansions, do exactly the same with the `hipnotic`, and `rogue` sub-folders. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Plague`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
 
 - [__Enhanced Model Conversions Pack__](https://quakeone.com/forum/quake-mod-releases/finished-works/283295-osjc-s-enhanced-quake1-model-conversions-pack-v1):
 
@@ -64,9 +70,9 @@ There are also 2 mods available containing enhanced models for enemies and weapo
 
 - [__Authentic Model Improvements__](https://github.com/NightFright2k19/quake_authmdl):
 
-  This pack contains considerably more models as the one above - including converted ones from the Re-Release, but some weapons look worse than the Enhanced Model Conversion Pack linked above. To use them with QuakeSpasm-OpenVR, extract it into your `Quake` folder and rename the `pakz.pak` files by changing the `z` to a number higher then the highest existing `pak`-file inside your `id1`, `hipnotic`, and `rogue` folders. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Authentic`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
+  This pack contains considerably more models as the one above - including converted ones from the Re-Release, but some weapons look worse than Plague's Weapon Pack and the Enhanced Model Conversion Pack linked above. To use them with QuakeSpasm-OpenVR, extract it into your `Quake` folder and rename the `pakz.pak` files by changing the `z` to a number higher then the highest existing `pak`-file inside your `id1`, `hipnotic`, and `rogue` folders. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Authentic`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
 
-You can also use both MODs in conjunction. E.g. load the Authentic pack first as e.g. `pak1.pak` to get the wide arrange of models and then the Enhanced Pack second e.g. as `pak2.pak` to get the better weapon models. Of course you have to set `Gun Model Offsets` to `Enhanced` in this case.
+You can also use multiple MODs in conjunction. E.g. load the Authentic pack first as e.g. `pak1.pak` to get the wide arrange of models and then the Plague's Weapon Pack second e.g. as `pak2.pak` to get the better VR-optimized weapon models. Of course you have to set `Gun Model Offsets` to `Plague` in this case.
 
 ### Controls
 
