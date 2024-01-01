@@ -512,17 +512,32 @@ void InitAllWeaponCVars()
     //weapons for Arcane Dimensions mod; initially made for v1.70 + patch1
     if (!strcmp(COM_SkipPath(com_gamedir), "ad"))
     {
+        //ad specific models
         InitWeaponCVars(i++, "progs/v_shadaxe0.mdl", "-1.5", "43.1", "41", "0.25"); //shadow axe
         InitWeaponCVars(i++, "progs/v_shadaxe3.mdl", "-1.5", "43.1", "41", "0.25"); //shadow axe upgrade, same numbers
-        InitWeaponCVars(i++, "progs/v_shot.mdl", "1.5", "1.7", "17.5", "0.33"); //shotgun
-        InitWeaponCVars(i++, "progs/v_shot2.mdl", "-3.5", "0.4", "8.5", "0.8"); //double barrel shotgun
         InitWeaponCVars(i++, "progs/v_shot3.mdl", "-3.5", "0.4", "8.5", "0.8"); //triple barrel shotgun ("Widowmaker")
-        InitWeaponCVars(i++, "progs/v_nail.mdl", "-9.5", "3", "17", "0.5"); //nailgun
-        InitWeaponCVars(i++, "progs/v_nail2.mdl", "-6", "3.5", "20", "0.4"); //supernailgun
-        InitWeaponCVars(i++, "progs/v_rock.mdl", "-3", "1.25", "17", "0.5"); //grenade
-        InitWeaponCVars(i++, "progs/v_rock2.mdl", "0", "5.55", "22.5", "0.45"); //rocket
-        InitWeaponCVars(i++, "progs/v_light.mdl", "-4", "3.1", "13", "0.5"); //lightning
-        InitWeaponCVars(i++, "progs/v_plasma.mdl", "2.8", "1.8", "22.5", "0.5"); //plasma
+
+        // Plague's models (https://github.com/gameflorist/quake-plague-weapons-vr/releases)
+        if (vr_gunmodeloffsets.value == VR_GUNMODELOFFSETS_PLAGUE) {
+            InitWeaponCVars(i++, "progs/v_shot.mdl", "-1", "1.3", "7", "0.6"); //shotgun
+            InitWeaponCVars(i++, "progs/v_shot2.mdl", "-5.9", "1.1", "8.5", "0.6"); //supershotgun
+            InitWeaponCVars(i++, "progs/v_nail.mdl", "-11", "5.1", "19", "0.32"); //nailgun
+            InitWeaponCVars(i++, "progs/v_nail2.mdl", "-11.6", "4.6", "21.8", "0.26"); //supernailgun
+            InitWeaponCVars(i++, "progs/v_rock.mdl", "-3.5", "2.6", "12", "0.36"); //grenade
+            InitWeaponCVars(i++, "progs/v_rock2.mdl", "-7.2", "4", "18.2", "0.32"); //rocket
+            InitWeaponCVars(i++, "progs/v_light.mdl", "-3.1", "4.4", "14.2", "0.37"); //lightning
+            InitWeaponCVars(i++, "progs/v_plasma.mdl", "-3.1", "4.4", "14.2", "0.37"); //plasma - same as lightning
+        }
+        else {
+            InitWeaponCVars(i++, "progs/v_shot.mdl", "1.5", "1.7", "17.5", "0.33"); //shotgun
+            InitWeaponCVars(i++, "progs/v_shot2.mdl", "-3.5", "0.4", "8.5", "0.8"); //double barrel shotgun
+            InitWeaponCVars(i++, "progs/v_nail.mdl", "-9.5", "3", "17", "0.5"); //nailgun
+            InitWeaponCVars(i++, "progs/v_nail2.mdl", "-6", "3.5", "20", "0.4"); //supernailgun
+            InitWeaponCVars(i++, "progs/v_rock.mdl", "-3", "1.25", "17", "0.5"); //grenade
+            InitWeaponCVars(i++, "progs/v_rock2.mdl", "0", "5.55", "22.5", "0.45"); //rocket
+            InitWeaponCVars(i++, "progs/v_light.mdl", "-4", "3.1", "13", "0.5"); //lightning
+            InitWeaponCVars(i++, "progs/v_plasma.mdl", "2.8", "1.8", "22.5", "0.5"); //plasma
+        }
     }
     //weapons for Alkaline
     else if (!strcmp(COM_SkipPath(com_gamedir), "alk"))
