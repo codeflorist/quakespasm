@@ -667,8 +667,9 @@ void InitAllWeaponCVars()
 
         //additional weapons from mods
         //underdark overbright & copper
-        if (!strcmp(COM_SkipPath(com_gamedir), "udob")) {
-            InitWeaponCVars(i++, "progs/v_axe2.mdl", "-4", "34", "37", "0.33"); //axe
+        //spiritworld
+        if (!strcmp(COM_SkipPath(com_gamedir), "udob") || !strcmp(COM_SkipPath(com_gamedir), "spiritworld")) {
+            InitWeaponCVars(i++, "progs/v_axe2.mdl", "-3.5", "34", "41.5", "0.33"); //axe
         }
     }
 
