@@ -129,6 +129,8 @@ Quake Enhanced Edtion (aka Re-Release) stores it's Add-Ons in `C:\Users\<your-us
 
 - Arcane Dimensions and Alkaline
   - When launching one of these mods, it will not display anything in VR at first. Press the __Enter__ key twice in order to get in game and play in VR.
+- The Spiritworld
+  - When launching this mod, it will not display anything in VR at first. Press the __Esc__ key and then the __Enter__ key twice in order to get in game and play in VR.
 - Underdark Overbright & Copper
   - Water is rendered differently per eye in Underdark Overbright & Copper. The problem can be alleviated a bit by setting `r_wateralpha "0"` in your `config.cfg`.
 
@@ -162,6 +164,7 @@ Quake's weapons don't seem to be particularly consistently sized or offset. To w
 - Arcane Dimensions weapons (be sure to use folder-name `ad` and start game with `-game ad` to have them applied, [see info above for use of VR weapons](#enhanced-models))
 - Alkaline weapons (be sure to use folder-name `alk` and start game with `-game alk` to have them applied, [see info above for use of VR weapons](#enhanced-models))
 - Underdark Overbright's axe (be sure to use folder-name `udob` and start game with `-game udob` to have them applied)
+- The Spiritworld's and axe (be sure to use folder-name `spiritworld` and start game with `-game spiritworld` to have them applied)
 
 Unsupported mods may require new offsets. You can modify offsets by using the following cvars:
 
