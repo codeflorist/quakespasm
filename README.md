@@ -127,10 +127,12 @@ Quake Enhanced Edtion (aka Re-Release) stores it's Add-Ons in `C:\Users\<your-us
 
 #### Known Issues
 
-- Arcane Dimensions and Alkaline
+- Arcane Dimensions, and Alkaline
   - When launching one of these mods, it will not display anything in VR at first. Press the __Enter__ key twice in order to get in game and play in VR.
+    Alternatively you can also add `+map start` to your start script to circumvent this problem. (e.g. `quakespasm-openvr.exe -game ad +map start`)
 - The Spiritworld
   - When launching this mod, it will not display anything in VR at first. Press the __Esc__ key and then the __Enter__ key twice in order to get in game and play in VR.
+    Alternatively you can also add `+map start` to your start script to circumvent this problem. (e.g. `quakespasm-openvr.exe -game spiritworld +map start`)
 - Underdark Overbright & Copper
   - Water is rendered differently per eye in Underdark Overbright & Copper. The problem can be alleviated a bit by setting `r_wateralpha "0"` in your `config.cfg`.
 
