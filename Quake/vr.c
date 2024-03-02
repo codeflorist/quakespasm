@@ -572,6 +572,21 @@ void InitAllWeaponCVars()
             InitWeaponCVars(i++, "progs/v_mine_40fps.mdl", "-3", "1.3", "15", "0.5"); //proximity
         }
     }
+    //weapons for Slave Zero X: Episode Enyo mod
+    else if (!strcmp(COM_SkipPath(com_gamedir), "enyo"))
+    {
+        InitWeaponCVars(i++, "progs/ee_v_sword.mdl", "25", "49", "60", "0.2"); //Sword
+        InitWeaponCVars(i++, "progs/ee_v_pistol.mdl", "12", "24", "29", "0.2"); //Pistol
+        InitWeaponCVars(i++, "progs/ee_v_sgun.mdl", "-2.3", "21.3", "35.3", "0.2"); //Shotgun
+        InitWeaponCVars(i++, "progs/ee_v_smgs.mdl", "3.5", "24.6", "29.8", "0.2"); //SMGs
+        InitWeaponCVars(i++, "progs/ee_v_plasma.mdl", "-1.5", "21.8", "36", "0.2"); //Plasma Gun
+        InitWeaponCVars(i++, "progs/ee_v_glaunch.mdl", "-3.8", "24", "35.5", "0.2"); //Grenade Launcher
+        InitWeaponCVars(i++, "progs/ee_v_rlaunch.mdl", "4", "28.5", "40.5", "0.2"); //Rocket Launcher
+        InitWeaponCVars(i++, "progs/ee_v_railgun.mdl", "-1", "22.5", "34.5", "0.2"); //Railgun
+        InitWeaponCVars(i++, "progs/ee_v_av72.mdl", "0.5", "24", "38.5", "0.2"); //AV-72
+        InitWeaponCVars(i++, "progs/ee_v_legal.mdl", "0", "55", "29", "0.2"); //Legal Notice
+
+    }
     else
     {
         //weapons for vanilla Quake, Scourge of Armagon, Dissolution of Eternity

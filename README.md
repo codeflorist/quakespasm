@@ -119,6 +119,7 @@ All mission packs, add-ons and mods (supported by QuakeSpasm) should work out of
 - Dimension of the Machine
 - Arcane Dimensions (be sure to place it in a `ad` subfolder)
 - [Alkaline](https://alkalinequake.wordpress.com/) (be sure to place it in a `alk` subfolder)
+- [Slave Zero X: Episode Enyo](https://poppyworks.itch.io/episode-enyo) (be sure to place it in a `enyo` subfolder)
 - etc.
 
 As usual, expansion packs and mods are placed inside subfolders and then launched by stating the subfolder via the `game` parameter (e.g. `quakespasm-openvr.exe -game hipnotic`).
@@ -165,6 +166,7 @@ Quake's weapons don't seem to be particularly consistently sized or offset. To w
 - Vanilla Quake, Scourge of Armagon and Dissolution of Eternity weapons (including the VR versions of Plague's weapon pack and Enhanced and Authentic Model Packs - [see info above for details](#enhanced-models)!)
 - Arcane Dimensions weapons (be sure to use folder-name `ad` and start game with `-game ad` to have them applied, [see info above for use of VR weapons](#enhanced-models))
 - Alkaline weapons (be sure to use folder-name `alk` and start game with `-game alk` to have them applied, [see info above for use of VR weapons](#enhanced-models))
+- Weapons for Slave Zero X: Episode Enyo (be sure to use folder-name `enyo` and start game with `-game enyo` to have them applied).
 - Underdark Overbright's axe (be sure to use folder-name `udob` and start game with `-game udob` to have them applied)
 - The Spiritworld's and axe (be sure to use folder-name `spiritworld` and start game with `-game spiritworld` to have them applied)
 
