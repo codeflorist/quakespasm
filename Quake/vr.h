@@ -26,7 +26,8 @@
 #define VR_GUNMODELOFFSETS_ENHANCED 1   // Gun model offset defaults for enhanced models pack (https://quakeone.com/forum/quake-mod-releases/finished-works/283295-osjc-s-enhanced-quake1-model-conversions-pack-v1)
 #define VR_GUNMODELOFFSETS_AUTHENTIC 2   // Gun model offset defaults for authentic models pack (https://github.com/NightFright2k19/quake_authmdl)
 #define VR_GUNMODELOFFSETS_PLAGUE 3   // Gun model offset defaults for plague's models pack (https://github.com/NightFright2k19/quake_authmdl)
-#define VR_MAX_GUNMODELOFFSETS VR_GUNMODELOFFSETS_PLAGUE
+#define VR_GUNMODELOFFSETS_BLOCKQUAKE 4   // Gun model offset defaults for Block Quake's model pack (https://kebby-quake.itch.io/block-quake)
+#define VR_MAX_GUNMODELOFFSETS VR_GUNMODELOFFSETS_BLOCKQUAKE
 
 void VID_VR_Init();
 void VID_VR_Shutdown();

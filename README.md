@@ -76,6 +76,14 @@ There are also 3 mods available containing enhanced models for enemies and weapo
 
   This pack contains considerably more models as the one above - including converted ones from the Re-Release, but some weapons look worse than Plague's Weapon Pack and the Enhanced Model Conversion Pack linked above. To use them with QuakeSpasm-OpenVR, extract it into your `Quake` folder and rename the `pakz.pak` files by changing the `z` to a number higher then the highest existing `pak`-file inside your `id1`, `hipnotic`, and `rogue` folders. You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` from `Vanilla` to `Authentic`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
 
+- [__Block-Quake__](https://kebby-quake.itch.io/block-quake):
+
+  A total conversion mod for Quake  featuring familiar plastic blocks.
+
+  To use them with QuakeSpasm-OpenVR, extract `blockquake_vanilla.pak` into your `id1` (or any mod) subfolder and rename it to a number higher then the highest existing `pak`-file inside your `id1` folder. If you are using `pak` files from vanilla Quake this will be `pak2.pak`, and if you're using the Re-Release, it will be `pak1.pak`.
+  
+  You will notice, that the weapon offsets and scaling will be off. To switch to the correct offsets, access the `VR Options` in Quake's main menu and switch `Gun Model Offsets` to `Block-Quake`. (Note that you will have to do that for each expansion/add-on you load, since Quake writes separate configs per mod.)
+
 You can also use multiple MODs in conjunction. E.g. load the Authentic pack first as e.g. `pak1.pak` to get the wide arrange of models and then the Plague's Weapon Pack second e.g. as `pak2.pak` to get the better VR-optimized weapon models. Of course you have to set `Gun Model Offsets` to `Plague` in this case.
 
 ### Controls
@@ -120,6 +128,7 @@ All mission packs, add-ons and mods (supported by QuakeSpasm) should work out of
 - Arcane Dimensions (be sure to place it in a `ad` subfolder)
 - [Alkaline](https://alkalinequake.wordpress.com/) (be sure to place it in a `alk` subfolder)
 - [Slave Zero X: Episode Enyo](https://poppyworks.itch.io/episode-enyo) (be sure to place it in a `enyo` subfolder)
+- [Block-Quake](https://kebby-quake.itch.io/block-quake) (be sure to set `Gun Model Offsets` in the `VR Options` to `Block-Quake`)
 - etc.
 
 As usual, expansion packs and mods are placed inside subfolders and then launched by stating the subfolder via the `game` parameter (e.g. `quakespasm-openvr.exe -game hipnotic`).
@@ -166,6 +175,7 @@ Quake's weapons don't seem to be particularly consistently sized or offset. To w
 - Vanilla Quake, Scourge of Armagon and Dissolution of Eternity weapons (including the VR versions of Plague's weapon pack and Enhanced and Authentic Model Packs - [see info above for details](#enhanced-models)!)
 - Arcane Dimensions weapons (be sure to use folder-name `ad` and start game with `-game ad` to have them applied, [see info above for use of VR weapons](#enhanced-models))
 - Alkaline weapons (be sure to use folder-name `alk` and start game with `-game alk` to have them applied, [see info above for use of VR weapons](#enhanced-models))
+- Weapons for [Block-Quake](https://kebby-quake.itch.io/block-quake) (set `Gun Model Offsets` in the `VR Options` to `Block-Quake`).
 - Weapons for Slave Zero X: Episode Enyo (be sure to use folder-name `enyo` and start game with `-game enyo` to have them applied).
 - Underdark Overbright's axe (be sure to use folder-name `udob` and start game with `-game udob` to have them applied)
 - The Spiritworld's and axe (be sure to use folder-name `spiritworld` and start game with `-game spiritworld` to have them applied)

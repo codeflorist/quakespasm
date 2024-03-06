@@ -657,6 +657,17 @@ void InitAllWeaponCVars()
             InitWeaponCVars(i++, "progs/v_multi2.mdl", "-7.2", "4", "18.2", "0.32"); //multirocket - same as rocket
             InitWeaponCVars(i++, "progs/v_plasma.mdl", "-3.1", "4.4", "14.2", "0.37"); //plasma - same as lightning
         }
+        // Block Quake models (https://kebby-quake.itch.io/block-quake)
+        else if (vr_gunmodeloffsets.value == VR_GUNMODELOFFSETS_BLOCKQUAKE) {
+            InitWeaponCVars(i++, "progs/v_axe.mdl", "-9", "38", "45", "0.2"); //axe
+            InitWeaponCVars(i++, "progs/v_shot.mdl", "-7", "6.8", "35.5", "0.2"); //shotgun
+            InitWeaponCVars(i++, "progs/v_shot2.mdl", "-5.6", "10.2", "42", "0.2"); //supershotgun
+            InitWeaponCVars(i++, "progs/v_nail.mdl", "-9", "15", "40", "0.2"); //nailgun
+            InitWeaponCVars(i++, "progs/v_nail2.mdl", "-6", "13.5", "39", "0.2"); //supernailgun
+            InitWeaponCVars(i++, "progs/v_rock.mdl", "0", "11.8", "72", "0.2"); //grenade
+            InitWeaponCVars(i++, "progs/v_rock2.mdl", "26", "13.8", "69", "0.2"); //rocket
+            InitWeaponCVars(i++, "progs/v_light.mdl", "-9", "13.5", "51", "0.2"); //lightning
+        }
         // Vanilla models
         else {
             //vanilla weapons
