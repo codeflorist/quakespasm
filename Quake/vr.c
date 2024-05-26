@@ -698,6 +698,15 @@ void InitAllWeaponCVars()
         if (!strcmp(COM_SkipPath(com_gamedir), "udob") || !strcmp(COM_SkipPath(com_gamedir), "spiritworld") || !strcmp(COM_SkipPath(com_gamedir), "tainted")) {
             InitWeaponCVars(i++, "progs/v_axe2.mdl", "-3.5", "34", "41.5", "0.33"); //axe
         }
+        //Tomb of Thunder
+        if (!strcmp(COM_SkipPath(com_gamedir), "tombofthunder"))
+        {
+            InitWeaponCVars(i++, "progs/v_axe2.mdl", "-4", "34", "37", "0.33"); //axe
+            InitWeaponCVars(i++, "progs/v_chain.mdl", "-4", "5", "15", "0.5");
+            InitWeaponCVars(i++, "progs/v_hot.mdl", "4", "5", "31", "0.5");
+            InitWeaponCVars(i++, "progs/v_rail.mdl", "4", "5", "31", "0.5");
+            InitWeaponCVars(i++, "progs/v_shotcl.mdl", "4", "5", "31", "0.5");
+        }
     }
 
     while (i < MAX_WEAPONS)
