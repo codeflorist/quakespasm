@@ -172,13 +172,14 @@ __New cvars for analog stick (and touchpad?) tuning on VR controllers.__ Default
 
 Quake's weapons don't seem to be particularly consistently sized or offset. To work around this there are cvars to position/scale correct the weapons. Working default offsets are included for the following weapons:
 
-- Vanilla Quake, Scourge of Armagon and Dissolution of Eternity weapons (including the VR versions of Plague's weapon pack and Enhanced and Authentic Model Packs - [see info above for details](#enhanced-models)!)
-- Arcane Dimensions weapons (be sure to use folder-name `ad` and start game with `-game ad` to have them applied, [see info above for use of VR weapons](#enhanced-models))
-- Alkaline weapons (be sure to use folder-name `alk` and start game with `-game alk` to have them applied, [see info above for use of VR weapons](#enhanced-models))
-- Weapons for [Block-Quake](https://kebby-quake.itch.io/block-quake) (set `Gun Model Offsets` in the `VR Options` to `Block-Quake`).
-- Weapons for Slave Zero X: Episode Enyo (be sure to use folder-name `enyo` and start game with `-game enyo` to have them applied).
-- Underdark Overbright's axe (be sure to use folder-name `udob` and start game with `-game udob` to have them applied)
-- The Spiritworld's and axe (be sure to use folder-name `spiritworld` and start game with `-game spiritworld` to have them applied)
+- Vanilla _Quake_, _Scourge of Armagon_ and _Dissolution of Eternity_ weapons (including the VR versions of Plague's weapon pack and Enhanced and Authentic Model Packs - [see info above for details](#enhanced-models)!)
+- _Arcane Dimensions_ weapons (be sure to use folder-name `ad` and start game with `-game ad` to have them applied, [see info above for use of VR weapons](#enhanced-models))
+- _Alkaline_ weapons (be sure to use folder-name `alk` and start game with `-game alk` to have them applied, [see info above for use of VR weapons](#enhanced-models))
+- Weapons for [_Block-Quake_](https://kebby-quake.itch.io/block-quake) (set `Gun Model Offsets` in the `VR Options` to `Block-Quake`).
+- Weapons for _Slave Zero X_: Episode Enyo (be sure to use folder-name `enyo` and start game with `-game enyo` to have them applied).
+- _Underdark Overbright_'s axe (be sure to use folder-name `udob` and start game with `-game udob` to have them applied)
+- _The Spiritworld_'s and axe (be sure to use folder-name `spiritworld` and start game with `-game spiritworld` to have them applied)
+- _Tainted_'s and axe (be sure to use folder-name `tainted` and start game with `-game tainted` to have them applied)
 
 Unsupported mods may require new offsets. You can modify offsets by using the following cvars:
 

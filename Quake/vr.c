@@ -694,7 +694,8 @@ void InitAllWeaponCVars()
         //additional weapons from mods
         //underdark overbright & copper
         //spiritworld
-        if (!strcmp(COM_SkipPath(com_gamedir), "udob") || !strcmp(COM_SkipPath(com_gamedir), "spiritworld")) {
+        //tainted
+        if (!strcmp(COM_SkipPath(com_gamedir), "udob") || !strcmp(COM_SkipPath(com_gamedir), "spiritworld") || !strcmp(COM_SkipPath(com_gamedir), "tainted")) {
             InitWeaponCVars(i++, "progs/v_axe2.mdl", "-3.5", "34", "41.5", "0.33"); //axe
         }
     }
