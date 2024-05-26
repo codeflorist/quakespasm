@@ -183,7 +183,7 @@ Quake's weapons don't seem to be particularly consistently sized or offset. To w
 
 Unsupported mods may require new offsets. You can modify offsets by using the following cvars:
 
-There are 20 slots for weapon VR offsets. There are 5 cvars for each (nn can be 01 to 20):
+There are 25 slots for weapon VR offsets. There are 5 cvars for each (nn can be 01 to 25):
 
 - `vr_wofs_id_nn` : The model name to offset (this name will be shown when equipping a weapon that doesn't have a VR offset
 - `vr_wofs_scale_nn` : The model's scale
