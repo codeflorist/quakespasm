@@ -128,6 +128,7 @@ All mission packs, add-ons and mods (supported by QuakeSpasm) should work out of
 - Arcane Dimensions (be sure to place it in a `ad` subfolder)
 - [Alkaline](https://alkalinequake.wordpress.com/) (be sure to place it in a `alk` subfolder)
 - [Slave Zero X: Episode Enyo](https://poppyworks.itch.io/episode-enyo) (be sure to place it in a `enyo` subfolder)
+- [Tomb of Thunder](https://youtu.be/iA56E7Rvc6A) (be sure to place it in a `tombofthunder` subfolder)
 - [Block-Quake](https://kebby-quake.itch.io/block-quake) (be sure to set `Gun Model Offsets` in the `VR Options` to `Block-Quake`)
 - etc.
 
@@ -176,7 +177,8 @@ Quake's weapons don't seem to be particularly consistently sized or offset. To w
 - _Arcane Dimensions_ weapons (be sure to use folder-name `ad` and start game with `-game ad` to have them applied, [see info above for use of VR weapons](#enhanced-models))
 - _Alkaline_ weapons (be sure to use folder-name `alk` and start game with `-game alk` to have them applied, [see info above for use of VR weapons](#enhanced-models))
 - Weapons for [_Block-Quake_](https://kebby-quake.itch.io/block-quake) (set `Gun Model Offsets` in the `VR Options` to `Block-Quake`).
-- Weapons for _Slave Zero X_: Episode Enyo (be sure to use folder-name `enyo` and start game with `-game enyo` to have them applied).
+- Weapons for _Slave Zero X: Episode Enyo_ (be sure to use folder-name `enyo` and start game with `-game enyo` to have them applied).
+- Weapons for [_Tomb of Thunder_](https://youtu.be/iA56E7Rvc6A) (be sure to use folder-name `tombofthunder` and start game with `-game tombofthunder` to have them applied).
 - _Underdark Overbright_'s axe (be sure to use folder-name `udob` and start game with `-game udob` to have them applied)
 - _The Spiritworld_'s and axe (be sure to use folder-name `spiritworld` and start game with `-game spiritworld` to have them applied)
 - _Tainted_'s and axe (be sure to use folder-name `tainted` and start game with `-game tainted` to have them applied)
