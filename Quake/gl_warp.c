@@ -44,11 +44,11 @@ static const float	turbsin[] = {
 //
 //==============================================================================
 
-msurface_t	*warpface;
+static msurface_t	*warpface;
 
 cvar_t gl_subdivide_size = {"gl_subdivide_size", "128", CVAR_ARCHIVE};
 
-void BoundPoly (int numverts, float *verts, vec3_t mins, vec3_t maxs)
+static void BoundPoly (int numverts, float *verts, vec3_t mins, vec3_t maxs)
 {
 	int		i, j;
 	float	*v;
@@ -66,7 +66,7 @@ void BoundPoly (int numverts, float *verts, vec3_t mins, vec3_t maxs)
 		}
 }
 
-void SubdividePolygon (int numverts, float *verts)
+static void SubdividePolygon (int numverts, float *verts)
 {
 	int		i, j, k;
 	vec3_t	mins, maxs;
@@ -80,7 +80,7 @@ void SubdividePolygon (int numverts, float *verts)
 	float	s, t;
 
 	if (numverts > 60)
-		Sys_Error ("numverts = %i", numverts);
+		Sys_Error ("SubdividePolygon: numverts = %i", numverts);
 
 	BoundPoly (numverts, verts, mins, maxs);
 
@@ -159,6 +159,9 @@ void GL_SubdivideSurface (msurface_t *fa)
 	vec3_t	verts[64];
 	int		i;
 
+	if (fa->polys->numverts > 64)
+		Sys_Error ("GL_SubdivideSurface: numverts = %i", fa->polys->numverts);
+
 	warpface = fa;
 
 	//the first poly in the chain is the undivided poly for newwater rendering.
@@ -214,6 +217,9 @@ void DrawWaterPoly (glpoly_t *p)
 R_UpdateWarpTextures -- johnfitz -- each frame, update warping textures
 =============
 */
+#ifdef __WATCOMC__ /* OW1.9 doesn't have floorf() */
+#define floorf(_val)		(float)floor((_val))
+#endif
 void R_UpdateWarpTextures (void)
 {
 	texture_t *tx;
@@ -223,7 +229,7 @@ void R_UpdateWarpTextures (void)
 	if (r_oldwater.value || cl.paused || r_drawflat_cheatsafe || r_lightmap_cheatsafe)
 		return;
 
-	warptess = 128.0/CLAMP (3.0, floor(r_waterquality.value), 64.0);
+	warptess = 128.0f/CLAMP (3.0f, floorf(r_waterquality.value), 64.0f);
 
 	for (i=0; i<cl.worldmodel->numtextures; i++)
 	{

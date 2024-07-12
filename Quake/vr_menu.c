@@ -22,7 +22,7 @@ static int	vr_options_cursor = 0;
 #define VR_MAX_FLOOR_OFFSET 200.0f
 #define VR_MAX_GUNANGLE 180.0f
 
-extern void M_DrawSlider (int x, int y, float range);
+extern void M_DrawSlider (int x, int y, float range, float value, const char *format);
 
 void VR_Menu_Init()
 {
@@ -128,10 +128,10 @@ static void VR_MenuPrintOptionValue(int cx, int cy, int option)
             }
             break;
         case VR_OPTION_CROSSHAIR_ALPHA:
-            M_DrawSlider( cx, cy, vr_crosshair_alpha.value );
+            M_DrawSlider( cx, cy, vr_crosshair_alpha.value, vr_crosshair_alpha.value, "%.2f");
             break;
         case VR_OPTION_WORLD_SCALE:
-            M_DrawSlider(cx, cy, vr_world_scale.value / 2.0f);
+            M_DrawSlider(cx, cy, vr_world_scale.value / 2.0f, vr_world_scale.value, "%.2f");
             break;
         case VR_OPTION_MOVEMENT_MODE:
             switch ((int)vr_movement_mode.value)
@@ -153,7 +153,7 @@ static void VR_MenuPrintOptionValue(int cx, int cy, int option)
             }
             break;
         case VR_OPTION_TURN_SPEED:
-            M_DrawSlider(cx, cy, vr_turn_speed.value / VR_MAX_TURN_SPEED);
+            M_DrawSlider(cx, cy, vr_turn_speed.value / VR_MAX_TURN_SPEED, vr_turn_speed.value, "%.2f");
             break;
         case VR_OPTION_MSAA:
             if (vr_msaa.value == 0)
