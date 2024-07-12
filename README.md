@@ -179,9 +179,6 @@ Quake's weapons don't seem to be particularly consistently sized or offset. To w
 - Weapons for [_Block-Quake_](https://kebby-quake.itch.io/block-quake) (set `Gun Model Offsets` in the `VR Options` to `Block-Quake`).
 - Weapons for _Slave Zero X: Episode Enyo_ (be sure to use folder-name `enyo` and start game with `-game enyo` to have them applied).
 - Weapons for [_Tomb of Thunder_](https://youtu.be/iA56E7Rvc6A) (be sure to use folder-name `tombofthunder` and start game with `-game tombofthunder` to have them applied).
-- _Underdark Overbright_'s axe (be sure to use folder-name `udob` and start game with `-game udob` to have them applied)
-- _The Spiritworld_'s and axe (be sure to use folder-name `spiritworld` and start game with `-game spiritworld` to have them applied)
-- _Tainted_'s and axe (be sure to use folder-name `tainted` and start game with `-game tainted` to have them applied)
 
 Unsupported mods may require new offsets. You can modify offsets by using the following cvars:
 

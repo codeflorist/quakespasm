@@ -691,13 +691,9 @@ void InitAllWeaponCVars()
             InitWeaponCVars(i++, "progs/v_plasma.mdl", "3", "4", "13", "0.5"); //plasma - same as lightning
         }
 
-        //additional weapons from mods
-        //underdark overbright & copper
-        //spiritworld
-        //tainted
-        if (!strcmp(COM_SkipPath(com_gamedir), "udob") || !strcmp(COM_SkipPath(com_gamedir), "spiritworld") || !strcmp(COM_SkipPath(com_gamedir), "tainted")) {
-            InitWeaponCVars(i++, "progs/v_axe2.mdl", "-3.5", "34", "41.5", "0.33"); //axe
-        }
+        // axe from copper mod (used by many mods, including Underdark Overbright, Spiritworld, Tainted, Tomb of Thunder, etc.)
+        InitWeaponCVars(i++, "progs/v_axe2.mdl", "-3.5", "34", "41.5", "0.33"); //axe
+
         //Tomb of Thunder
         if (!strcmp(COM_SkipPath(com_gamedir), "tombofthunder"))
         {
