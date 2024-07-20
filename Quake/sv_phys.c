@@ -431,6 +431,7 @@ trace_t SV_PushEntity (edict_t *ent, vec3_t push)
 SV_PushMove
 ============
 */
+cvar_t sv_gameplayfix_elevators = {"sv_gameplayfix_elevators", "2", CVAR_ARCHIVE}; // 0=off; 1=clients only; 2=all entities
 void SV_PushMove (edict_t *pusher, float movetime)
 {
 	int			i, e;
@@ -474,6 +475,7 @@ void SV_PushMove (edict_t *pusher, float movetime)
 	check = NEXT_EDICT(sv.edicts);
 	for (e=1 ; e<sv.num_edicts ; e++, check = NEXT_EDICT(check))
 	{
+		qboolean riding;
 		if (check->free)
 			continue;
 		if (check->v.movetype == MOVETYPE_PUSH
@@ -496,7 +498,11 @@ void SV_PushMove (edict_t *pusher, float movetime)
 		// see if the ent's bbox is inside the pusher's final position
 			if (!SV_TestEntityPosition (check))
 				continue;
+
+			riding = false;
 		}
+		else
+			riding = true;
 
 	// remove the onground flag for non-players
 		if (check->v.movetype != MOVETYPE_WALK)
@@ -523,6 +529,16 @@ void SV_PushMove (edict_t *pusher, float movetime)
 				check->v.mins[0] = check->v.mins[1] = 0;
 				VectorCopy (check->v.mins, check->v.maxs);
 				continue;
+			}
+
+			// try moving the entity up a bit if it's blocked by the pusher while also standing on it
+			if (riding && block == pusher &&
+				(sv_gameplayfix_elevators.value >= 2.f ||
+				(sv_gameplayfix_elevators.value && e <= svs.maxclients)))
+			{
+				check->v.origin[2] += DIST_EPSILON;
+				if (!SV_TestEntityPosition (check))
+					continue;
 			}
 
 			VectorCopy (entorig, check->v.origin);
