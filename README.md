@@ -110,12 +110,31 @@ Input from VR Controllers are mapped to various joystick-related input (except t
 | Right Pad/Stick Left | `LEFTARROW` | _none_ |
 | Right Pad/Stick Right | `RIGHTARROW` | _none_ |
 
-#### Important infos:
+#### Important infos
 
 - In SteamVR's default Legacy bindings, controllers with a dedicated `A` button (e.g. Index Controllers) cannot use this button independently from the `Grip` button. To change this, map `A Button` Click to `Left/Right A Button` instead of `Grip Button` in SteamVR's controller binding for `quakespasm-openvr.exe`. Now `A` buttons and `Grip` can be mapped independently.
 - `Right Axis 2 Press` is not mapped at all in SteamVR's default Legacy bindings. You can bind it e.g. to the `Right Touchpad Click` to get an additional button.
 - By default, the right pad/stick is configured for smooth/snap turning. If you use real roomscale-turning, you can set `Turn Speed` in the VR-Settings to the lowest setting (0) to turn this off. Then you can rebind the pad/stick like a D-Pad with 4 directions. You can use these 4 additional bindings e.g. for quick-loading/-saving or mapping of specific weapons.
 - Check out the Community Binding `Index Controller Bindings` by `gameflorist` in SteamVR for a preset for Index Controllers, that makes the maximum buttons available for binding.
+
+#### Tips on weapon selection
+
+Quick weapon selection is not so easily achievable with the limited buttons available on VR controllers, and just relying on next/previous weapon buttons is a disadvantage. There is a trick to mitigate this:
+
+In Quake the normal _Nailgun_ gets arguably obsolete, once the _Super Nailgun_ is obtained. It is the same with the _Shotguns_, as well as _Grenade- and Rocket-Launchers_.
+
+__QuakeSpasm__ allows a button-binding e.g. like this: `impulse 4; wait; impulse 5`. This will select the _Nailgun_, if you have it, and then immediately try to select the _Super Nailgun_, if you have it. Effectively using this button as "___Gimme the best nailgun!___".
+
+Now, if you use roomscale-turning, you have the right stick free for additional bindings. You could e.g. bind the directions like this in the `config.cfg`:
+
+```txt
+bind "UPARROW" "impulse 2; wait; impulse 3"
+bind "DOWNARROW" "impulse 6; wait; impulse 7"
+bind "LEFTARROW" "impulse 8"
+bind "RIGHTARROW" "impulse 4; wait; impulse 5"
+```
+
+Throw in `bind "RTHUMB" "impulse 1"` to select the Axe on stick-press, and the perfect weapon for the current situation will always just a push or click away.
 
 ### Mission Packs, Add-Ons and Mods
 
