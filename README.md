@@ -12,7 +12,7 @@ If your are looking for a much more feature rich VR experience, check out [Quake
 
 Here are the changes to the last iterations of QuakeSpasm-OpenVR by [vittorioromero](https://github.com/vittorioromeo/Quakespasm-OpenVR/tree/wip) and [Fishbiter](https://github.com/Fishbiter/Quakespasm-OpenVR):
 
-- Update to most current [QuakeSpasm](https://github.com/sezero/quakespasm) (v0.96.1)
+- Update to most current [QuakeSpasm](https://github.com/sezero/quakespasm) (v0.96.3)
 - 64bit build
 - Added head-based movment (in addition to controller-based movement)
 - Fixed Multiplayer (Cross-Play with non-VR players should be possible!)
